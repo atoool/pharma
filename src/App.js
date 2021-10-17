@@ -1,24 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
+import { AuthLayout } from "./layout/AuthLayout/AuthLayout";
+import { MainLayout } from "./layout/MainLayout/MainLayout";
+import "./App.css";
+import { ThemeProviders } from "./themes/ThemeProviders";
+import { AppContextProvider } from "context/AppContext";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProviders>
+      <HashRouter>
+        <Switch>
+          <AppContextProvider>
+            <Route path={`/auth`} component={AuthLayout} />
+            <Route path={`/pharma`} component={MainLayout} />
+            <Redirect from={`/`} to={"/pharma/Store/Products"} />
+          </AppContextProvider>
+        </Switch>
+      </HashRouter>
+    </ThemeProviders>
   );
 }
 
