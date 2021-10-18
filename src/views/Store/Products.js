@@ -13,6 +13,7 @@ import { Delete, Edit } from "@mui/icons-material";
 import { Modal } from "component/Modal/Modal";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
+import capitalizeFirstLetter from "utils/capitalizeFirstLetter";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -56,13 +57,40 @@ const pData1 = [
     expiry: "",
   },
 ];
+const pData11 = [
+  {
+    Name: "",
+    HSN: "",
+    PUnit: "",
+    CUnit: "",
+    Unit: "",
+    PDept: "",
+    Category: "",
+    Type: "",
+    SubType: "",
+    Nature: "",
+    Stock: "",
+    Batch: "",
+    Packing: "",
+    Expiry: "",
+  },
+];
 const pData2 = [
   {
-    prodName: "LACOSAM 100",
+    prodName: "",
     batch: "",
     packing: "",
     expiry: "",
-    stockCount: "60",
+    stockCount: "",
+  },
+];
+const pData22 = [
+  {
+    Product: "",
+    Batch: "",
+    Packing: "",
+    Expiry: "",
+    Stock: "",
   },
 ];
 export function Products() {
@@ -71,6 +99,7 @@ export function Products() {
   const role = userData?.user?.role ?? 3;
   const isOutlet = role === 3;
   const pData = isOutlet ? pData2 : pData1;
+  const pData3 = isOutlet ? pData22 : pData11;
 
   const [page, setPage] = React.useState("product");
   const [open, setOpen] = React.useState(false);
@@ -261,9 +290,9 @@ export function Products() {
                   </Button>
                 </StyledTableCell>
               )}
-              {Object.keys(pData[0]).map((r, i) => (
+              {Object.keys(pData3[0]).map((r, i) => (
                 <StyledTableCell component="th" key={i}>
-                  {r}
+                  {capitalizeFirstLetter(r)}
                 </StyledTableCell>
               ))}
             </TableRow>

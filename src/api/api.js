@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "http://ec2-65-2-6-195.ap-south-1.compute.amazonaws.com/api/";
+const baseURL = "https://mvrpharma.com/api/";
 
 export async function loginUser({ email, password }) {
   return await axios

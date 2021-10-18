@@ -52,6 +52,13 @@ const iData = [
     createdAt: "",
   },
 ];
+const iData1 = [
+  {
+    Product: "",
+    IntendNo: "",
+    CreatedAt: "",
+  },
+];
 
 const iData2 = {
   requests: [
@@ -213,7 +220,7 @@ export function StoreIndent() {
           <TableHead>
             <TableRow>
               <StyledTableCell align="right">Status</StyledTableCell>
-              {Object.keys(iData[0]).map((itm, i) => (
+              {Object.keys(iData1[0]).map((itm, i) => (
                 <StyledTableCell key={i} align="right">
                   {itm}
                 </StyledTableCell>

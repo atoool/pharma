@@ -7,12 +7,12 @@ export const ThemeProviders = ({ children }) => {
       primary: {
         light: "#757ce8",
         main: "#1FA084",
-        dark: "rgba(255,255,255,0.1)",
+        dark: "#D1E8E4",
         contrastText: "#fff",
       },
       secondary: {
         light: "#ff7961",
-        main: "rgba(31, 160, 132, 0.1)",
+        main: "#D1E8E4",
         dark: "#ba000d",
         contrastText: "#000",
       },

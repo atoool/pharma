@@ -94,7 +94,7 @@ export function Sidebar({ children, routes }) {
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             boxSizing: "border-box",
-            bgcolor: "rgba(31, 160, 132, 0.1)",
+            bgcolor: "#D1E8E4",
           },
         }}
         variant="permanent"

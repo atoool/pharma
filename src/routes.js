@@ -1,17 +1,6 @@
-// import
 import Login from "views/Auth/Login";
 import { Departments } from "./views/Departments";
 import { StoreIndent, Products, IssueGoods } from "./views/Store";
-
-// import {
-//   HomeIcon,
-//   StatsIcon,
-//   CreditIcon,
-//   PersonIcon,
-//   DocumentIcon,
-//   RocketIcon,
-//   SupportIcon,
-// } from "components/Icons/Icons";
 
 var dashRoutes = [
   {
@@ -20,8 +9,7 @@ var dashRoutes = [
     views: [
       {
         path: "/Products",
-        name: "Products",
-        // icon: <PersonIcon color="inherit" />,
+        name: "Items",
         secondaryNavbar: true,
         component: Products,
         layout: "/Pharma",
@@ -29,7 +17,6 @@ var dashRoutes = [
       {
         path: "/IssueGoods",
         name: "Issue Goods",
-        // icon: <PersonIcon color="inherit" />,
         secondaryNavbar: true,
         component: IssueGoods,
         layout: "/Pharma",
@@ -37,7 +24,6 @@ var dashRoutes = [
       {
         path: "/StoreIndent",
         name: "Store Indent",
-        // icon: <PersonIcon color="inherit" />,
         secondaryNavbar: true,
         component: StoreIndent,
         layout: "/Pharma",
@@ -51,7 +37,6 @@ var dashRoutes = [
       {
         path: "/Departments",
         name: "Departments",
-        // icon: <PersonIcon color="inherit" />,
         secondaryNavbar: true,
         component: Departments,
         layout: "/Pharma",

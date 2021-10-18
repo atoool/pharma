@@ -63,6 +63,14 @@ const iData2 = {
     },
   ],
 };
+const iData3 = [
+  {
+    Product: "",
+    IntendNo: "",
+    Outlet: "",
+    CreatedAt: "",
+  },
+];
 
 export function IssueGoods() {
   const { userData, productData } = React.useContext(AppContext);
@@ -238,7 +246,7 @@ export function IssueGoods() {
           <TableHead>
             <TableRow>
               <StyledTableCell align="right">Status</StyledTableCell>
-              {Object.keys(iData[0]).map((itm, i) => (
+              {Object.keys(iData3[0]).map((itm, i) => (
                 <StyledTableCell key={i} align="right">
                   {itm}
                 </StyledTableCell>
