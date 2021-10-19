@@ -231,7 +231,7 @@ export function IssueGoods() {
       />
       <Box
         sx={{
-          bgcolor: "#FBF7F0",
+          bgcolor: "#DDDDDD",
           p: 2,
           display: "flex",
           justifyContent: "end",
