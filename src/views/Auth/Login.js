@@ -46,7 +46,7 @@ export default function Login() {
       <img
         src={logo}
         alt=""
-        style={{ width: 250, height: 120, marginBottom: 20 }}
+        style={{ width: 270, height: 100, marginBottom: 20 }}
       />
       <Typography
         component="h1"

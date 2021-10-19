@@ -101,7 +101,7 @@ export function Sidebar({ children, routes }) {
         anchor="right"
       >
         <Toolbar style={{ justifyContent: "center" }}>
-          <img src={logo} alt="" style={{ width: 120, height: 60 }} />
+          <img src={logo} alt="" style={{ width: 150, height: 60 }} />
         </Toolbar>
         {listRender()}
       </Drawer>

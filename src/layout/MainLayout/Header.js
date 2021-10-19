@@ -125,7 +125,7 @@ export function Header() {
       <AppBar
         position="fixed"
         sx={{ width: `calc(100% - ${drawerWidth}px)`, mr: `${drawerWidth}px` }}
-        color="default"
+        color="primary"
       >
         <Toolbar>
           <Box sx={{ flexGrow: 1 }} />
