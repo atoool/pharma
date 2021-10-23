@@ -96,10 +96,9 @@ const pData22 = [
 export function Stocks() {
   const { userData, setProductData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
-  const role = userData?.user?.role ?? 3;
-  const isOutlet = role === 3;
-  const pData = isOutlet ? pData2 : pData1;
-  const pData3 = isOutlet ? pData22 : pData11;
+  const isOutlet = true;
+  const pData = pData2;
+  const pData3 = pData22;
 
   const [page, setPage] = React.useState("product");
   const [open, setOpen] = React.useState(false);
