@@ -12,14 +12,14 @@ import logo from "assets/images/logo.png";
 import Accord from "../Accord/Accord";
 import { useHistory } from "react-router-dom";
 import { GppGood, Inventory2, Badge, AddBusiness } from "@mui/icons-material";
-import { AppContext } from "context/AppContext";
+// import { AppContext } from "context/AppContext";
 
 const drawerWidth = 240;
 
 export function Sidebar({ children, routes }) {
-  const { userData } = React.useContext(AppContext);
-  const role = userData?.user?.role ?? 3;
-  const isOutlet = role === 3;
+  // const { userData } = React.useContext(AppContext);
+  // const role = userData?.user?.role ?? 3;
+  // const isOutlet = role === 3;
 
   const [selectedIndex, setSelectedIndex] = React.useState(1);
   const history = useHistory();
@@ -50,11 +50,6 @@ export function Sidebar({ children, routes }) {
         <Accord active={indx === 0} title={item?.name} key={indx}>
           <List>
             {item?.views.map((prop, index) => {
-              if (isOutlet && prop.name === "Issue Goods") {
-                return null;
-              } else if (!isOutlet && prop.name === "Store Indent") {
-                return null;
-              }
               return (
                 <ListItem
                   button
@@ -62,8 +57,8 @@ export function Sidebar({ children, routes }) {
                   selected={selectedIndex === prop.layout + prop.path}
                   onClick={() => handleListItemClick(prop.layout + prop.path)}
                 >
-                  <ListItemIcon>{Icon(indx, index)}</ListItemIcon>
-                  <ListItemText primary={prop?.name} />
+                  <ListItemIcon>{prop?.icon()}</ListItemIcon>
+                  <ListItemText sx={{ ml: -2 }} primary={prop?.name} />
                 </ListItem>
               );
             })}

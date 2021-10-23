@@ -47,16 +47,16 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const iData = [
   {
-    prodName: "",
+    warehouseName: "",
     intendNo: "",
     createdAt: "",
   },
 ];
 const iData1 = [
   {
-    Product: "",
+    Warehouse: "",
     IntendNo: "",
-    CreatedAt: "",
+    Date: "",
   },
 ];
 
@@ -69,7 +69,7 @@ const iData2 = {
   ],
 };
 
-export function StoreIndent() {
+export function IntentEntries() {
   const { userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
 

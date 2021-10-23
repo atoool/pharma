@@ -30,7 +30,7 @@ export const MainLayout = () => {
       {getRoute() ? (
         <Switch>
           {getRoutes(routes)}
-          <Redirect from="/Pharma" to="/Pharma/Products" />
+          <Redirect from="/Pharma" to="/Pharma/Items" />
         </Switch>
       ) : null}
     </Sidebar>

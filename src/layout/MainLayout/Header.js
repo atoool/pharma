@@ -10,16 +10,17 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { Typography } from "@mui/material";
 import { AppContext } from "context/AppContext";
 
-export function Header() {
+export function Header({ routeName = "" }) {
   const { userData } = React.useContext(AppContext);
   const username = userData?.user?.name ?? 3;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const history = useHistory();
+  const loc = useLocation();
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -120,6 +121,9 @@ export function Header() {
   );
 
   const drawerWidth = 240;
+  let pathName = loc.pathname.split("/");
+  pathName = pathName[pathName?.length - 1] ?? "";
+  pathName = pathName.replace(/([A-Z])/g, " $1").trim();
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
@@ -128,7 +132,11 @@ export function Header() {
         color="primary"
       >
         <Toolbar>
-          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography fontSize={20} fontWeight={"bold"}>
+              {pathName?.toUpperCase()}
+            </Typography>
+          </Box>
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             {/* <IconButton
               size="large"

@@ -9,7 +9,7 @@ import { LoadingButton } from "@mui/lab";
 import { AppContext } from "context/AppContext";
 import { loginUser } from "api/api";
 
-export default function Login() {
+export function Login() {
   let [creds, setCreds] = React.useState({ email: "", password: "" });
   const [loading, setLoading] = React.useState(false);
   const { onSetUserData } = React.useContext(AppContext);

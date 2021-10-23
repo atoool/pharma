@@ -93,7 +93,7 @@ const pData22 = [
     Stock: "",
   },
 ];
-export function Products() {
+export function Stocks() {
   const { userData, setProductData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const role = userData?.user?.role ?? 3;

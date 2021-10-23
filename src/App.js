@@ -11,9 +11,9 @@ function App() {
       <HashRouter>
         <Switch>
           <AppContextProvider>
-            <Route path={`/auth`} component={AuthLayout} />
-            <Route path={`/pharma`} component={MainLayout} />
-            <Redirect from={`/`} to={"/pharma/Store/Products"} />
+            <Route path={`/Auth`} component={AuthLayout} />
+            <Route path={`/Pharma`} component={MainLayout} />
+            <Redirect from={`/`} to={"/Pharma/Items"} />
           </AppContextProvider>
         </Switch>
       </HashRouter>
