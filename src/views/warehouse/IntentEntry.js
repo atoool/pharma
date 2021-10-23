@@ -82,16 +82,8 @@ export function IntentEntry() {
           .then(() => {
             onAlert("success");
             setIntents({
-              requests: [
-                {
-                  productId: "",
-                  stock: "0",
-                  quantity: "0",
-                  unitPrice: "0",
-                  amount: "0",
-                },
-              ],
-              outletUserId: "",
+              requests: [],
+              outletUserId: intents.outletUserId,
               total: "",
             });
           })
