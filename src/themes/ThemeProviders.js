@@ -1,5 +1,6 @@
 import React from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { SnackbarProvider } from "notistack";
 
 export const ThemeProviders = ({ children }) => {
   const theme = createTheme({
@@ -18,5 +19,9 @@ export const ThemeProviders = ({ children }) => {
       },
     },
   });
-  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+  return (
+    <ThemeProvider theme={theme}>
+      <SnackbarProvider>{children}</SnackbarProvider>
+    </ThemeProvider>
+  );
 };

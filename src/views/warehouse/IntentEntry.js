@@ -12,6 +12,7 @@ import { Autocomplete, Button, IconButton, TextField } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
+import { useSnackbar } from "notistack";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -54,6 +55,7 @@ const iData2 = {
 
 export function IntentEntry() {
   const { userData, productData } = React.useContext(AppContext);
+  const { enqueueSnackbar } = useSnackbar();
   const token = userData?.token?.accessToken ?? "";
 
   const [intents, setIntents] = React.useState(iData2);
@@ -73,7 +75,30 @@ export function IntentEntry() {
   const onIssue = async () => {
     try {
       const dat = intents;
-      await post("add-product-to-outlet", token, dat);
+      if (dat?.outletUserId === "" || dat?.total === "") {
+        onAlert("error");
+      } else {
+        await post("add-product-to-outlet", token, dat)
+          .then(() => {
+            onAlert("success");
+            setIntents({
+              requests: [
+                {
+                  productId: "",
+                  stock: "0",
+                  quantity: "0",
+                  unitPrice: "0",
+                  amount: "0",
+                },
+              ],
+              outletUserId: "",
+              total: "",
+            });
+          })
+          .catch(() => {
+            onAlert("error");
+          });
+      }
     } catch {}
   };
 
@@ -134,6 +159,17 @@ export function IntentEntry() {
       temp.requests[i][itm] = e.target.value;
       setIntents(temp);
     }
+  };
+
+  const onPrint = () => {
+    window.print();
+  };
+
+  const onAlert = (v) => {
+    const variant = { variant: v };
+    v === "success" && enqueueSnackbar("Success", variant);
+    v === "error" &&
+      enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
   return (
     <Box sx={{ width: "100%" }}>
@@ -247,7 +283,7 @@ export function IntentEntry() {
         <Button variant="contained" sx={{ mr: 1 }} onClick={onIssue}>
           Create
         </Button>
-        <Button variant="contained" sx={{ mr: 1 }}>
+        <Button variant="contained" sx={{ mr: 1 }} onClick={onPrint}>
           Print
         </Button>
       </Box>
