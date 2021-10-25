@@ -13,6 +13,7 @@ import { Delete } from "@mui/icons-material";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
 import { useSnackbar } from "notistack";
+import { Loader } from "component/loader/Loader";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -60,12 +61,17 @@ export function IntentEntry() {
 
   const [intents, setIntents] = React.useState(iData2);
   const [userList, setUserList] = React.useState([]);
+  const [load, setLoad] = React.useState(true);
 
   const onUserFetch = async () => {
+    setLoad(true);
     try {
       const datas = await get("outlet-users", token);
       datas?.data && setUserList(datas?.data);
-    } catch {}
+      setLoad(false);
+    } catch {
+      setLoad(false);
+    }
   };
 
   React.useEffect(() => {
@@ -164,7 +170,7 @@ export function IntentEntry() {
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
   return (
-    <Box sx={{ width: "100%" }}>
+    <Loader load={load}>
       <Box
         sx={{
           bgcolor: "#FBF7F0",
@@ -279,6 +285,6 @@ export function IntentEntry() {
           Print
         </Button>
       </Box>
-    </Box>
+    </Loader>
   );
 }

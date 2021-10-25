@@ -7,19 +7,11 @@ import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Box from "@mui/material/Box";
-import {
-  Autocomplete,
-  Button,
-  Divider,
-  IconButton,
-  TextField,
-} from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { Modal } from "component/Modal/Modal";
 import { AppContext } from "context/AppContext";
 import { get } from "api/api";
-import { post } from "api/api";
+import { Loader } from "component/loader/Loader";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -53,16 +45,6 @@ const iData = [
     createdAt: "",
   },
 ];
-
-const iData2 = {
-  outletUserId: "",
-  requests: [
-    {
-      productId: "",
-      quantity: "",
-    },
-  ],
-};
 const iData3 = [
   {
     IntendNo: "",
@@ -73,14 +55,9 @@ const iData3 = [
 ];
 
 export function IntentIssue() {
-  const { userData, productData } = React.useContext(AppContext);
+  const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
-
-  const [issueGoods, setIssueGoods] = React.useState(iData2);
   const [data, setData] = React.useState(iData);
-  const [userList, setUserList] = React.useState([]);
-
-  const [open, setOpen] = React.useState(false);
 
   const onIssueFetch = async () => {
     try {
@@ -89,21 +66,9 @@ export function IntentIssue() {
     } catch {}
   };
 
-  const onUserFetch = async () => {
-    try {
-      const datas = await get("outlet-users", token);
-      datas?.data && setUserList(datas?.data);
-    } catch {}
-  };
-
   React.useEffect(() => {
     onIssueFetch();
-    onUserFetch();
   }, []);
-
-  const handleClickOpenModal = () => {
-    setOpen(true);
-  };
 
   const onRequestAccept = async (id) => {
     try {
@@ -111,9 +76,9 @@ export function IntentIssue() {
       await onIssueFetch();
     } catch {}
   };
-
+  const isLoading = data?.length > 0 && data[0]?.intendNo === "";
   return (
-    <Box sx={{ width: "100%" }}>
+    <Loader load={isLoading}>
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -166,15 +131,6 @@ export function IntentIssue() {
           </TableBody>
         </Table>
       </TableContainer>
-      {/* <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      /> */}
-    </Box>
+    </Loader>
   );
 }

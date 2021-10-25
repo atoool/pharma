@@ -14,6 +14,7 @@ import { Modal } from "component/Modal/Modal";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
 import capitalizeFirstLetter from "utils/capitalizeFirstLetter";
+import { Loader } from "component/loader/Loader";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -39,42 +40,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const pData1 = [
-  {
-    name: "",
-    hsnCode: "",
-    purchaseUnit: "",
-    conversionUnit: "",
-    unit: "",
-    purchaseDept: "",
-    itemCategory: "",
-    itemType: "",
-    itemSubType: "",
-    itemNature: "",
-    inStockCount: "",
-    batch: "",
-    packing: "",
-    expiry: "",
-  },
-];
-const pData11 = [
-  {
-    Name: "",
-    HSN: "",
-    PUnit: "",
-    CUnit: "",
-    Unit: "",
-    PDept: "",
-    Category: "",
-    Type: "",
-    SubType: "",
-    Nature: "",
-    Stock: "",
-    Batch: "",
-    Packing: "",
-    Expiry: "",
-  },
-];
 const pData2 = [
   {
     prodName: "",
@@ -108,37 +73,19 @@ export function Stocks() {
   const handleClickOpenModal = (pg = "product", i = 0) => {
     if (pg === "product") {
       const {
-        name = "",
-        hsnCode = "",
-        purchaseUnit = "",
-        conversionUnit = "",
-        unit = "",
-        purchaseDept = "",
-        itemCategory = "",
-        itemType = "",
-        itemSubType = "",
-        itemNature = "",
-        inStockCount = "",
+        prodName = "",
         batch = "",
         packing = "",
         expiry = "",
+        stockCount = "",
       } = data[i];
       setProducts([
         {
-          name,
-          hsnCode,
-          purchaseUnit,
-          conversionUnit,
-          unit,
-          purchaseDept,
-          itemCategory,
-          itemType,
-          itemSubType,
-          itemNature,
-          inStockCount,
+          prodName,
           batch,
           packing,
           expiry,
+          stockCount,
         },
       ]);
     }
@@ -239,22 +186,12 @@ export function Stocks() {
   const handleAddRowModal = () => {
     let temp = [...products];
     temp.push({
-      name: "",
-      hsnCode: "",
-      purchaseUnit: "",
-      conversionUnit: "",
-      unit: "",
-      purchaseDept: "",
-      itemCategory: "",
-      itemType: "",
-      itemSubType: "",
-      itemNature: "",
-      inStockCount: "",
+      prodName: "",
       batch: "",
       packing: "",
       expiry: "",
+      stockCount: "",
     });
-    console.log(temp);
     setProducts(temp);
   };
 
@@ -265,8 +202,9 @@ export function Stocks() {
     } catch {}
   };
 
+  const isLoaded = data?.length > 0 && data[0]?.prodName === "";
   return (
-    <Box sx={{ width: "100%" }}>
+    <Loader load={isLoaded}>
       <Modal
         open={open}
         handleAddRow={handleAddRowModal}
@@ -325,15 +263,6 @@ export function Stocks() {
           </TableBody>
         </Table>
       </TableContainer>
-      {/* <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      /> */}
-    </Box>
+    </Loader>
   );
 }

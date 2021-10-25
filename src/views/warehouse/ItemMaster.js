@@ -8,12 +8,20 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Box from "@mui/material/Box";
-import { IconButton, Button, TextField, Divider } from "@mui/material";
+import {
+  IconButton,
+  Button,
+  TextField,
+  Divider,
+  Grow,
+  Fade,
+} from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Modal } from "component/Modal/Modal";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
 import capitalizeFirstLetter from "utils/capitalizeFirstLetter";
+import { Loader } from "component/loader/Loader";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -77,32 +85,12 @@ const pData11 = [
     Price: "",
   },
 ];
-const pData2 = [
-  {
-    prodName: "",
-    batch: "",
-    packing: "",
-    expiry: "",
-    stockCount: "",
-  },
-];
-const pData22 = [
-  {
-    Product: "",
-    Batch: "",
-    Packing: "",
-    Expiry: "",
-    Stock: "",
-    Price: "",
-  },
-];
 export function ItemMaster() {
   const { userData, setProductData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
-  const role = userData?.user?.role ?? 3;
-  const isOutlet = role === 3;
-  const pData = isOutlet ? pData2 : pData1;
-  const pData3 = isOutlet ? pData22 : pData11;
+  const isOutlet = false;
+  const pData = pData1;
+  const pData3 = pData11;
 
   const [page, setPage] = React.useState("product");
   const [open, setOpen] = React.useState(false);
@@ -276,8 +264,10 @@ export function ItemMaster() {
     } catch {}
   };
 
+  const isLoaded = data?.length > 0 && data[0]?.name === "";
+
   return (
-    <Box sx={{ width: "100%" }}>
+    <Loader load={isLoaded}>
       <Modal
         open={open}
         handleAddRow={handleAddRowModal}
@@ -336,15 +326,6 @@ export function ItemMaster() {
           </TableBody>
         </Table>
       </TableContainer>
-      {/* <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      /> */}
-    </Box>
+    </Loader>
   );
 }
