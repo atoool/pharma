@@ -11,7 +11,7 @@ const { PendingPurchase } = require("./warehouse/PendingPurchase");
 const { PurchaseEntry } = require("./warehouse/PurchaseEntry");
 const { PurchaseOrder } = require("./warehouse/PurchaseOrder");
 const { PurchaseRequisition } = require("./warehouse/PurchaseRequisition");
-const { Quantitation } = require("./warehouse/Quantitation");
+const { Quotation } = require("./warehouse/Quotation");
 const { RateComparator } = require("./warehouse/RateComparator");
 const { Login } = require("./Auth/Login");
 
@@ -24,7 +24,7 @@ export {
   PurchaseEntry,
   PurchaseOrder,
   PurchaseRequisition,
-  Quantitation,
+  Quotation,
   RateComparator,
   Stocks,
   Login,
