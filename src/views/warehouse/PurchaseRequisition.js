@@ -1,5 +1,6 @@
+import { EmptyContent } from "component/emtyContent/EmptyContent";
 import React from "react";
 
 export const PurchaseRequisition = () => {
-  return <div></div>;
+  return <EmptyContent />;
 };

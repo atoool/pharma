@@ -1,3 +1,5 @@
+import { EmptyContent } from "component/emtyContent/EmptyContent";
+
 export function Sales() {
-  return <div></div>;
+  return <EmptyContent />;
 }
