@@ -8,7 +8,13 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Box from "@mui/material/Box";
-import { IconButton, Button, TextField, Divider } from "@mui/material";
+import {
+  IconButton,
+  Button,
+  TextField,
+  Divider,
+  TablePagination,
+} from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { Modal } from "component/Modal/Modal";
 import { get, post } from "api/api";
@@ -69,6 +75,8 @@ export function Stocks() {
   const [open, setOpen] = React.useState(false);
   let [products, setProducts] = React.useState(pData);
   let [data, setData] = React.useState(pData);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [currentPage, setCurrentPage] = React.useState(0);
 
   const handleClickOpenModal = (pg = "product", i = 0) => {
     if (pg === "product") {
@@ -202,6 +210,15 @@ export function Stocks() {
     } catch {}
   };
 
+  const onChangePage = (event, newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const onChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(0);
+  };
+
   const isLoaded = data?.length > 0 && data[0]?.prodName === "";
   return (
     <Loader load={isLoaded}>
@@ -235,34 +252,48 @@ export function Stocks() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, i) => (
-              <StyledTableRow key={i}>
-                {!isOutlet && (
-                  <StyledTableCell component="th" scope="row">
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleClickOpenModal("product", i)}
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      color="primary"
-                      onClick={() => row?.id && onDeleteProduct(row?.id)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </StyledTableCell>
-                )}
-                {Object.keys(pData[0]).map((r, ind) => (
-                  <StyledTableCell key={ind} align="right">
-                    {row[r]}
-                  </StyledTableCell>
-                ))}
-              </StyledTableRow>
-            ))}
+            {data
+              ?.slice(
+                currentPage * rowsPerPage,
+                currentPage * rowsPerPage + rowsPerPage
+              )
+              ?.map((row, i) => (
+                <StyledTableRow key={i}>
+                  {!isOutlet && (
+                    <StyledTableCell component="th" scope="row">
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleClickOpenModal("product", i)}
+                      >
+                        <Edit />
+                      </IconButton>
+                      <IconButton
+                        color="primary"
+                        onClick={() => row?.id && onDeleteProduct(row?.id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </StyledTableCell>
+                  )}
+                  {Object.keys(pData[0]).map((r, ind) => (
+                    <StyledTableCell key={ind} align="right">
+                      {row[r]}
+                    </StyledTableCell>
+                  ))}
+                </StyledTableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50]}
+        component="div"
+        count={data?.length ?? 0}
+        rowsPerPage={rowsPerPage}
+        page={currentPage}
+        onPageChange={onChangePage}
+        onRowsPerPageChange={onChangeRowsPerPage}
+      />
     </Loader>
   );
 }

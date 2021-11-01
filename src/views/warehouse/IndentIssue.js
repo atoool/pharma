@@ -7,7 +7,7 @@ import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Button, IconButton } from "@mui/material";
+import { Button, IconButton, TablePagination } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { AppContext } from "context/AppContext";
 import { get } from "api/api";
@@ -58,6 +58,8 @@ export function IntentIssue() {
   const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [data, setData] = React.useState(iData);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [currentPage, setCurrentPage] = React.useState(0);
 
   const onIssueFetch = async () => {
     try {
@@ -76,6 +78,16 @@ export function IntentIssue() {
       await onIssueFetch();
     } catch {}
   };
+
+  const onChangePage = (event, newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const onChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(0);
+  };
+
   const isLoading = data?.length > 0 && data[0]?.intendNo === "";
   return (
     <Loader load={isLoading}>
@@ -93,44 +105,58 @@ export function IntentIssue() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, ind) => (
-              <StyledTableRow key={ind}>
-                <StyledTableCell align="right">
-                  <IconButton
-                    color="primary"
-                    // onClick={() => handleClickOpenModal("product", i)}
-                  >
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    color="primary"
-                    // onClick={() => row?.id && onDeleteProduct(row?.id)}
-                  >
-                    <Delete />
-                  </IconButton>
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  {row?.requestStatus === "requested" ? (
-                    <Button
-                      variant="contained"
-                      onClick={() => onRequestAccept(row?.id)}
+            {data
+              ?.slice(
+                currentPage * rowsPerPage,
+                currentPage * rowsPerPage + rowsPerPage
+              )
+              ?.map((row, ind) => (
+                <StyledTableRow key={ind}>
+                  <StyledTableCell align="right">
+                    <IconButton
+                      color="primary"
+                      // onClick={() => handleClickOpenModal("product", i)}
                     >
-                      Issue
-                    </Button>
-                  ) : (
-                    row?.requestStatus
-                  )}
-                </StyledTableCell>
-                {Object.keys(iData[0]).map((itm, i) => (
-                  <StyledTableCell key={i} align="right">
-                    {row[itm]}
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      color="primary"
+                      // onClick={() => row?.id && onDeleteProduct(row?.id)}
+                    >
+                      <Delete />
+                    </IconButton>
                   </StyledTableCell>
-                ))}
-              </StyledTableRow>
-            ))}
+                  <StyledTableCell align="right">
+                    {row?.requestStatus === "requested" ? (
+                      <Button
+                        variant="contained"
+                        onClick={() => onRequestAccept(row?.id)}
+                      >
+                        Issue
+                      </Button>
+                    ) : (
+                      row?.requestStatus
+                    )}
+                  </StyledTableCell>
+                  {Object.keys(iData[0]).map((itm, i) => (
+                    <StyledTableCell key={i} align="right">
+                      {row[itm]}
+                    </StyledTableCell>
+                  ))}
+                </StyledTableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50]}
+        component="div"
+        count={data?.length ?? 0}
+        rowsPerPage={rowsPerPage}
+        page={currentPage}
+        onPageChange={onChangePage}
+        onRowsPerPageChange={onChangeRowsPerPage}
+      />
     </Loader>
   );
 }
