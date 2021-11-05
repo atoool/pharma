@@ -349,7 +349,6 @@ export function Sales() {
                     onChange={(e, v) =>
                       v?.id && onItemChange(v?.id, ind, "productId")
                     }
-                    value={bill?.products[0]?.itemName}
                     options={productData?.map((option) => {
                       return {
                         label: option.name,
