@@ -288,7 +288,11 @@ export function ItemMaster() {
         renderItem={renderModalItem}
       />
       <TableContainer>
-        <Table sx={{ minWidth: 700 }} size="small" aria-label="a dense table">
+        <Table
+          sx={{ minWidth: window.innerWidth - 260 }}
+          size="small"
+          aria-label="a dense table"
+        >
           <TableHead>
             <TableRow>
               {!isOutlet && (
