@@ -19,6 +19,7 @@ export function Modal({
   title = "",
   page = "product",
   renderItem = () => {},
+  show = true,
 }) {
   return (
     <Dialog
@@ -40,23 +41,35 @@ export function Modal({
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             {title}
           </Typography>
-          {page === "issue" && (
-            <Button variant="contained" onClick={handleClose} sx={{ mr: 1 }}>
-              {"Print & Issue"}
-            </Button>
+          {show && (
+            <>
+              {page === "issue" && (
+                <Button
+                  variant="contained"
+                  onClick={handleClose}
+                  sx={{ mr: 1 }}
+                >
+                  {"Print & Issue"}
+                </Button>
+              )}
+              {page !== "product" && (
+                <Button
+                  variant="contained"
+                  onClick={handleAddRow}
+                  sx={{ mr: 1 }}
+                >
+                  Add row
+                </Button>
+              )}
+              <Button variant="contained" onClick={() => handleClose("submit")}>
+                {page.indexOf("product") > -1
+                  ? "Submit"
+                  : page === "issue"
+                  ? "Issue"
+                  : "Send Req"}
+              </Button>
+            </>
           )}
-          {page !== "product" && (
-            <Button variant="contained" onClick={handleAddRow} sx={{ mr: 1 }}>
-              Add row
-            </Button>
-          )}
-          <Button variant="contained" onClick={() => handleClose("submit")}>
-            {page.indexOf("product") > -1
-              ? "Submit"
-              : page === "issue"
-              ? "Issue"
-              : "Send Req"}
-          </Button>
         </Toolbar>
       </AppBar>
       {renderItem()}

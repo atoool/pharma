@@ -15,14 +15,10 @@ import {
 } from "@mui/material";
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "context/AppContext";
-import {
-  Add,
-  Delete,
-  SettingsAccessibilityOutlined,
-} from "@mui/icons-material";
-import { get } from "api/api";
-import { post } from "api/api";
+import { Add, Delete } from "@mui/icons-material";
+import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
+import path from "path";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -181,44 +177,45 @@ export function Sales() {
   };
 
   const onSubmit = async () => {
-    try {
-      const dat = bill;
-      await post("add-sales", token, dat).then(() => {
-        onAlert("success");
-        setBill({
-          customerName: "",
-          doctorName: "",
-          outletUserId: "",
-          billNo,
-          scheme: "",
-          products: [
-            {
-              productId: "",
-              quantity: "",
-              hsnCode: "",
-              itemName: "",
-              batch: "",
-              expDate: "",
-              salePrice: "",
-              qty: "",
-              amount: "",
-              tax: "",
-            },
-          ],
-          billAmount: "",
-          discAmount: "",
-          tax: "",
-          roundAmount: "",
-          remarks: "",
-          balance: "",
-          payment: "",
-          inPercent: "",
-          inAmount: "",
-        });
-      });
-    } catch {
-      onAlert("error");
-    }
+    onPrint();
+    // try {
+    //   const dat = bill;
+    //   await post("add-sales", token, dat).then(() => {
+    //     onAlert("success");
+    //     setBill({
+    //       customerName: "",
+    //       doctorName: "",
+    //       outletUserId: "",
+    //       billNo,
+    //       scheme: "",
+    //       products: [
+    //         {
+    //           productId: "",
+    //           quantity: "",
+    //           hsnCode: "",
+    //           itemName: "",
+    //           batch: "",
+    //           expDate: "",
+    //           salePrice: "",
+    //           qty: "",
+    //           amount: "",
+    //           tax: "",
+    //         },
+    //       ],
+    //       billAmount: "",
+    //       discAmount: "",
+    //       tax: "",
+    //       roundAmount: "",
+    //       remarks: "",
+    //       balance: "",
+    //       payment: "",
+    //       inPercent: "",
+    //       inAmount: "",
+    //     });
+    //   });
+    // } catch {
+    //   onAlert("error");
+    // }
   };
 
   const onClear = () => {
@@ -259,6 +256,20 @@ export function Sales() {
     v === "success" && enqueueSnackbar("Success", variant);
     v === "error" &&
       enqueueSnackbar("Failed! something went wrong, try again", variant);
+  };
+
+  const onPrint = () => {
+    let invoice = window.open(
+      "file:///../../component/invoice/invoice.html",
+      "PRINT",
+      "height=400,width=600"
+    );
+    invoice.focus(); // necessary for IE >= 10*/
+
+    invoice.print();
+    invoice.close();
+
+    return true;
   };
 
   const isLoad = false;
