@@ -9,18 +9,25 @@ import Menu from "@mui/material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import MoreIcon from "@mui/icons-material/MoreVert";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useHistory, useLocation } from "react-router";
 import { Typography } from "@mui/material";
 import { AppContext } from "context/AppContext";
 
 export function Header({ routeName = "" }) {
-  const { userData } = React.useContext(AppContext);
+  const { userData, onSetDrawer, drawer } = React.useContext(AppContext);
   const username = userData?.user?.name ?? 3;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const history = useHistory();
   const loc = useLocation();
+
+  const [drawerWidth, setDrawerWidth] = React.useState(240);
+
+  React.useEffect(() => {
+    const w = drawer ? 240 : 0;
+    setDrawerWidth(w);
+  }, [drawer]);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -120,7 +127,6 @@ export function Header({ routeName = "" }) {
     </Menu>
   );
 
-  const drawerWidth = 240;
   let pathName = loc.pathname.split("/");
   pathName = pathName[pathName?.length - 1] ?? "";
   pathName = pathName.replace(/([A-Z])/g, " $1").trim();
@@ -169,16 +175,14 @@ export function Header({ routeName = "" }) {
               <Typography sx={{ ml: 1 }}>{username}</Typography>
             </IconButton>
           </Box>
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+          <Box sx={{ ml: 2 }}>
             <IconButton
               size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
               color="inherit"
+              aria-label="open drawer"
+              onClick={onSetDrawer}
             >
-              <MoreIcon />
+              <MenuIcon />
             </IconButton>
           </Box>
         </Toolbar>

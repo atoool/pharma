@@ -12,17 +12,20 @@ import logo from "assets/images/logo.png";
 import Accord from "../Accord/Accord";
 import { useHistory } from "react-router-dom";
 import { GppGood, Inventory2, Badge, AddBusiness } from "@mui/icons-material";
-// import { AppContext } from "context/AppContext";
-
-const drawerWidth = 240;
+import { AppContext } from "context/AppContext";
 
 export function Sidebar({ children, routes }) {
-  // const { userData } = React.useContext(AppContext);
+  const { drawer } = React.useContext(AppContext);
   // const role = userData?.user?.role ?? 3;
   // const isOutlet = role === 3;
-
+  const [drawerWidth, setDrawerWidth] = React.useState(240);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
   const history = useHistory();
+
+  React.useEffect(() => {
+    const w = drawer ? 240 : 0;
+    setDrawerWidth(w);
+  }, [drawer]);
 
   const handleListItemClick = (index) => {
     setSelectedIndex(index);
@@ -92,7 +95,8 @@ export function Sidebar({ children, routes }) {
             bgcolor: "#D1E8E4",
           },
         }}
-        variant="permanent"
+        variant="persistent"
+        open={drawer}
         anchor="right"
       >
         <Toolbar style={{ justifyContent: "center" }}>

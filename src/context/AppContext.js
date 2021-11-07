@@ -10,6 +10,8 @@ export const AppContext = React.createContext({
   productData: [],
   setProductData: () => {},
   onUserFetch: () => {},
+  drawer: true,
+  onSetDrawer: () => {},
 });
 
 export const AppContextProvider = ({ children }) => {
@@ -17,12 +19,15 @@ export const AppContextProvider = ({ children }) => {
   const [userData, setUserData] = useState(token);
   const [productData, setProductData] = useState([]);
   const [userList, setUserList] = useState([]);
+  const [drawer, setDrawer] = useState(true);
 
   const history = useHistory();
 
   const onSetUserData = (data) => {
     setToken(data);
   };
+
+  const onSetDrawer = () => setDrawer(!drawer);
 
   useEffect(() => {
     setUserData(token);
@@ -48,6 +53,8 @@ export const AppContextProvider = ({ children }) => {
     setProductData,
     productData,
     onUserFetch,
+    drawer,
+    onSetDrawer,
   };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
