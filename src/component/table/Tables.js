@@ -67,8 +67,8 @@ export default function Tables({
           {data?.map((row, i) => (
             <StyledTableRow key={i}>
               {extra && (
-                <StyledTableCell component="th" scope="row">
-                  <ExtraBody />
+                <StyledTableCell align="right">
+                  <ExtraBody index={i} />
                 </StyledTableCell>
               )}
               {keys?.map((r, ind) => (

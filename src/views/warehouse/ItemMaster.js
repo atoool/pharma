@@ -31,9 +31,13 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontWeight: "bold",
     textAlign: "right",
     height: 60,
+    padding: 10,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    marginRight: 20,
   },
 }));
 
@@ -289,7 +293,7 @@ export function ItemMaster() {
       />
       <TableContainer>
         <Table
-          sx={{ minWidth: window.innerWidth - 260 }}
+          sx={{ minWidth: window.innerWidth }}
           size="small"
           aria-label="a dense table"
         >
@@ -321,7 +325,7 @@ export function ItemMaster() {
               ?.map((row, i) => (
                 <StyledTableRow key={i}>
                   {!isOutlet && (
-                    <StyledTableCell component="th" scope="row">
+                    <StyledTableCell component="th" scope="row" align={"right"}>
                       <IconButton
                         color="primary"
                         onClick={() => handleClickOpenModal("product", i)}
@@ -337,7 +341,7 @@ export function ItemMaster() {
                     </StyledTableCell>
                   )}
                   {Object.keys(pData[0]).map((r, ind) => (
-                    <StyledTableCell key={ind} align="right">
+                    <StyledTableCell key={ind} align={"right"}>
                       {row[r]}
                     </StyledTableCell>
                   ))}

@@ -1,104 +1,79 @@
 import React from "react";
-import { Box, styled } from "@mui/system";
-import {
-  Autocomplete,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  tableCellClasses,
-  TableHead,
-  TableRow,
-  TextField,
-  TableContainer,
-  IconButton,
-  FormControlLabel,
-  Checkbox,
-  Typography,
-} from "@mui/material";
+import { Box } from "@mui/system";
+import { TextField, IconButton } from "@mui/material";
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "context/AppContext";
-import { Add, Delete, Directions, Visibility } from "@mui/icons-material";
-import { get, post } from "api/api";
-import { useSnackbar } from "notistack";
+import { Visibility } from "@mui/icons-material";
+import { get } from "api/api";
 import { Modal } from "component/Modal/Modal";
 import Tables from "../../component/table/Tables";
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    fontSize: 15,
-    fontWeight: "bold",
-    textAlign: "right",
-    height: 60,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 12,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.secondary.main,
-  },
-  // hide last border
-  "&:last-child td, &:last-child th": {
-    border: 0,
-  },
-}));
-
 const head = ["PO Date", "Vendor", "Created User"];
 const head2 = ["Item", "Code", "Qty", "Amount", "Net Rate"];
-const keys = ["poDate", "vendorName", "user"];
+const keys = ["createdAt", "distributor", "user"];
 const keys2 = ["name", "hsnCode", "quantity", "amount", "unitPrice"];
-const data = {
-  poDate: "",
-  vendorName: "",
-  user: "",
-  products: [
-    {
-      productId: "",
-      quantity: "",
-      hsnCode: "",
-      name: "",
-      batch: "",
-      expiry: "",
-      unitPrice: "",
-      amount: "",
-      tax: "",
-    },
-  ],
-};
+const data = [
+  {
+    createdAt: "",
+    distributor: "",
+    user: "",
+    items: [
+      {
+        productId: "",
+        quantity: "",
+        hsnCode: "",
+        name: "",
+        batch: "",
+        expiry: "",
+        unitPrice: "",
+        amount: "",
+        tax: "",
+      },
+    ],
+  },
+];
 
 export function PurchaseOrder() {
   const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [orders, setOrders] = React.useState(data);
   const [open, setOpen] = React.useState(false);
+  const [isLoad, setLoad] = React.useState(true);
+  const [orderNum, setOrderNum] = React.useState(0);
 
-  const getProductPrice = async (id) => {
+  const getOrders = async () => {
     try {
-      const dat = await get("get-product-price/" + id, token);
-
-      return (
-        dat?.data?.response ?? {
-          inStockCount: "0",
-          unitPrice: "0",
-        }
-      );
-    } catch {}
+      setLoad(true);
+      const dat = await get("purchase-order", token);
+      const temp = dat?.data?.response ?? [];
+      setOrders([...temp]);
+      setLoad(false);
+    } catch {
+      setLoad(false);
+    }
   };
 
-  const renderModalItem = () => {
-    return <Tables head={head2} keys={keys2} data={orders?.products} />;
-  };
+  React.useEffect(() => {
+    getOrders().catch(() => {});
+  }, []);
 
-  const onViewItem = () => {
+  const renderModalItem = () => (
+    <Tables head={head2} keys={keys2} data={orders[orderNum]?.items} />
+  );
+
+  const onViewItem = (i) => {
+    setOrderNum(i);
     setOpen(true);
   };
 
-  const isLoad = false;
+  const ExtraHead = () => <>{"Action"}</>;
+
+  const ExtraBody = ({ index = 0 }) => (
+    <IconButton color="primary" onClick={() => onViewItem(index)}>
+      <Visibility />
+    </IconButton>
+  );
+
   return (
     <Loader load={isLoad}>
       <Modal
@@ -135,36 +110,14 @@ export function PurchaseOrder() {
           // onChange={(e) => onItemChange(e, -1, "ordersNo")}
         />
       </Box>
-      <TableContainer>
-        <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell align="right">Action</StyledTableCell>
-              {head.map((itm, i) => (
-                <StyledTableCell key={i} align="right">
-                  {itm}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {orders?.products?.map((row, ind) => (
-              <StyledTableRow key={ind}>
-                <StyledTableCell align="right">
-                  <IconButton color="primary" onClick={onViewItem}>
-                    <Visibility />
-                  </IconButton>
-                </StyledTableCell>
-                {Object.keys(keys).map((f, i) => (
-                  <StyledTableCell align="right" key={i}>
-                    {row[f]}
-                  </StyledTableCell>
-                ))}
-              </StyledTableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Tables
+        keys={keys}
+        data={orders}
+        head={head}
+        ExtraHead={ExtraHead}
+        ExtraBody={ExtraBody}
+        extra
+      />
     </Loader>
   );
 }

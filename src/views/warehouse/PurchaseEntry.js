@@ -15,6 +15,8 @@ import {
   FormControlLabel,
   Checkbox,
   Typography,
+  RadioGroup,
+  Radio,
 } from "@mui/material";
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "context/AppContext";
@@ -30,9 +32,11 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontWeight: "bold",
     textAlign: "right",
     height: 60,
+    padding: 5,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
+    padding: 5,
   },
 }));
 
@@ -58,200 +62,172 @@ const head = [
   "Net Rate",
 ];
 
-const billNo = "";
-
 const data = {
-  customerName: "",
-  doctorName: "",
-  outletUserId: "",
-  billNo,
-  scheme: "",
-  products: [
+  distributor: "",
+  is_cash: "0",
+  is_donate: "1",
+  billAmount: "",
+  discount: "",
+  payableAmount: "",
+  items: [
     {
-      productId: "",
-      quantity: "",
-      hsnCode: "",
-      name: "",
+      itemId: "",
       batch: "",
+      packing: "",
       expiry: "",
+      quantity: "",
       unitPrice: "",
-      qty: "",
       amount: "",
+      discount: "",
       tax: "",
+      netRate: "",
     },
   ],
-  billAmount: "",
-  discAmount: "",
-  tax: "",
-  roundAmount: "",
-  remarks: "",
-  balance: "",
-  payment: "",
-  inPercent: "",
-  inAmount: "",
 };
 
 export function PurchaseEntry() {
-  const { userList, userData, productData } = React.useContext(AppContext);
+  const { userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
-  const [bill, setBill] = React.useState(data);
+  const [order, setOrder] = React.useState(data);
+  const [isLoad, setLoad] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
-  const onUserChange = () => {};
-
-  const getProductPrice = async (id) => {
-    try {
-      const dat = await get("get-product-price/" + id, token);
-
-      return (
-        dat?.data?.response ?? {
-          inStockCount: "0",
-          unitPrice: "0",
-        }
-      );
-    } catch {}
-  };
-
   const onItemChange = async (e, i, itm) => {
-    let temp = { ...bill };
-    if (i === -1 && (itm === "outletUserId" || itm === "scheme")) {
-      temp[itm] = e;
-      setBill(temp);
-    } else if (i === -1 && (itm === "in%" || itm === "inAmount")) {
-      temp.roundAmount =
-        itm === "in%"
-          ? bill?.billAmount - bill?.billAmount * (e.target.value / 100)
-          : bill?.billAmount - e.target.value;
-      itm === "in%"
-        ? (temp.inPercent = e.target.value)
-        : (temp.inAmount = e.target.value);
-      setBill(temp);
-    } else if (i === -1 && itm === "payment") {
-      temp.balance = e.target.value - bill?.roundAmount;
-      temp.payment = e.target.value;
-      setBill(temp);
+    let temp = { ...order };
+    if (i === -1 && itm === "is_cash") {
+      temp.is_cash = "1";
+      temp.is_donate = "0";
+      setOrder(temp);
+    } else if (i === -1 && itm === "is_donate") {
+      temp.is_donate = "1";
+      temp.is_cash = "0";
+      setOrder(temp);
+    } else if (i === -1 && itm === "discount") {
+      const disc = order?.billAmount * (e.target.value / 100);
+      temp.payableAmount = order?.billAmount - disc;
+      temp.discount = e.target.value;
+      setOrder(temp);
+    } else if (i === -1 && itm === "payableAmount") {
+      temp.payableAmount = e.target.value - order?.payableAmount;
+      setOrder(temp);
     } else if (i === -1) {
       temp[itm] = e.target.value;
-      setBill(temp);
-    } else if (itm === "quantity") {
-      const v = isNaN(e.target.value) ? 0 : JSON.parse(e.target.value);
-      temp.products[i].amount = v * temp.products[i].unitPrice;
+      setOrder(temp);
+    } else if (itm === "unitPrice" || itm === "quantity") {
+      const v = e.target.value;
+      const itmAlt = itm === "unitPrice" ? "quantity" : "unitPrice";
+      temp.items[i].amount = v * temp.items[i][itmAlt];
+      temp.items[i].netRate =
+        parseFloat(v * temp.items[i][itmAlt]) ??
+        0 - parseFloat(temp.items[i].discount) ??
+        0 + parseFloat(temp.items[i].tax) ??
+        0;
       let total = 0;
-      temp.products?.map((f) => (total += f?.amount));
+      temp.items?.map((f) => (total += f?.netRate));
       temp.billAmount = total;
-      temp.products[i].quantity = v;
-      setBill(temp);
+      temp.payableAmount = total;
+      temp.items[i][itm] = v > 0 ? v : "";
+      setOrder(temp);
+    } else if (itm === "discount") {
+      const v = e.target.value;
+      let netRat =
+        (temp.items[i].tax !== "" ? parseFloat(temp.items[i].tax) : 0) -
+        (v !== "" ? parseFloat(v) : 0) +
+        (temp?.items[i].amount !== "" ? parseFloat(temp?.items[i].amount) : 0);
+      temp.items[i].netRate = netRat;
+
+      temp.items[i][itm] = v;
+      let total = 0;
+      temp.items?.map((f) => (total += f?.netRate));
+      temp.billAmount = total;
+      temp.payableAmount = total;
+      setOrder(temp);
+    } else if (itm === "tax") {
+      const v = e.target.value;
+      let netRat =
+        (v !== "" ? parseFloat(v) : 0) -
+        (temp.items[i].discount !== ""
+          ? parseFloat(temp.items[i].discount)
+          : 0) +
+        (temp?.items[i].amount !== "" ? parseFloat(temp?.items[i].amount) : 0);
+      temp.items[i].netRate = netRat;
+
+      temp.items[i][itm] = v;
+
+      let total = 0;
+      temp.items?.map((f) => (total += f?.netRate));
+      temp.billAmount = total;
+      temp.payableAmount = total;
+      setOrder(temp);
     } else if (itm === "productId") {
-      temp.products[i].productId = e;
-      let val = await getProductPrice(e);
-      temp.products[i].unitPrice = val?.unitPrice === "0" ? 10 : val?.unitPrice;
-      temp.products[i].batch = val?.batch;
-      temp.products[i].hsnCode = val?.hsnCode;
-      temp.products[i].expiry = val?.expiry;
-      temp.products[i].tax = 0;
-      setBill(temp);
+      temp.items[i].itemId = e;
+      setOrder(temp);
     } else {
-      temp.products[i][itm] = e.target.value;
-      setBill(temp);
+      temp.items[i][itm] = e.target.value;
+      setOrder(temp);
     }
   };
 
   const onAddRow = () => {
-    let temp = { ...bill };
-    temp.products.push({
-      productId: "",
-      quantity: "",
-      hsnCode: "",
-      name: "",
+    let temp = { ...order };
+    temp.items.push({
+      itemId: "",
       batch: "",
+      packing: "",
       expiry: "",
+      quantity: "",
       unitPrice: "",
-      qty: "",
       amount: "",
+      discount: "",
       tax: "",
+      netRate: "",
     });
-    setBill(temp);
+    setOrder(temp);
   };
 
   const onDeleteRow = (id) => {
-    let temp = { ...bill };
-    temp.products = bill?.products.filter((f, i) => i !== id);
-    setBill(temp);
+    let temp = { ...order };
+    temp.items = order?.items.filter((f, i) => i !== id);
+    setOrder(temp);
   };
 
-  const onSubmit = async () => {
+  const onPurchase = async () => {
     try {
-      bill.salesId = bill?.id;
-      const dat = bill;
-      console.warn(dat);
-      await post("sales-return", token, dat).then(() => {
+      setLoad(true);
+      const dat = order;
+      await post("new-purchase", token, dat).then(() => {
         onAlert("success");
-        setBill({
-          customerName: "",
-          doctorName: "",
-          outletUserId: "",
-          billNo,
-          scheme: "",
-          products: [
-            {
-              productId: "",
-              quantity: "",
-              hsnCode: "",
-              name: "",
-              batch: "",
-              expiry: "",
-              unitPrice: "",
-              qty: "",
-              amount: "",
-              tax: "",
-            },
-          ],
-          billAmount: "",
-          discAmount: "",
-          tax: "",
-          roundAmount: "",
-          remarks: "",
-          balance: "",
-          payment: "",
-          inPercent: "",
-          inAmount: "",
-        });
+        onClear();
       });
+      setLoad(false);
     } catch {
       onAlert("error");
+      setLoad(false);
     }
   };
 
   const onClear = () => {
-    setBill({
-      customerName: "",
-      doctorName: "",
-      outletUserId: "",
-      billNo,
-      scheme: "",
-      products: [
+    setOrder({
+      distributor: "",
+      is_cash: "",
+      is_donate: "",
+      billAmount: "",
+      discount: "",
+      payableAmount: "",
+      items: [
         {
-          productId: "",
-          quantity: "",
-          hsnCode: "",
-          name: "",
+          itemId: "",
           batch: "",
+          packing: "",
           expiry: "",
+          quantity: "",
           unitPrice: "",
-          qty: "",
           amount: "",
+          discount: "",
           tax: "",
+          netRate: "",
         },
       ],
-      billAmount: "",
-      discAmount: "",
-      tax: "",
-      roundAmount: "",
-      remarks: "",
-      balance: "",
-      payment: "",
-      inPercent: "",
-      inAmount: "",
     });
   };
 
@@ -262,27 +238,46 @@ export function PurchaseEntry() {
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
 
-  const getSaleDetail = async () => {
-    try {
-      await get("sales-details/" + bill?.billNo, token).then((res) => {
-        onAlert("success");
-        let dat = res?.data?.response;
-        console.warn(dat);
-        if (dat) {
-          dat?.products?.map((f, i) => {
-            return (dat.products[i].amount = f?.unitPrice * f?.quantity);
-          });
-          setBill({ ...dat });
-        }
-      });
-    } catch {
-      onAlert("error");
-    }
-  };
-
-  const isLoad = false;
   return (
     <Loader load={isLoad}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          bgcolor: "#FBF7F0",
+          justifyContent: "space-between",
+          alignItems: "center",
+          pl: 2,
+          pr: 2,
+        }}
+      >
+        <Box>
+          <TextField
+            label="Vendor"
+            size="small"
+            sx={{ mr: 2 }}
+            onChange={(e) => onItemChange(e, -1, "distributor")}
+          />
+        </Box>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          <RadioGroup name="radio-buttons-group">
+            <FormControlLabel
+              value={order?.is_cash}
+              checked={order?.is_cash === "1"}
+              onChange={(e) => onItemChange(e, -1, "is_cash")}
+              control={<Radio />}
+              label="Cash Purchase"
+            />
+            <FormControlLabel
+              value={order?.is_donate}
+              checked={order?.is_donate === "1"}
+              control={<Radio />}
+              onChange={(e) => onItemChange(e, -1, "is_donate")}
+              label="Donation Purchase"
+            />
+          </RadioGroup>
+        </Box>
+      </Box>
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -300,7 +295,7 @@ export function PurchaseEntry() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {bill?.products?.map((row, ind) => (
+            {order?.items?.map((row, ind) => (
               <StyledTableRow key={ind}>
                 <StyledTableCell align="right">
                   <IconButton color="primary" onClick={() => onDeleteRow(ind)}>
@@ -324,31 +319,65 @@ export function PurchaseEntry() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Product"
+                        label="Item"
                         size="small"
                         sx={{ width: 130 }}
                       />
                     )}
                   />
                 </StyledTableCell>
-                <StyledTableCell align="right">{row?.batch}</StyledTableCell>
-                <StyledTableCell align="right">{row?.expiry}</StyledTableCell>
+                <StyledTableCell align="right">
+                  <TextField
+                    size="small"
+                    value={row?.batch}
+                    sx={{ width: "70px" }}
+                    onChange={(e) => onItemChange(e, ind, "batch")}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  <TextField
+                    size="small"
+                    type="date"
+                    value={row?.expiry}
+                    sx={{ width: "140px" }}
+                    onChange={(e) => onItemChange(e, ind, "expiry")}
+                  />
+                </StyledTableCell>
                 <StyledTableCell align="right">
                   <TextField
                     label=""
                     size="small"
                     sx={{ width: "70px" }}
-                    value={bill?.products[ind].quantity}
+                    value={order?.items[ind].quantity}
                     onChange={(e) => onItemChange(e, ind, "quantity")}
                   />
                 </StyledTableCell>
                 <StyledTableCell align="right">
-                  {row?.unitPrice}
+                  <TextField
+                    size="small"
+                    value={row?.unitPrice}
+                    sx={{ width: "70px" }}
+                    onChange={(e) => onItemChange(e, ind, "unitPrice")}
+                  />
                 </StyledTableCell>
                 <StyledTableCell align="right">{row?.amount}</StyledTableCell>
-                <StyledTableCell align="right">{row?.discount}</StyledTableCell>
-                <StyledTableCell align="right">{row?.tax}</StyledTableCell>
-                <StyledTableCell align="right">{row?.amount}</StyledTableCell>
+                <StyledTableCell align="right">
+                  <TextField
+                    size="small"
+                    value={row?.discount}
+                    sx={{ width: "70px" }}
+                    onChange={(e) => onItemChange(e, ind, "discount")}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  <TextField
+                    size="small"
+                    value={row?.tax}
+                    sx={{ width: "70px" }}
+                    onChange={(e) => onItemChange(e, ind, "tax")}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">{row?.netRate}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
@@ -369,7 +398,7 @@ export function PurchaseEntry() {
           <TableRow>
             <TableCell>Bill Amount</TableCell>
             <TableCell align="right" colSpan={2}>
-              {bill?.billAmount}
+              {order?.billAmount}
             </TableCell>
           </TableRow>
           <TableRow>
@@ -378,16 +407,16 @@ export function PurchaseEntry() {
               <TextField
                 label="IN %"
                 size="small"
-                value={bill?.inPercent}
+                value={order?.discount}
                 sx={{ width: "70px" }}
-                onChange={(e) => onItemChange(e, -1, "in%")}
+                onChange={(e) => onItemChange(e, -1, "discount")}
               />
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Payable amount</TableCell>
             <TableCell align="right" colSpan={2}>
-              {bill?.roundAmount}
+              {order?.payableAmount}
             </TableCell>
           </TableRow>
         </TableBody>
@@ -399,7 +428,10 @@ export function PurchaseEntry() {
           justifyContent: "flex-end",
         }}
       >
-        <Button variant="contained" sx={{ mr: 1 }}>
+        <Button variant="contained" sx={{ mr: 1 }} onClick={onClear}>
+          CLEAR
+        </Button>
+        <Button variant="contained" sx={{ mr: 1 }} onClick={onPurchase}>
           SAVE
         </Button>
       </Box>
