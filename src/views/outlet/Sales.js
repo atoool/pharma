@@ -18,7 +18,9 @@ import { AppContext } from "context/AppContext";
 import { Add, Delete } from "@mui/icons-material";
 import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
-import path from "path";
+import { Modal } from "../../component/Modal/Modal";
+import { Invoice } from "component/invoice/Invoice";
+import { useReactToPrint } from "react-to-print";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -92,6 +94,8 @@ export function Sales() {
   const { userList, userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [bill, setBill] = React.useState(data);
+  const [open, setModal] = React.useState(false);
+  const printRef = React.useRef();
   const { enqueueSnackbar } = useSnackbar();
 
   const onUserChange = () => {};
@@ -146,6 +150,7 @@ export function Sales() {
       temp.products[i].hsnCode = val?.hsnCode;
       temp.products[i].expDate = val?.expiry;
       temp.products[i].tax = 0;
+      temp.products[i].itemName = val?.name;
       setBill(temp);
     } else {
       temp.products[i][itm] = e.target.value;
@@ -177,45 +182,27 @@ export function Sales() {
   };
 
   const onSubmit = async () => {
-    onPrint();
-    // try {
-    //   const dat = bill;
-    //   await post("add-sales", token, dat).then(() => {
-    //     onAlert("success");
-    //     setBill({
-    //       customerName: "",
-    //       doctorName: "",
-    //       outletUserId: "",
-    //       billNo,
-    //       scheme: "",
-    //       products: [
-    //         {
-    //           productId: "",
-    //           quantity: "",
-    //           hsnCode: "",
-    //           itemName: "",
-    //           batch: "",
-    //           expDate: "",
-    //           salePrice: "",
-    //           qty: "",
-    //           amount: "",
-    //           tax: "",
-    //         },
-    //       ],
-    //       billAmount: "",
-    //       discAmount: "",
-    //       tax: "",
-    //       roundAmount: "",
-    //       remarks: "",
-    //       balance: "",
-    //       payment: "",
-    //       inPercent: "",
-    //       inAmount: "",
-    //     });
-    //   });
-    // } catch {
-    //   onAlert("error");
-    // }
+    setModal(true);
+    try {
+      const dat = bill;
+      await post("add-sales", token, dat).then(() => {
+        onAlert("success");
+        onClear();
+      });
+    } catch {
+      onAlert("error");
+    }
+  };
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+  const handleCloseModal = (action) => {
+    if (action === "submit") {
+      handlePrint();
+    } else {
+      setModal(false);
+    }
   };
 
   const onClear = () => {
@@ -258,23 +245,15 @@ export function Sales() {
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
 
-  const onPrint = () => {
-    let invoice = window.open(
-      "file:///../../component/invoice/invoice.html",
-      "PRINT",
-      "height=400,width=600"
-    );
-    invoice.focus(); // necessary for IE >= 10*/
-
-    invoice.print();
-    invoice.close();
-
-    return true;
-  };
-
   const isLoad = false;
   return (
     <Loader load={isLoad}>
+      <Modal
+        open={open}
+        page="sale"
+        handleClose={handleCloseModal}
+        renderItem={() => <Invoice ref={printRef} bill={bill} />}
+      />
       <Box
         sx={{
           bgcolor: "#FBF7F0",

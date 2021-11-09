@@ -52,7 +52,7 @@ export function Modal({
                   {"Print & Issue"}
                 </Button>
               )}
-              {page !== "product" && (
+              {page !== "product" && page !== "sale" && (
                 <Button
                   variant="contained"
                   onClick={handleAddRow}
@@ -66,6 +66,8 @@ export function Modal({
                   ? "Submit"
                   : page === "issue"
                   ? "Issue"
+                  : page === "sale"
+                  ? "Print"
                   : "Send Req"}
               </Button>
             </>
