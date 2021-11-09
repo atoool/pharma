@@ -8,18 +8,12 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Box from "@mui/material/Box";
-import {
-  Autocomplete,
-  Button,
-  Divider,
-  IconButton,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, Button, IconButton, TextField } from "@mui/material";
 import { Delete } from "@mui/icons-material";
-import { Modal } from "component/Modal/Modal";
+import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
-import { get } from "api/api";
-import { post } from "api/api";
+import { useSnackbar } from "notistack";
+import { Loader } from "component/loader/Loader";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -45,182 +39,116 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const iData = [
-  {
-    warehouseName: "",
-    intendNo: "",
-    createdAt: "",
-  },
-];
-const iData1 = [
-  {
-    Warehouse: "",
-    IntendNo: "",
-    Date: "",
-  },
-];
-
+const iData = ["Item name", "Request qty", "Unit price", "Amount"];
 const iData2 = {
   requests: [
     {
       productId: "",
-      quantity: "",
+      quantity: "0",
+      unitPrice: "",
+      amount: "",
     },
   ],
+  total: "",
 };
 
 export function IntentEntries() {
   const { userData, productData } = React.useContext(AppContext);
+  const { enqueueSnackbar } = useSnackbar();
   const token = userData?.token?.accessToken ?? "";
 
-  const [storeIndent, setStoreIndent] = React.useState(iData2);
-  const [data, setData] = React.useState(iData);
-
-  const [open, setOpen] = React.useState(false);
-
-  const onIndentFetch = async () => {
-    try {
-      const datas = await get("list-stocks-requests-outlet", token);
-      datas?.data && setData(datas?.data);
-    } catch {}
-  };
-
-  React.useEffect(() => {
-    onIndentFetch();
-  }, []);
-
-  const handleClickOpenModal = () => {
-    setOpen(true);
-  };
+  const [intents, setIntents] = React.useState(iData2);
+  const [load, setLoad] = React.useState(false);
 
   const onRequest = async () => {
     try {
-      const dat = storeIndent;
-      await post("request-product-by-outlet", token, dat);
-      await onIndentFetch();
-    } catch {}
-  };
-
-  const onDelivery = async (id) => {
-    try {
-      const dat = storeIndent;
-      await get("request-product-delivered/" + id, token, dat);
-      await onIndentFetch();
-    } catch {}
-  };
-
-  const handleCloseModal = async (val = "") => {
-    if (val === "submit") {
-      await onRequest().catch(() => {});
+      setLoad(true);
+      const dat = intents;
+      await post("request-product-by-outlet", token, dat)
+        .then(() => {
+          onAlert("success");
+          setIntents({
+            requests: [],
+          });
+          setLoad(false);
+        })
+        .catch(() => {
+          onAlert("error");
+          setLoad(false);
+        });
+    } catch {
+      setLoad(false);
     }
-    setStoreIndent(iData2);
-    setOpen(false);
   };
 
-  const renderModalItem = () => {
-    const handleChange = (e, i, itm) => {
-      let temp = { ...storeIndent };
+  const getProductPrice = async (id) => {
+    try {
+      const dat = await get("get-product-price/" + id, token);
 
-      itm === "productId"
-        ? (temp.requests[i].productId = e)
-        : (temp.requests[i][itm] = e.target.value);
-      setStoreIndent(temp);
-    };
-    const handleDelete = (i) => {
-      let temp = { ...storeIndent };
-      temp.requests.splice(i, 1);
-      setStoreIndent(temp);
-    };
-    return (
-      <Box
-        component="form"
-        sx={{
-          "& .MuiTextField-root": { m: 2 },
-        }}
-        validate
-        autoComplete="off"
-      >
-        {storeIndent?.requests?.map((item, index) => (
-          <div key={index}>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <Autocomplete
-                sx={{ width: "15%", mr: 2 }}
-                isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
-                }
-                onChange={(e, v) =>
-                  v?.id && handleChange(v?.id, index, "productId")
-                }
-                options={productData?.map((option, i) => {
-                  return {
-                    label: option.name + " " + option.id,
-                    id: option.id,
-                  };
-                })}
-                renderInput={(params) => (
-                  <TextField {...params} label="Product" size="small" />
-                )}
-              />
-              <TextField
-                required
-                label="Quantity"
-                type="search"
-                size="small"
-                value={item.quantity ?? ""}
-                onChange={(txt) => handleChange(txt, index, "quantity")}
-              />
-              <IconButton
-                color="primary"
-                onClick={() => handleDelete(index)}
-                sx={{ position: "absolute", right: 5 }}
-              >
-                <Delete />
-              </IconButton>
-            </div>
-            <Divider />
-          </div>
-        ))}
-      </Box>
-    );
+      return (
+        dat?.data?.response ?? {
+          inStockCount: "0",
+          unitPrice: "0",
+        }
+      );
+    } catch {}
   };
 
-  const handleAddRowModal = () => {
-    let temp = { ...storeIndent };
+  const onAddRow = () => {
+    let temp = { ...intents };
     temp.requests.push({
       productId: "",
-      quantity: "",
+      stock: "0",
+      quantity: "0",
+      unitPrice: "0",
+      amount: "0",
     });
-    setStoreIndent(temp);
+    setIntents(temp);
   };
 
+  const onDeleteRow = (id) => {
+    let temp = { ...intents };
+    temp.requests = intents?.requests?.filter((f, i) => i !== id);
+    setIntents({ ...temp });
+  };
+
+  const handleChange = async (e, i, itm) => {
+    let temp = { ...intents };
+    console.warn(itm);
+    if (itm === "quantity") {
+      const v = e.target.value;
+      temp.requests[i].amount = v * temp.requests[i].unitPrice;
+      let total = 0;
+      temp.requests?.map((f) => (total += f?.amount));
+      temp.total = total;
+      temp.requests[i].quantity = v;
+      setIntents(temp);
+    } else if (itm === "productId") {
+      temp.requests[i].productId = e;
+      let val = await getProductPrice(e);
+      console.warn(val);
+      temp.requests[i].unitPrice = val?.unitPrice;
+      setIntents(temp);
+    } else {
+      temp.requests[i][itm] = e.target.value;
+      setIntents(temp);
+    }
+  };
+
+  const onAlert = (v) => {
+    const variant = { variant: v };
+    v === "success" && enqueueSnackbar("Success", variant);
+    v === "error" &&
+      enqueueSnackbar("Failed! something went wrong, try again", variant);
+  };
   return (
-    <Box sx={{ width: "100%" }}>
-      <Modal
-        open={open}
-        handleAddRow={handleAddRowModal}
-        handleClose={handleCloseModal}
-        renderItem={renderModalItem}
-        title="Store Indent"
-        page="indent"
-      />
-      <Box
-        sx={{
-          bgcolor: "#FBF7F0",
-          p: 2,
-          display: "flex",
-          justifyContent: "end",
-        }}
-      >
-        <Button variant="outlined" onClick={handleClickOpenModal}>
-          Request
-        </Button>
-      </Box>
+    <Loader load={load}>
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              <StyledTableCell align="right">Status</StyledTableCell>
-              {Object.keys(iData1[0]).map((itm, i) => (
+              <StyledTableCell align="right">Action</StyledTableCell>
+              {iData.map((itm, i) => (
                 <StyledTableCell key={i} align="right">
                   {itm}
                 </StyledTableCell>
@@ -228,39 +156,79 @@ export function IntentEntries() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, ind) => (
+            {intents?.requests.map((row, ind) => (
               <StyledTableRow key={ind}>
                 <StyledTableCell align="right">
-                  {row?.requestStatus === "issued" ? (
-                    <Button
-                      variant="contained"
-                      onClick={() => onDelivery(row?.id)}
-                    >
-                      Delivered
-                    </Button>
-                  ) : (
-                    row?.requestStatus
-                  )}
+                  <IconButton color="primary" onClick={() => onDeleteRow(ind)}>
+                    <Delete />
+                  </IconButton>
                 </StyledTableCell>
-                {Object.keys(iData[0]).map((itm, i) => (
-                  <StyledTableCell key={i} align="right">
-                    {row[itm]}
-                  </StyledTableCell>
-                ))}
+
+                <StyledTableCell align="right">
+                  <Autocomplete
+                    isOptionEqualToValue={(option, value) =>
+                      option.label === value.label
+                    }
+                    onChange={(e, v) =>
+                      v?.id && handleChange(v?.id, ind, "productId")
+                    }
+                    options={productData?.map((option) => {
+                      return {
+                        label: option.name,
+                        id: option.id,
+                      };
+                    })}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Product" size="small" />
+                    )}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  <TextField
+                    label=""
+                    size="small"
+                    sx={{ width: "70px" }}
+                    onChange={(e) => handleChange(e, ind, "quantity")}
+                  />
+                </StyledTableCell>
+
+                <StyledTableCell align="right">
+                  {row?.unitPrice}
+                </StyledTableCell>
+                <StyledTableCell align="right">{row?.amount}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      {/* <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      /> */}
-    </Box>
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <TextField
+          label="Total Amount"
+          disabled
+          value={intents?.total ?? ""}
+          size="small"
+        />
+      </Box>
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button variant="contained" sx={{ mr: 1 }} onClick={onAddRow}>
+          Add row
+        </Button>
+        <Button variant="contained" sx={{ mr: 1 }} onClick={onRequest}>
+          Request
+        </Button>
+      </Box>
+    </Loader>
   );
 }

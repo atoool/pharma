@@ -8,7 +8,6 @@ import {
   Done,
   PowerInput,
   Task,
-  Shop2,
   List,
   PointOfSale,
   Receipt,
@@ -105,14 +104,6 @@ var dashRoutes = [
         icon: () => <PowerInput />,
       },
       {
-        path: "/IndentStatus",
-        name: "Indent Status",
-        secondaryNavbar: true,
-        component: IntentStatus,
-        layout: "/Pharma",
-        icon: () => <Task />,
-      },
-      {
         path: "/PendingPurchase",
         name: "Pending Purchase",
         secondaryNavbar: true,
@@ -157,6 +148,14 @@ var dashRoutes = [
         component: IntentEntries,
         layout: "/Pharma",
         icon: () => <PostAdd />,
+      },
+      {
+        path: "/IndentStatus",
+        name: "Indent Status",
+        secondaryNavbar: true,
+        component: IntentStatus,
+        layout: "/Pharma",
+        icon: () => <Task />,
       },
       {
         path: "/Reports",

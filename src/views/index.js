@@ -5,7 +5,7 @@ import { Reports } from "./outlet/Reports";
 const { Stocks } = require("./outlet/Stocks");
 const { IntentIssue } = require("./warehouse/IndentIssue");
 const { IntentEntry } = require("./warehouse/IntentEntry");
-const { IntentStatus } = require("./warehouse/IntentStatus");
+const { IntentStatus } = require("./outlet/IntentStatus");
 const { ItemMaster } = require("./warehouse/ItemMaster");
 const { PendingPurchase } = require("./warehouse/PendingPurchase");
 const { PurchaseEntry } = require("./warehouse/PurchaseEntry");
