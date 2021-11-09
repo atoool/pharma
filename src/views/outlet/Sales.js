@@ -125,7 +125,14 @@ export function Sales() {
       itm === "in%"
         ? (temp.inPercent = e.target.value)
         : (temp.inAmount = e.target.value);
-      temp.discAmount = itm === "in%" ? e.target.value + "%" : e.target.value;
+      temp.discAmount =
+        itm === "in%"
+          ? bill?.billAmount * (e.target.value / 100)
+          : e.target.value;
+      temp.balance =
+        temp?.payment && temp?.payment !== ""
+          ? temp?.payment - temp.roundAmount
+          : temp?.billAmount - temp?.discAmount;
       setBill(temp);
     } else if (i === -1 && itm === "payment") {
       temp.balance = e.target.value - bill?.roundAmount;
@@ -140,6 +147,7 @@ export function Sales() {
       let total = 0;
       temp.products?.map((f) => (total += f?.amount));
       temp.billAmount = total;
+      temp.roundAmount = total - temp.discAmount;
       temp.products[i].quantity = v;
       setBill(temp);
     } else if (itm === "productId") {
