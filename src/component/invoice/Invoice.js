@@ -59,7 +59,7 @@ const data = {
 
 export const Invoice = React.forwardRef(({ bill = data }, ref) => {
   let total = 0;
-  bill?.products?.map((f) => (total += f?.salePrice));
+  bill?.products?.map((f) => (total += parseFloat(f?.amount) ?? 0));
   return (
     <Box
       ref={ref}
@@ -179,9 +179,13 @@ export const Invoice = React.forwardRef(({ bill = data }, ref) => {
                   <StyledTableCell align="right">{row?.mfg}</StyledTableCell>
                   <StyledTableCell align="right">{row?.batch}</StyledTableCell>
                   <StyledTableCell align="right">
-                    {row?.expDate.split("-")[1] +
-                      "/" +
-                      row?.expDate.split("-")[0].substr(2)}
+                    {row?.expDate
+                      ? row?.expDate !== ""
+                        ? row?.expDate.split("-")[1] +
+                          "/" +
+                          row?.expDate.split("-")[0].substr(2)
+                        : ""
+                      : ""}
                   </StyledTableCell>
                   <StyledTableCell align="right">
                     {row?.salePrice}

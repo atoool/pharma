@@ -21,6 +21,7 @@ import { useSnackbar } from "notistack";
 import { Modal } from "../../component/Modal/Modal";
 import { Invoice } from "component/invoice/Invoice";
 import { useReactToPrint } from "react-to-print";
+import { generateBillNo } from "utils/generateBillNo";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -57,13 +58,11 @@ const head = [
   "Tax",
 ];
 
-const billNo = "MVR" + new Date().valueOf() + "SL";
-
 const data = {
   customerName: "",
   doctorName: "",
   outletUserId: "",
-  billNo,
+  billNo: generateBillNo(),
   scheme: "",
   products: [
     {
@@ -126,6 +125,7 @@ export function Sales() {
       itm === "in%"
         ? (temp.inPercent = e.target.value)
         : (temp.inAmount = e.target.value);
+      temp.discAmount = itm === "in%" ? e.target.value + "%" : e.target.value;
       setBill(temp);
     } else if (i === -1 && itm === "payment") {
       temp.balance = e.target.value - bill?.roundAmount;
@@ -187,7 +187,6 @@ export function Sales() {
       const dat = bill;
       await post("add-sales", token, dat).then(() => {
         onAlert("success");
-        onClear();
       });
     } catch {
       onAlert("error");
@@ -202,6 +201,7 @@ export function Sales() {
       handlePrint();
     } else {
       setModal(false);
+      onClear();
     }
   };
 
@@ -210,7 +210,7 @@ export function Sales() {
       customerName: "",
       doctorName: "",
       outletUserId: "",
-      billNo,
+      billNo: generateBillNo(),
       scheme: "",
       products: [
         {
