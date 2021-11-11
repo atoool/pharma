@@ -217,8 +217,13 @@ export function ItemMaster() {
             key={indx}
             required
             label={item}
-            type={
-              item === "name" ? "search" : item === "expiry" ? "date" : "text"
+            type={item === "expiry" ? "date" : "text"}
+            InputLabelProps={
+              item === "expiry"
+                ? {
+                    shrink: true,
+                  }
+                : {}
             }
             disabled={item === "id"}
             size="small"
