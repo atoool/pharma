@@ -7,11 +7,20 @@ import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Button, IconButton, TablePagination } from "@mui/material";
+import {
+  Button,
+  Divider,
+  IconButton,
+  TablePagination,
+  TextField,
+} from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { AppContext } from "context/AppContext";
 import { get } from "api/api";
 import { Loader } from "component/loader/Loader";
+import { Box } from "@mui/system";
+import { Modal } from "component/Modal/Modal";
+import { post } from "api/api";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -58,6 +67,8 @@ export function IntentIssue() {
   const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [data, setData] = React.useState(iData);
+  const [selected, setSelected] = React.useState(0);
+  const [open, setOpen] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
 
@@ -88,9 +99,95 @@ export function IntentIssue() {
     setCurrentPage(0);
   };
 
+  const handleAction = async (val, action) => {
+    try {
+      if (action === "edit") {
+        let indx = 0;
+        data?.map((f, i) => f?.id === val?.id && (indx = i));
+        setSelected(indx);
+        setOpen(true);
+      } else {
+        await get("delete-intend-request/" + val?.id, token).then(async () => {
+          await onIssueFetch().catch(() => {});
+        });
+      }
+    } catch {}
+  };
+
+  const renderModalItem = () => {
+    const handleChange = (e, i, itm) => {
+      let temp = [...data];
+      temp[selected].products[i][itm] = e.target.value;
+      setData(temp);
+    };
+
+    // const handleDelete = (i) => {
+    //   data[selected]?.products?.splice(i, 1);
+    //   setData([...data]);
+    // };
+
+    return data[selected]?.products?.map((itm, index) => (
+      <Box
+        key={index}
+        sx={{
+          "& .MuiTextField-root": { m: 2 },
+        }}
+        validate
+        autoComplete="off"
+      >
+        <TextField
+          required
+          label={"Product"}
+          disabled
+          size="small"
+          value={itm?.name}
+        />
+
+        <TextField
+          required
+          label={"Qty"}
+          size="small"
+          value={itm?.quantity}
+          onChange={(txt) => handleChange(txt, index, "quantity")}
+        />
+        {/* <IconButton
+          color="primary"
+          onClick={() => handleDelete(index)}
+          sx={{ position: "absolute", right: 5 }}
+        >
+          <Delete />
+        </IconButton> */}
+        <Divider />
+      </Box>
+    ));
+  };
+
+  const handleCloseModal = async (action) => {
+    try {
+      if (action === "submit") {
+        let dat = { ...data[selected] };
+        dat.requests = data[selected]?.products;
+        dat.intendId = data[selected]?.id;
+        await post("edit-intend-request", token, dat).then(async () => {
+          await onIssueFetch().catch(() => {});
+        });
+      } else {
+        await onIssueFetch();
+      }
+    } catch {}
+    setOpen(false);
+  };
+
   const isLoading = data?.length > 0 && data[0]?.intendNo === "";
   return (
     <Loader load={isLoading}>
+      <Modal
+        open={open}
+        handleClose={handleCloseModal}
+        title={"Edit Requests"}
+        page={"product"}
+        renderItem={renderModalItem}
+      />
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -115,13 +212,15 @@ export function IntentIssue() {
                   <StyledTableCell align="right">
                     <IconButton
                       color="primary"
-                      // onClick={() => handleClickOpenModal("product", i)}
+                      onClick={() => handleAction(row, "edit")}
                     >
                       <Edit />
                     </IconButton>
                     <IconButton
                       color="primary"
-                      // onClick={() => row?.id && onDeleteProduct(row?.id)}
+                      onClick={async () =>
+                        await handleAction(row, "delete").catch(() => {})
+                      }
                     >
                       <Delete />
                     </IconButton>
