@@ -28,11 +28,12 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
     fontSize: 15,
     fontWeight: "bold",
-    textAlign: "right",
+    textAlign: "left",
     height: 60,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
+    textAlign: "left",
   },
 }));
 
@@ -52,6 +53,8 @@ const iData = [
     warehouseName: "",
     userName: "",
     createdAt: "",
+    issuedDate: "",
+    deliveredDate: "",
   },
 ];
 const iData3 = [
@@ -59,7 +62,9 @@ const iData3 = [
     IntendNo: "",
     Warehouse: "",
     Outlet: "",
-    Date: "",
+    CreatedDate: "",
+    IssuedDate: "",
+    DeliveredDate: "",
   },
 ];
 

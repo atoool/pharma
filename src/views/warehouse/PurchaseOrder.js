@@ -11,7 +11,7 @@ import Tables from "../../component/table/Tables";
 const head = ["PO Date", "Vendor", "Created User"];
 const head2 = ["Item", "Code", "Qty", "Amount", "Net Rate"];
 const keys = ["createdAt", "distributor", "createdUser"];
-const keys2 = ["name", "hsnCode", "quantity", "amount", "unitPrice"];
+const keys2 = ["name", "itemCode", "quantity", "amount", "unitPrice"];
 const data = [
   {
     createdAt: "",
@@ -21,7 +21,7 @@ const data = [
       {
         productId: "",
         quantity: "",
-        hsnCode: "",
+        itemCode: "",
         name: "",
         batch: "",
         expiry: "",

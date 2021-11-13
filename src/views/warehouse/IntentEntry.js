@@ -8,7 +8,13 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Box from "@mui/material/Box";
-import { Autocomplete, Button, IconButton, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Button,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
@@ -21,11 +27,12 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
     fontSize: 15,
     fontWeight: "bold",
-    textAlign: "right",
+    textAlign: "left",
     height: 60,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
+    textAlign: "left",
   },
 }));
 
@@ -39,11 +46,19 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const iData = ["Item name", "Stock", "Request qty", "Unit price", "Amount"];
+const iData = [
+  "Item name",
+  "Item Code",
+  "Stock",
+  "Request qty",
+  "Unit price",
+  "Amount",
+];
 const iData2 = {
   requests: [
     {
       productId: "",
+      itemCode: "",
       stock: "0",
       quantity: "0",
       unitPrice: "0",
@@ -51,7 +66,7 @@ const iData2 = {
     },
   ],
   outletUserId: "",
-  total: "",
+  total: "0",
 };
 
 export function IntentEntry() {
@@ -90,7 +105,7 @@ export function IntentEntry() {
             setIntents({
               requests: [],
               outletUserId: intents.outletUserId,
-              total: "",
+              total: "0",
             });
           })
           .catch(() => {
@@ -152,6 +167,7 @@ export function IntentEntry() {
       console.warn(val);
       temp.requests[i].unitPrice = val?.unitPrice;
       temp.requests[i].stock = val?.inStockCount;
+      temp.requests[i].itemCode = val?.itemCode;
       setIntents(temp);
     } else {
       temp.requests[i][itm] = e.target.value;
@@ -233,6 +249,7 @@ export function IntentEntry() {
                     )}
                   />
                 </StyledTableCell>
+                <StyledTableCell align="right">{row?.itemCode}</StyledTableCell>
                 <StyledTableCell align="right">{row?.stock}</StyledTableCell>
                 <StyledTableCell align="right">
                   <TextField
@@ -256,17 +273,12 @@ export function IntentEntry() {
         sx={{
           p: 2,
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
         }}
       >
-        <TextField label="First Authorization" size="small" />
-        <TextField label="Second Authorization" size="small" />
-        <TextField
-          label="Total Amount"
-          disabled
-          value={intents?.total ?? ""}
-          size="small"
-        />
+        {/* <TextField label="First Authorization" size="small" />
+        <TextField label="Second Authorization" size="small" /> */}
+        <Typography size="small">Total: {intents?.total ?? "0"}</Typography>
       </Box>
       <Box
         sx={{
@@ -281,9 +293,9 @@ export function IntentEntry() {
         <Button variant="contained" sx={{ mr: 1 }} onClick={onIssue}>
           Create
         </Button>
-        <Button variant="contained" sx={{ mr: 1 }} onClick={onPrint}>
+        {/* <Button variant="contained" sx={{ mr: 1 }} onClick={onPrint}>
           Print
-        </Button>
+        </Button> */}
       </Box>
     </Loader>
   );

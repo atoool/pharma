@@ -50,13 +50,17 @@ const iData = [
     warehouseName: "",
     intendNo: "",
     createdAt: "",
+    issuedDate: "",
+    deliveredDate: "",
   },
 ];
 const iData1 = [
   {
     Warehouse: "",
     IntendNo: "",
-    Date: "",
+    CreatedDate: "",
+    IssuedDate: "",
+    DeliveredDate: "",
   },
 ];
 

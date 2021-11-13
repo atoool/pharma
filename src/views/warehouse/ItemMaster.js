@@ -103,6 +103,29 @@ export function ItemMaster() {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
 
+  const onClear = () => {
+    setProducts([
+      {
+        name: "",
+        hsnCode: "",
+        itemCode: "",
+        purchaseUnit: "",
+        conversionUnit: "",
+        unit: "",
+        purchaseDept: "",
+        itemCategory: "",
+        itemType: "",
+        itemSubType: "",
+        itemNature: "",
+        stock: "",
+        batch: "",
+        packing: "",
+        expiry: "",
+        unitPrice: "",
+      },
+    ]);
+  };
+
   const handleClickOpenModal = (pg = "product", i = 0) => {
     if (pg === "product") {
       const {
@@ -183,14 +206,14 @@ export function ItemMaster() {
   const handleCloseModal = async (val = "") => {
     if (val === "submit" && page === "products") {
       await onAddProducts().catch(() => {});
-      setProducts([...pData]);
+      onClear();
       setOpen(false);
     } else if (val === "submit" && page === "product") {
       await onEditProduct().catch(() => {});
-      setProducts([...pData]);
+      onClear();
       setOpen(false);
     } else {
-      setProducts([...pData]);
+      onClear();
       setOpen(false);
     }
   };
@@ -267,7 +290,6 @@ export function ItemMaster() {
       expiry: "",
       unitPrice: "",
     });
-    console.log(temp);
     setProducts(temp);
   };
 

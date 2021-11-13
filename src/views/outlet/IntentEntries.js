@@ -39,11 +39,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const iData = ["Item name", "Request qty", "Unit price", "Amount"];
+const iData = ["Item name", "Item Code", "Request qty", "Unit price", "Amount"];
 const iData2 = {
   requests: [
     {
       productId: "",
+      itemCode: "",
       quantity: "0",
       unitPrice: "",
       amount: "",
@@ -98,7 +99,7 @@ export function IntentEntries() {
     let temp = { ...intents };
     temp.requests.push({
       productId: "",
-      stock: "0",
+      itemCode: "",
       quantity: "0",
       unitPrice: "0",
       amount: "0",
@@ -128,6 +129,7 @@ export function IntentEntries() {
       let val = await getProductPrice(e);
       console.warn(val);
       temp.requests[i].unitPrice = val?.unitPrice;
+      temp.requests[i].itemCode = val?.itemCode;
       setIntents(temp);
     } else {
       temp.requests[i][itm] = e.target.value;
@@ -183,6 +185,7 @@ export function IntentEntries() {
                     )}
                   />
                 </StyledTableCell>
+                <StyledTableCell align="right">{row?.itemCode}</StyledTableCell>
                 <StyledTableCell align="right">
                   <TextField
                     label=""
