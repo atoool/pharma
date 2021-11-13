@@ -67,6 +67,7 @@ const data = {
       productId: "",
       quantity: "",
       hsnCode: "",
+      itemCode: "",
       name: "",
       batch: "",
       expiry: "",
@@ -143,6 +144,7 @@ export function SalesReturn() {
       temp.products[i].unitPrice = val?.unitPrice === "0" ? 10 : val?.unitPrice;
       temp.products[i].batch = val?.batch;
       temp.products[i].hsnCode = val?.hsnCode;
+      temp.products[i].itemCode = val?.itemCode;
       temp.products[i].expiry = val?.expiry;
       temp.products[i].tax = 0;
       setBill(temp);
@@ -158,6 +160,7 @@ export function SalesReturn() {
       productId: "",
       quantity: "",
       hsnCode: "",
+      itemCode: "",
       name: "",
       batch: "",
       expiry: "",
@@ -193,6 +196,7 @@ export function SalesReturn() {
               productId: "",
               quantity: "",
               hsnCode: "",
+              itemCode: "",
               name: "",
               batch: "",
               expiry: "",
@@ -230,6 +234,7 @@ export function SalesReturn() {
           productId: "",
           quantity: "",
           hsnCode: "",
+          itemCode: "",
           name: "",
           batch: "",
           expiry: "",
@@ -363,7 +368,7 @@ export function SalesReturn() {
                     <Delete />
                   </IconButton>
                 </StyledTableCell>
-                <StyledTableCell align="right">{row?.hsnCode}</StyledTableCell>
+                <StyledTableCell align="right">{row?.itemCode}</StyledTableCell>
                 <StyledTableCell align="right">
                   <Autocomplete
                     isOptionEqualToValue={(option, value) =>

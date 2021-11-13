@@ -53,6 +53,7 @@ const pData1 = [
   {
     name: "",
     hsnCode: "",
+    itemCode: "",
     purchaseUnit: "",
     conversionUnit: "",
     unit: "",
@@ -72,6 +73,7 @@ const pData11 = [
   {
     Name: "",
     HSN: "",
+    Code: "",
     PUnit: "",
     CUnit: "",
     Unit: "",
@@ -107,6 +109,7 @@ export function ItemMaster() {
         id = "",
         name = "",
         hsnCode = "",
+        itemCode = "",
         purchaseUnit = "",
         conversionUnit = "",
         unit = "",
@@ -126,6 +129,7 @@ export function ItemMaster() {
           id,
           name,
           hsnCode,
+          itemCode,
           purchaseUnit,
           conversionUnit,
           unit,
@@ -248,6 +252,7 @@ export function ItemMaster() {
     temp.push({
       name: "",
       hsnCode: "",
+      itemCode: "",
       purchaseUnit: "",
       conversionUnit: "",
       unit: "",

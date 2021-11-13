@@ -69,6 +69,7 @@ const data = {
       productId: "",
       quantity: "",
       hsnCode: "",
+      itemCode: "",
       itemName: "",
       batch: "",
       expDate: "",
@@ -156,6 +157,7 @@ export function Sales() {
       temp.products[i].salePrice = val?.unitPrice === "0" ? 10 : val?.unitPrice;
       temp.products[i].batch = val?.batch;
       temp.products[i].hsnCode = val?.hsnCode;
+      temp.products[i].itemCode = val?.itemCode;
       temp.products[i].expDate = val?.expiry;
       temp.products[i].tax = 0;
       temp.products[i].itemName = val?.name;
@@ -172,6 +174,7 @@ export function Sales() {
       productId: "",
       quantity: "",
       hsnCode: "",
+      itemCode: "",
       itemName: "",
       batch: "",
       expDate: "",
@@ -225,6 +228,7 @@ export function Sales() {
           productId: "",
           quantity: "",
           hsnCode: "",
+          itemCode: "",
           itemName: "",
           batch: "",
           expDate: "",
@@ -338,7 +342,7 @@ export function Sales() {
                     <Delete />
                   </IconButton>
                 </StyledTableCell>
-                <StyledTableCell align="right">{row?.hsnCode}</StyledTableCell>
+                <StyledTableCell align="right">{row?.itemCode}</StyledTableCell>
                 <StyledTableCell align="right">
                   <Autocomplete
                     isOptionEqualToValue={(option, value) =>
