@@ -20,11 +20,12 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
     fontSize: 15,
     fontWeight: "bold",
-    textAlign: "right",
+    textAlign: "left",
     height: 60,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
+    textAlign: "left",
   },
 }));
 

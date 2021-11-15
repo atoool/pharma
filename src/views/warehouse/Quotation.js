@@ -16,9 +16,10 @@ import {
   TextField,
 } from "@mui/material";
 import { Modal } from "component/Modal/Modal";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, Visibility } from "@mui/icons-material";
 import { AppContext } from "context/AppContext";
 import { get } from "api/api";
+import { generateBillNo } from "utils/generateBillNo";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -46,19 +47,20 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 const head = ["Quotation Date", "Valid Date", "Vendor", "Subject", "Status"];
 const head2 = ["Item", "Rate"];
-const keys = ["quotationDate", "validDate", "vendor", "subject", "status"];
+const keys = ["quotationDate", "validDate", "department", "subject", "status"];
 const data = [
   {
     quotationDate: "",
     validDate: "",
-    vendor: "",
+    department: "",
     subject: "",
     status: "",
+    items: [{ itemName: "", itemId: "", rate: "" }],
   },
 ];
 const data2 = {
   quotationDate: "",
-  quotationNumber: "",
+  quotationNumber: generateBillNo("QT"),
   validDate: "",
   vendor: "",
   subject: "",
@@ -72,8 +74,11 @@ export const Quotation = () => {
   const { userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [open, setModal] = React.useState(false);
+  const [open2, setModal2] = React.useState(false);
   const [quotes, setQuotes] = React.useState(data2);
   const [quotations, setQuatations] = React.useState(data);
+  const [quoteNum, setQuoteNum] = React.useState(0);
+  const [load, setLoad] = React.useState(false);
 
   const getProductPrice = async (id) => {
     try {
@@ -87,7 +92,26 @@ export const Quotation = () => {
     } catch {}
   };
 
-  const handleCloseModal = (action) => {
+  const getQuotations = async (id) => {
+    try {
+      setLoad(true);
+      const dat = await get("list-quotations", token);
+      setQuatations(dat?.data?.response ?? []);
+
+      setLoad(false);
+    } catch {}
+  };
+
+  React.useEffect(() => {
+    getQuotations();
+  }, []);
+
+  const handleCloseModal = async (action) => {
+    if (action === "submit") {
+      try {
+        await get("new-quotation", token, quotes);
+      } catch {}
+    }
     setModal(false);
   };
 
@@ -105,19 +129,23 @@ export const Quotation = () => {
 
   const onOpenModal = () => setModal(true);
 
+  const onItemChange = async (e, i, itm) => {
+    let temp = { ...quotes };
+    if (itm === "productId") {
+      temp.items[i].itemId = e;
+      let val = await getProductPrice(e);
+      temp.items[i].itemName = val?.name;
+      setQuotes(temp);
+    } else if (i === -1) {
+      temp[itm] = e.target.value;
+      setQuotes(temp);
+    } else if (itm === "rate") {
+      temp.items[i]["rate"] = e.currentTarget.value;
+      setQuotes(temp);
+    }
+  };
+
   const renderModal = () => {
-    const onItemChange = async (e, i, itm) => {
-      let temp = { ...quotes };
-      if (itm === "productId") {
-        temp.items[i].itemId = e;
-        let val = await getProductPrice(e);
-        temp.items[i].itemName = val?.name;
-        setQuotes(temp);
-      } else if (i === -1) {
-        temp[itm] = e.target.value;
-        setQuotes(temp);
-      }
-    };
     return (
       <Loader>
         <Box
@@ -125,59 +153,81 @@ export const Quotation = () => {
             bgcolor: "#FBF7F0",
             p: 2,
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "space-around",
             flex: "wrap",
+            width: window.innerWidth,
           }}
         >
-          <TextField
-            label="Vendor"
-            size="small"
-            value={quotes?.vendor}
-            onChange={(e) => onItemChange(e, -1, "vendor")}
-          />
-          <TextField
-            label="Quotation Date"
-            size="small"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={quotes?.quotationDate}
-            onChange={(e) => onItemChange(e, -1, "quotationDate")}
-          />
-          <TextField
-            label="Valid Date"
-            size="small"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={quotes?.validDate}
-            onChange={(e) => onItemChange(e, -1, "validDate")}
-          />
-          <TextField
-            label="Quotation Number"
-            size="small"
-            value={quotes?.quotationNumber}
-            onChange={(e) => onItemChange(e, -1, "vendor")}
-          />
+          <Box>
+            <TextField
+              label="Vendor"
+              size="small"
+              value={quotes?.vendor}
+              sx={{ mr: 2, width: "250px", mb: 2 }}
+              onChange={(e) => onItemChange(e, -1, "vendor")}
+            />
+            <TextField
+              label="Quotation Date"
+              size="small"
+              type="date"
+              sx={{ mr: 2, width: "250px", mb: 2 }}
+              InputLabelProps={{ shrink: true }}
+              value={quotes?.quotationDate}
+              onChange={(e) => onItemChange(e, -1, "quotationDate")}
+            />
+            <TextField
+              label="Valid Date"
+              size="small"
+              type="date"
+              sx={{ mr: 2, width: "250px" }}
+              InputLabelProps={{ shrink: true }}
+              value={quotes?.validDate}
+              onChange={(e) => onItemChange(e, -1, "validDate")}
+            />
+            <TextField
+              label="Quotation Number"
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              sx={{ width: "250px" }}
+              value={quotes?.quotationNumber}
+              disabled
+              onChange={(e) => onItemChange(e, -1, "vendor")}
+            />
+          </Box>
+          <Box>
+            <TextField
+              label="Department"
+              size="small"
+              sx={{ mr: 2, width: "250px", mb: 2 }}
+              value={quotes?.department}
+              onChange={(e) => onItemChange(e, -1, "department")}
+            />
 
-          <TextField
-            label="Department"
-            size="small"
-            value={quotes?.department}
-            onChange={(e) => onItemChange(e, -1, "department")}
-          />
+            <TextField
+              label="Subject"
+              size="small"
+              sx={{ mr: 2, width: "250px", mb: 2 }}
+              value={quotes?.subject}
+              onChange={(e) => onItemChange(e, -1, "subject")}
+            />
 
-          <TextField
-            label="Subject"
-            size="small"
-            value={quotes?.subject}
-            onChange={(e) => onItemChange(e, -1, "subject")}
-          />
-
-          <TextField
-            label="Delivery Date"
-            size="small"
-            value={quotes?.deliveryDate}
-            onChange={(e) => onItemChange(e, -1, "deliveryDate")}
-          />
+            <TextField
+              label="Delivery Date"
+              size="small"
+              type="date"
+              sx={{ mr: 2, width: "250px" }}
+              value={quotes?.deliveryDate}
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => onItemChange(e, -1, "deliveryDate")}
+            />
+            <TextField
+              label="Remarks"
+              size="small"
+              value={quotes?.remarks}
+              sx={{ width: "250px" }}
+              onChange={(e) => onItemChange(e, -1, "remarks")}
+            />
+          </Box>
         </Box>
         <TableContainer>
           <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
@@ -229,7 +279,7 @@ export const Quotation = () => {
                           {...params}
                           label="Product"
                           size="small"
-                          sx={{ width: 130 }}
+                          sx={{ width: 230 }}
                         />
                       )}
                     />
@@ -251,13 +301,67 @@ export const Quotation = () => {
       </Loader>
     );
   };
+
+  const renderModalItem2 = () => (
+    <Tables
+      head={["Item", "Rate"]}
+      keys={["name", "rate"]}
+      data={quotations[quoteNum]?.items}
+    />
+  );
+
+  const onViewItem = (i) => {
+    setQuoteNum(i);
+    setModal2(true);
+  };
+
+  const onRespond = async (status = "created", id = "") => {
+    try {
+      if (status === "created") {
+        await get("approve-quotation/" + id, token);
+      }
+      await getQuotations();
+    } catch {}
+  };
+
+  const ExtraHead = () => <>{"Action"}</>;
+
+  const ExtraBody = ({ index = 0 }) => (
+    <>
+      <IconButton color="primary" onClick={() => onViewItem(index)}>
+        <Visibility />
+      </IconButton>
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={() =>
+          onRespond(quotations[index]?.status, quotations[index]?.id)
+        }
+        disabled={quotations[index]?.status === "accepted"}
+        sx={{ ml: 2 }}
+      >
+        {quotations[index]?.status === "created" ? "Accept" : "disabled"}
+      </Button>
+    </>
+  );
+
   return (
-    <Loader>
+    <Loader load={load}>
       <Modal
         open={open}
         handleClose={handleCloseModal}
         page={"product"}
         renderItem={renderModal}
+      />
+      <Modal
+        open={open2}
+        title={"Quotation items"}
+        show={false}
+        handleClose={() => {
+          setModal2(false);
+        }}
+        renderItem={renderModalItem2}
       />
       <Box
         sx={{
@@ -270,14 +374,21 @@ export const Quotation = () => {
         <Button variant="contained" color="primary" onClick={onOpenModal}>
           New Quotation
         </Button>
-        <Button variant="contained" color="primary">
+        {/* <Button variant="contained" color="primary">
           Valid Quotation/Canceled
         </Button>
         <Button variant="contained" color="primary">
           Status
-        </Button>
+        </Button> */}
       </Box>
-      <Tables keys={keys} head={head} data={quotations} />
+      <Tables
+        keys={keys}
+        head={head}
+        data={quotations}
+        ExtraBody={ExtraBody}
+        ExtraHead={ExtraHead}
+        extra
+      />
     </Loader>
   );
 };

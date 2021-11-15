@@ -21,7 +21,7 @@ import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
 import capitalizeFirstLetter from "utils/capitalizeFirstLetter";
 import { Loader } from "component/loader/Loader";
-// import { Loader } from "component/loader/Loader";
+import { useSnackbar } from "notistack";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -102,6 +102,7 @@ export function ItemMaster() {
   let [data, setData] = React.useState(pData);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
+  const { enqueueSnackbar } = useSnackbar();
 
   const onClear = () => {
     setProducts([
@@ -203,15 +204,26 @@ export function ItemMaster() {
     } catch {}
   };
 
+  const statusCheck = (e) => {
+    // if (e?.status === 200) {
+    onClear();
+    setOpen(false);
+    // } else {
+    //   enqueueSnackbar("Something went wrong", { variant: "error" });
+    // }
+  };
+
   const handleCloseModal = async (val = "") => {
-    if (val === "submit" && page === "products") {
-      await onAddProducts().catch(() => {});
-      onClear();
-      setOpen(false);
-    } else if (val === "submit" && page === "product") {
-      await onEditProduct().catch(() => {});
-      onClear();
-      setOpen(false);
+    if (val === "submit") {
+      if (page === "products") {
+        await onAddProducts()
+          .then(statusCheck)
+          .catch((e) => {});
+      } else if (page === "product") {
+        await onEditProduct()
+          .then(statusCheck)
+          .catch((e) => {});
+      }
     } else {
       onClear();
       setOpen(false);

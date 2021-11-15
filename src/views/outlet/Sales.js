@@ -62,7 +62,7 @@ const data = {
   customerName: "",
   doctorName: "",
   outletUserId: "",
-  billNo: generateBillNo(),
+  billNo: generateBillNo("SL"),
   scheme: "",
   products: [
     {
@@ -221,7 +221,7 @@ export function Sales() {
       customerName: "",
       doctorName: "",
       outletUserId: "",
-      billNo: generateBillNo(),
+      billNo: generateBillNo("SL"),
       scheme: "",
       products: [
         {

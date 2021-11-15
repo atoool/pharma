@@ -1,3 +1,3 @@
-export function generateBillNo() {
-  return "MVR" + new Date().valueOf() + "SL";
+export function generateBillNo(key) {
+  return "MVR" + key + new Date().valueOf();
 }

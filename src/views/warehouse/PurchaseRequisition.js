@@ -16,9 +16,10 @@ import {
   TextField,
 } from "@mui/material";
 import { Modal } from "component/Modal/Modal";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, Visibility } from "@mui/icons-material";
 import { AppContext } from "context/AppContext";
-import { get } from "api/api";
+import { post, get } from "api/api";
+import { generateBillNo } from "utils/generateBillNo";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -26,11 +27,12 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
     fontSize: 15,
     fontWeight: "bold",
-    textAlign: "right",
+    textAlign: "left",
     height: 60,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
+    textAlign: "left",
   },
 }));
 
@@ -43,28 +45,25 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-const head = [
-  "Item",
-  "Qty",
-  "Rate",
-  "Date",
-  "Status",
-  "Approve Status",
-  "Receive Status",
-];
-const keys = [
-  "itemName",
-  "requiredQty",
-  "rate",
-  "date",
-  "status",
-  "approveStatus",
-  "receiveStatus",
-];
-const data = [
+const head = ["Item", "Qty", "Rate"];
+const head1 = ["PRNumber", "Date", "Status"];
+const keys = ["prNumber", "createdAt", "status"];
+const data = {
+  requests: [
+    {
+      itemName: "",
+      quantity: "",
+      rate: "",
+    },
+  ],
+  remarks: "",
+  prNumber: generateBillNo("PR"),
+};
+
+const data1 = [
   {
     itemName: "",
-    requiredQty: "",
+    quantity: "",
     rate: "",
     date: "",
     status: "",
@@ -76,8 +75,11 @@ export const PurchaseRequisition = () => {
   const { userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [open, setModal] = React.useState(false);
-  const [reqs, setReqs] = React.useState(data);
+  const [open2, setModal2] = React.useState(false);
+  const [reqs, setReqs] = React.useState(data1);
+  const [reqNum, setReqNum] = React.useState(0);
   const [requests, setRequests] = React.useState(data);
+  const [load, setLoad] = React.useState(false);
 
   const getProductPrice = async (id) => {
     try {
@@ -92,169 +94,243 @@ export const PurchaseRequisition = () => {
     } catch {}
   };
 
-  const handleCloseModal = (action) => {
+  const getRequests = async (id) => {
+    try {
+      setLoad(true);
+      const dat = await get("purchase-requisitions", token);
+      setReqs(dat?.data?.response ?? []);
+      setLoad(false);
+    } catch {}
+  };
+
+  React.useEffect(() => {
+    getRequests();
+  }, []);
+  const onClear = () => {
+    setRequests({
+      requests: [
+        {
+          itemName: "",
+          quantity: "",
+          rate: "",
+        },
+      ],
+      prNumber: generateBillNo("PR"),
+      remarks: "",
+    });
+  };
+
+  const handleCloseModal = async (action) => {
+    if (action === "submit") {
+      await onPurchaseRequest().catch(() => {});
+    }
     setModal(false);
+    onClear();
   };
 
   const onAddRow = () => {
-    let temp = [...requests];
-    temp.push({
+    let temp = { ...requests };
+    temp?.requests.push({
       itemName: "",
-      requiredQty: "",
+      quantity: "",
       rate: "",
-      date: "",
-      status: "",
-      approveStatus: "",
-      receiveStatus: "",
     });
     setRequests(temp);
   };
 
   const onDeleteRow = (id) => {
-    let temp = [...requests];
-    temp = requests?.filter((f, i) => i !== id);
+    let temp = { ...requests };
+    temp = requests?.requests?.filter((f, i) => i !== id);
     setRequests(temp);
   };
 
   const onOpenModal = () => setModal(true);
+
   const renderModal = () => {
     const onItemChange = async (e, i, itm) => {
-      let temp = [...requests];
+      let temp = { ...requests };
       if (itm === "productId") {
-        temp[i].productId = e;
+        temp.requests[i].productId = e;
         let val = await getProductPrice(e);
-        temp[i].rate = val?.unitPrice;
-        temp[i].date = val?.expDate;
-        temp[i].itemName = val?.name;
+        temp.requests[i].rate = val?.unitPrice;
+        temp.requests[i].itemName = val?.name;
         setRequests(temp);
-      } else if (
-        itm === "approveStatus" ||
-        itm === "receiveStatus" ||
-        itm === "status"
-      ) {
-        temp[itm] = e;
+      } else if (i === -1) {
+        temp[itm] = e.target.value;
         setRequests(temp);
       } else {
-        temp[itm] = e.target.value;
+        temp.requests[i][itm] = e.target.value;
         setRequests(temp);
       }
     };
     return (
-      <TableContainer>
-        <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell align="right">
-                <Button variant="contained" color="primary" onClick={onAddRow}>
-                  <Add />
-                </Button>
-              </StyledTableCell>
-              {head.map((itm, i) => (
-                <StyledTableCell key={i} align="right">
-                  {itm}
+      <Loader>
+        <Box
+          sx={{
+            bgcolor: "#FBF7F0",
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <TextField
+            label="PRNumber"
+            value={requests?.prNumber}
+            disabled
+            size="small"
+          />
+        </Box>
+        <TableContainer>
+          <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell align="right">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={onAddRow}
+                  >
+                    <Add />
+                  </Button>
                 </StyledTableCell>
+                {head.map((itm, i) => (
+                  <StyledTableCell key={i} align="right">
+                    {itm}
+                  </StyledTableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {requests?.requests?.map((row, ind) => (
+                <StyledTableRow key={ind}>
+                  <StyledTableCell align="right">
+                    <IconButton
+                      color="primary"
+                      onClick={() => onDeleteRow(ind)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    <Autocomplete
+                      isOptionEqualToValue={(option, value) =>
+                        option.label === value.label
+                      }
+                      onChange={(e, v) =>
+                        v?.id && onItemChange(v?.id, ind, "productId")
+                      }
+                      options={productData?.map((option) => {
+                        return {
+                          label: option.name,
+                          id: option.id,
+                        };
+                      })}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Product"
+                          size="small"
+                          sx={{ width: 130 }}
+                        />
+                      )}
+                    />
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    <TextField
+                      label=""
+                      size="small"
+                      sx={{ width: "70px" }}
+                      value={requests?.quantity}
+                      onChange={(e) => onItemChange(e, ind, "quantity")}
+                    />
+                  </StyledTableCell>
+                  <StyledTableCell align="right">{row?.rate}</StyledTableCell>
+                </StyledTableRow>
               ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {requests?.map((row, ind) => (
-              <StyledTableRow key={ind}>
-                <StyledTableCell align="right">
-                  <IconButton color="primary" onClick={() => onDeleteRow(ind)}>
-                    <Delete />
-                  </IconButton>
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  <Autocomplete
-                    isOptionEqualToValue={(option, value) =>
-                      option.label === value.label
-                    }
-                    onChange={(e, v) =>
-                      v?.id && onItemChange(v?.id, ind, "productId")
-                    }
-                    options={productData?.map((option) => {
-                      return {
-                        label: option.name,
-                        id: option.id,
-                      };
-                    })}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Product"
-                        size="small"
-                        sx={{ width: 130 }}
-                      />
-                    )}
-                  />
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  <TextField
-                    label=""
-                    size="small"
-                    sx={{ width: "70px" }}
-                    value={requests?.requiredQty}
-                    onChange={(e) => onItemChange(e, ind, "quantity")}
-                  />
-                </StyledTableCell>
-                <StyledTableCell align="right">{row?.rate}</StyledTableCell>
-                <StyledTableCell align="right">{row?.date}</StyledTableCell>
-                <StyledTableCell align="right">
-                  <Autocomplete
-                    isOptionEqualToValue={(option, value) => option === value}
-                    onChange={(e, v) => v && onItemChange(v, ind, "status")}
-                    options={["Pending", "Completed"]?.map((option) => {
-                      return option;
-                    })}
-                    renderInput={(params) => (
-                      <TextField {...params} size="small" sx={{ width: 130 }} />
-                    )}
-                  />
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  <Autocomplete
-                    isOptionEqualToValue={(option, value) =>
-                      option.label === value.label
-                    }
-                    onChange={(e, v) =>
-                      v && onItemChange(v, ind, "approveStatus")
-                    }
-                    options={["Approved", "Not Approved"]?.map((option) => {
-                      return option;
-                    })}
-                    renderInput={(params) => (
-                      <TextField {...params} size="small" sx={{ width: 130 }} />
-                    )}
-                  />
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  <Autocomplete
-                    isOptionEqualToValue={(option, value) => option === value}
-                    onChange={(e, v) =>
-                      v && onItemChange(v, ind, "receiveStatus")
-                    }
-                    options={["Received", "Not Received"]?.map((option) => {
-                      return option;
-                    })}
-                    renderInput={(params) => (
-                      <TextField {...params} size="small" sx={{ width: 130 }} />
-                    )}
-                  />
-                </StyledTableCell>
-              </StyledTableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Box>
+          <TextField
+            label="Remarks"
+            value={requests?.remarks}
+            sx={{ height: 100, m: 2 }}
+            onChange={(e) => onItemChange(e, -1, "remarks")}
+          />
+        </Box>
+      </Loader>
     );
   };
+
+  const onPurchaseRequest = async () => {
+    try {
+      await post("new-purchase-requisition", token, requests);
+    } catch {}
+  };
+
+  const onViewItem = (i) => {
+    setReqNum(i);
+    setModal2(true);
+  };
+
+  const onRespond = async (status = "delivered", id = "") => {
+    try {
+      if (status === "requested") {
+        await get("accept-purchase-requisition/" + id, token);
+      } else if (status === "accepted") {
+        await get("delivered-purchase-requisition/" + id, token);
+      }
+      await getRequests();
+    } catch {}
+  };
+
+  const ExtraHead = () => <>{"Action"}</>;
+
+  const ExtraBody = ({ index = 0 }) => (
+    <>
+      <IconButton color="primary" onClick={() => onViewItem(index)}>
+        <Visibility />
+      </IconButton>
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={() => onRespond(reqs[index]?.status, reqs[index]?.id)}
+        disabled={reqs[index]?.status === "delivered"}
+        sx={{ ml: 2 }}
+      >
+        {reqs[index]?.status === "requested"
+          ? "Accept"
+          : reqs[index]?.status === "accepted"
+          ? "Delivered"
+          : "disabled"}
+      </Button>
+    </>
+  );
+
+  const renderModalItem2 = () => (
+    <Tables
+      head={["Item", "Qty", "Rate"]}
+      keys={["name", "quantity", "rate"]}
+      data={reqs[reqNum]?.items}
+    />
+  );
   return (
-    <Loader>
+    <Loader load={load}>
       <Modal
         open={open}
         handleClose={handleCloseModal}
         page={"product"}
         renderItem={renderModal}
+      />
+      <Modal
+        open={open2}
+        title={"Requested items"}
+        show={false}
+        handleClose={() => {
+          setModal2(false);
+        }}
+        renderItem={renderModalItem2}
       />
       <Box
         sx={{
@@ -268,7 +344,14 @@ export const PurchaseRequisition = () => {
           New requisition
         </Button>
       </Box>
-      <Tables keys={keys} head={head} data={reqs} />
+      <Tables
+        keys={keys}
+        head={head1}
+        data={reqs}
+        ExtraHead={ExtraHead}
+        ExtraBody={ExtraBody}
+        extra
+      />
     </Loader>
   );
 };
