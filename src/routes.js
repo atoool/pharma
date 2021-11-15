@@ -14,6 +14,7 @@ import {
   PostAdd,
   Flag,
   PendingActions,
+  BadgeOutlined,
 } from "@mui/icons-material";
 import {
   IntentIssue,
@@ -32,6 +33,7 @@ import {
   Sales,
   SalesReturn,
   Reports,
+  Vendors,
 } from "./views";
 
 var dashRoutes = [
@@ -110,6 +112,14 @@ var dashRoutes = [
         component: PendingPurchase,
         layout: "/Pharma",
         icon: () => <PendingActions />,
+      },
+      {
+        path: "/Vendors",
+        name: "Vendors List",
+        secondaryNavbar: true,
+        component: Vendors,
+        layout: "/Pharma",
+        icon: () => <BadgeOutlined />,
       },
     ],
   },

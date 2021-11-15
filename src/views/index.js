@@ -2,6 +2,7 @@ import { Sales } from "./outlet/Sales";
 import { IntentEntries } from "./outlet/IntentEntries";
 import { SalesReturn } from "./outlet/SalesReturn";
 import { Reports } from "./outlet/Reports";
+import { Vendors } from "./warehouse/Vendors";
 const { Stocks } = require("./outlet/Stocks");
 const { IntentIssue } = require("./warehouse/IndentIssue");
 const { IntentEntry } = require("./warehouse/IntentEntry");
@@ -32,4 +33,5 @@ export {
   IntentEntries,
   SalesReturn,
   Reports,
+  Vendors,
 };
