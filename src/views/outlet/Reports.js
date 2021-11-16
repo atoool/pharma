@@ -1,5 +1,10 @@
-import { EmptyContent } from "component/emtyContent/EmptyContent";
+import { Chart } from "component/chart/Chart";
+import { Loader } from "component/loader/Loader";
 
 export function Reports() {
-  return <EmptyContent />;
+  return (
+    <Loader>
+      <Chart />
+    </Loader>
+  );
 }
