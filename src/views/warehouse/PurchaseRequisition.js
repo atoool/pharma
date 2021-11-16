@@ -300,14 +300,14 @@ export const PurchaseRequisition = () => {
         color="primary"
         size="small"
         onClick={() => onRespond(reqs[index]?.status, reqs[index]?.id)}
-        disabled={reqs[index]?.status === "delivered"}
+        disabled={reqs[index]?.status === "delivered" || !reqs[index]?.status}
         sx={{ ml: 2 }}
       >
         {reqs[index]?.status === "requested"
           ? "Accept"
           : reqs[index]?.status === "accepted"
           ? "Delivered"
-          : "disabled"}
+          : "NA"}
       </Button>
     </>
   );

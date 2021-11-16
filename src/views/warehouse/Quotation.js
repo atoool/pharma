@@ -20,6 +20,7 @@ import { Add, Delete, Visibility } from "@mui/icons-material";
 import { AppContext } from "context/AppContext";
 import { get } from "api/api";
 import { generateBillNo } from "utils/generateBillNo";
+import { post } from "api/api";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -76,7 +77,7 @@ export const Quotation = () => {
   const [open, setModal] = React.useState(false);
   const [open2, setModal2] = React.useState(false);
   const [quotes, setQuotes] = React.useState(data2);
-  const [quotations, setQuatations] = React.useState(data);
+  const [quotations, setQuotations] = React.useState(data);
   const [quoteNum, setQuoteNum] = React.useState(0);
   const [load, setLoad] = React.useState(false);
 
@@ -96,7 +97,7 @@ export const Quotation = () => {
     try {
       setLoad(true);
       const dat = await get("list-quotations", token);
-      setQuatations(dat?.data?.response ?? []);
+      setQuotations(dat?.data?.response ?? []);
 
       setLoad(false);
     } catch {}
@@ -109,7 +110,7 @@ export const Quotation = () => {
   const handleCloseModal = async (action) => {
     if (action === "submit") {
       try {
-        await get("new-quotation", token, quotes);
+        await post("new-quotation", token, quotes);
         await getQuotations();
       } catch {}
     }
@@ -316,9 +317,9 @@ export const Quotation = () => {
     setModal2(true);
   };
 
-  const onRespond = async (status = "created", id = "") => {
+  const onRespond = async (status = "not approved", id = "") => {
     try {
-      if (status === "created") {
+      if (status === "not approved") {
         await get("approve-quotation/" + id, token);
       }
       await getQuotations();
@@ -339,10 +340,10 @@ export const Quotation = () => {
         onClick={() =>
           onRespond(quotations[index]?.status, quotations[index]?.id)
         }
-        disabled={quotations[index]?.status === "accepted"}
+        disabled={quotations[index]?.status === "approved"}
         sx={{ ml: 2 }}
       >
-        {quotations[index]?.status === "created" ? "Accept" : "disabled"}
+        {quotations[index]?.status === "not approved" ? "Approve" : "NA"}
       </Button>
     </>
   );
