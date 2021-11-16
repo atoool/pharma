@@ -110,6 +110,7 @@ export const Quotation = () => {
     if (action === "submit") {
       try {
         await get("new-quotation", token, quotes);
+        await getQuotations();
       } catch {}
     }
     setModal(false);

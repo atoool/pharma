@@ -49,7 +49,7 @@ const head = ["Item", "Qty", "Rate"];
 const head1 = ["PRNumber", "Date", "Status"];
 const keys = ["prNumber", "createdAt", "status"];
 const data = {
-  requests: [
+  items: [
     {
       itemName: "",
       quantity: "",
@@ -108,7 +108,7 @@ export const PurchaseRequisition = () => {
   }, []);
   const onClear = () => {
     setRequests({
-      requests: [
+      items: [
         {
           itemName: "",
           quantity: "",
@@ -121,16 +121,19 @@ export const PurchaseRequisition = () => {
   };
 
   const handleCloseModal = async (action) => {
-    if (action === "submit") {
-      await onPurchaseRequest().catch(() => {});
-    }
+    try {
+      if (action === "submit") {
+        await onPurchaseRequest().catch(() => {});
+        await getRequests();
+      }
+    } catch {}
     setModal(false);
     onClear();
   };
 
   const onAddRow = () => {
     let temp = { ...requests };
-    temp?.requests.push({
+    temp?.items.push({
       itemName: "",
       quantity: "",
       rate: "",
@@ -140,29 +143,30 @@ export const PurchaseRequisition = () => {
 
   const onDeleteRow = (id) => {
     let temp = { ...requests };
-    temp = requests?.requests?.filter((f, i) => i !== id);
+    temp.items = requests?.items?.filter((f, i) => i !== id);
     setRequests(temp);
   };
 
   const onOpenModal = () => setModal(true);
 
+  const onItemChange = async (e, i, itm) => {
+    let temp = { ...requests };
+    if (itm === "productId") {
+      temp.items[i].itemId = e;
+      let val = await getProductPrice(e);
+      temp.items[i].rate = val?.unitPrice;
+      temp.items[i].itemName = val?.name;
+      setRequests(temp);
+    } else if (i === -1) {
+      temp[itm] = e.target.value;
+      setRequests(temp);
+    } else if (itm === "quantity") {
+      temp.items[i]["quantity"] = e.target.value;
+      setRequests(temp);
+    }
+  };
+
   const renderModal = () => {
-    const onItemChange = async (e, i, itm) => {
-      let temp = { ...requests };
-      if (itm === "productId") {
-        temp.requests[i].productId = e;
-        let val = await getProductPrice(e);
-        temp.requests[i].rate = val?.unitPrice;
-        temp.requests[i].itemName = val?.name;
-        setRequests(temp);
-      } else if (i === -1) {
-        temp[itm] = e.target.value;
-        setRequests(temp);
-      } else {
-        temp.requests[i][itm] = e.target.value;
-        setRequests(temp);
-      }
-    };
     return (
       <Loader>
         <Box
@@ -201,7 +205,7 @@ export const PurchaseRequisition = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {requests?.requests?.map((row, ind) => (
+              {requests?.items?.map((row, ind) => (
                 <StyledTableRow key={ind}>
                   <StyledTableCell align="right">
                     <IconButton
