@@ -45,13 +45,28 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-const head = ["Quotation Date", "Valid Date", "Vendor", "Subject", "Status"];
+const head = [
+  "Quotation Date",
+  "Valid Date",
+  "Vendor",
+  "Department",
+  "Subject",
+  "Status",
+];
 const head2 = ["Item", "Rate"];
-const keys = ["quotationDate", "validDate", "department", "subject", "status"];
+const keys = [
+  "quotationDate",
+  "validDate",
+  "name",
+  "department",
+  "subject",
+  "status",
+];
 const data = [
   {
     quotationDate: "",
     validDate: "",
+    name: "",
     department: "",
     subject: "",
     status: "",
@@ -71,7 +86,8 @@ const data2 = {
 };
 
 export const Quotation = () => {
-  const { userData, vendors } = React.useContext(AppContext);
+  const { userData, vendors, dept, onGetVendors, onGetDept } =
+    React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [open, setModal] = React.useState(false);
   const [open2, setModal2] = React.useState(false);
@@ -95,6 +111,8 @@ export const Quotation = () => {
 
   React.useEffect(() => {
     getProducts().catch(() => {});
+    onGetDept(token).catch(() => {});
+    onGetVendors(token).catch(() => {});
   }, []);
 
   const getQuotations = async (id) => {
@@ -140,6 +158,10 @@ export const Quotation = () => {
     if (itm === "vendor") {
       temp[itm] = e.label;
       temp["vendorId"] = e.id;
+      setQuotes(temp);
+    } else if (itm === "department") {
+      temp[itm] = e.label;
+      temp["departmentId"] = e.id;
       setQuotes(temp);
     } else if (itm === "productId") {
       temp.items[i].itemId = e;
@@ -215,14 +237,26 @@ export const Quotation = () => {
           </Box>
 
           <Box sx={{ display: "flex", mt: 2 }}>
-            <TextField
-              label="Department"
-              size="small"
-              sx={{ mr: 2, width: "250px" }}
-              value={quotes?.department}
-              onChange={(e) => onItemChange(e, -1, "department")}
+            <Autocomplete
+              isOptionEqualToValue={(option, value) =>
+                option.label === value.label
+              }
+              onChange={(e, v) => v?.id && onItemChange(v, -1, "department")}
+              options={dept?.map((option) => {
+                return {
+                  label: option.name,
+                  id: option.id,
+                };
+              })}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Department"
+                  size="small"
+                  sx={{ mr: 2, width: "250px" }}
+                />
+              )}
             />
-
             <TextField
               label="Subject"
               size="small"
@@ -286,7 +320,7 @@ export const Quotation = () => {
                         option.label === value.label
                       }
                       onChange={(e, v) =>
-                        v?.name && onItemChange(v?.name, ind, "productId")
+                        v?.label && onItemChange(v?.label, ind, "productId")
                       }
                       options={productData?.map((option) => {
                         return {

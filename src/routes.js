@@ -15,6 +15,7 @@ import {
   Flag,
   PendingActions,
   BadgeOutlined,
+  Apartment,
 } from "@mui/icons-material";
 import {
   IntentIssue,
@@ -33,6 +34,7 @@ import {
   Sales,
   SalesReturn,
   Reports,
+  Departments,
   Vendors,
 } from "./views";
 
@@ -120,6 +122,14 @@ var dashRoutes = [
         component: Vendors,
         layout: "/Pharma",
         icon: () => <BadgeOutlined />,
+      },
+      {
+        path: "/Departments",
+        name: "Departments List",
+        secondaryNavbar: true,
+        component: Departments,
+        layout: "/Pharma",
+        icon: () => <Apartment />,
       },
     ],
   },

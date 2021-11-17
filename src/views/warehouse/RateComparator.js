@@ -45,7 +45,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-const head = ["Vendor", "Rate"];
+const head = ["Item", "Vendor", "Rate"];
 const head2 = [
   "Item",
   "Min qty",
@@ -66,17 +66,14 @@ const keys2 = [
   "tax",
   "rate",
 ];
-const keys = ["vendorName", "itemRate"];
-const data1 = {
-  itemId: "",
-  name: "",
-  items: [
-    {
-      vendorName: "",
-      itemRate: "",
-    },
-  ],
-};
+const keys = ["itemName", "vendorName", "itemRate"];
+const data1 = [
+  {
+    itemName: "",
+    vendorName: "",
+    itemRate: "",
+  },
+];
 const data2 = {
   vendor: "",
   subject: "",
@@ -128,11 +125,10 @@ export const RateComparator = () => {
 
   const getData = async (id) => {
     try {
-      setLoad(true);
+      // setLoad(true);
       const dat = await get("rate-comparator/" + id, token);
       setData(dat?.data?.response ?? []);
-
-      setLoad(false);
+      // setLoad(false);
     } catch {}
   };
 
@@ -140,7 +136,7 @@ export const RateComparator = () => {
     if (action === "submit") {
       try {
         await get("new-quotation", token, submitData);
-        await getData(1);
+        // await getData(1);
       } catch {}
     }
     setModal(false);
@@ -171,7 +167,7 @@ export const RateComparator = () => {
 
   const onItemChange = async (e, i, itm) => {
     if (itm === "productId") {
-      await getData(e?.name).catch(() => {});
+      await getData(e?.label).catch(() => {});
     }
     // else if (i === -1) {
     //   temp[itm] = e.target.value;
@@ -185,7 +181,7 @@ export const RateComparator = () => {
   const renderModal = () => {
     return (
       <Loader>
-        <Box
+        {/* <Box
           sx={{
             bgcolor: "#FBF7F0",
             p: 2,
@@ -312,7 +308,7 @@ export const RateComparator = () => {
               ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </TableContainer> */}
       </Loader>
     );
   };
@@ -331,7 +327,7 @@ export const RateComparator = () => {
       if (status === "created") {
         await get("approve-quotation/" + id, token);
       }
-      await getData(1);
+      // await getData(1);
     } catch {}
   };
 
@@ -402,7 +398,7 @@ export const RateComparator = () => {
         /> */}
         <Autocomplete
           isOptionEqualToValue={(option, value) => option.label === value.label}
-          onChange={(e, v) => v?.id && onItemChange(v, -1, "productId")}
+          onChange={(e, v) => onItemChange(v, -1, "productId")}
           options={productData?.map((option) => {
             return {
               label: option.name,
@@ -419,14 +415,7 @@ export const RateComparator = () => {
           )}
         />
       </Box>
-      <Tables
-        keys={keys}
-        head={head}
-        data={data?.items}
-        ExtraBody={ExtraBody}
-        ExtraHead={ExtraHead}
-        extra
-      />
+      <Tables keys={keys} head={head} data={data} />
     </Loader>
   );
 };

@@ -19,7 +19,6 @@ import { Delete, Edit } from "@mui/icons-material";
 import { Modal } from "component/Modal/Modal";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
-import capitalizeFirstLetter from "utils/capitalizeFirstLetter";
 import { Loader } from "component/loader/Loader";
 import { useSnackbar } from "notistack";
 
@@ -31,6 +30,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontWeight: "bold",
     height: 60,
     padding: 2,
+    textAlign: "left",
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
@@ -49,166 +49,68 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const pData1 = [
+const keys = [
   {
     name: "",
-    hsnCode: "",
-    itemCode: "",
-    purchaseUnit: "",
-    conversionUnit: "",
-    unit: "",
-    purchaseDept: "",
-    itemCategory: "",
-    itemType: "",
-    itemSubType: "",
-    itemNature: "",
-    stock: "",
-    batch: "",
-    packing: "",
-    expiry: "",
-    unitPrice: "",
   },
 ];
-const pData11 = [
-  {
-    Name: "",
-    HSN: "",
-    Code: "",
-    PUnit: "",
-    CUnit: "",
-    Unit: "",
-    PDept: "",
-    Category: "",
-    Type: "",
-    SubType: "",
-    Nature: "",
-    Stock: "",
-    Batch: "",
-    Packing: "",
-    Expiry: "",
-    Price: "",
-  },
-];
-export function ItemMaster() {
-  const { userData, setProductData, onGetVendors, onGetDept } =
-    React.useContext(AppContext);
+const head = ["Name"];
+export function Departments() {
+  const { userData, onGetDept } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
-  const isOutlet = false;
-  const pData = pData1;
-  const pData3 = pData11;
 
   const [page, setPage] = React.useState("product");
   const [open, setOpen] = React.useState(false);
-  let [products, setProducts] = React.useState(pData);
-  let [data, setData] = React.useState(pData);
+  let [department, setDepartment] = React.useState(keys);
+  let [data, setData] = React.useState(keys);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
   const { enqueueSnackbar } = useSnackbar();
 
   const onClear = () => {
-    setProducts([
+    setDepartment([
       {
         name: "",
-        hsnCode: "",
-        itemCode: "",
-        purchaseUnit: "",
-        conversionUnit: "",
-        unit: "",
-        purchaseDept: "",
-        itemCategory: "",
-        itemType: "",
-        itemSubType: "",
-        itemNature: "",
-        stock: "",
-        batch: "",
-        packing: "",
-        expiry: "",
-        unitPrice: "",
       },
     ]);
   };
 
   const handleClickOpenModal = (pg = "product", i = 0) => {
     if (pg === "product") {
-      const {
-        id = "",
-        name = "",
-        hsnCode = "",
-        itemCode = "",
-        purchaseUnit = "",
-        conversionUnit = "",
-        unit = "",
-        purchaseDept = "",
-        itemCategory = "",
-        itemType = "",
-        itemSubType = "",
-        itemNature = "",
-        stock = "",
-        batch = "",
-        packing = "",
-        expiry = "",
-        unitPrice = "",
-      } = data[i];
-      setProducts([
-        {
-          id,
-          name,
-          hsnCode,
-          itemCode,
-          purchaseUnit,
-          conversionUnit,
-          unit,
-          purchaseDept,
-          itemCategory,
-          itemType,
-          itemSubType,
-          itemNature,
-          stock,
-          batch,
-          packing,
-          expiry,
-          unitPrice,
-        },
-      ]);
+      const { id = "", name = "" } = data[i];
+      setDepartment([{ id, name }]);
     }
     setPage(pg);
     setOpen(true);
   };
-  const onProductFetch = async () => {
+  const onDeptFetch = async () => {
     try {
-      const data1 = await get("list-products", token);
-      const data2 = isOutlet ? await get("list-stocks", token) : [];
-      isOutlet
-        ? data2?.data && setData(data2?.data)
-        : data1?.data && setData(data1?.data);
-      data1?.data && setProductData(data1?.data);
+      const data1 = await onGetDept(token);
+      setData(data1 ?? []);
     } catch {}
   };
 
   React.useEffect(() => {
-    onProductFetch();
-    onGetVendors(token);
-    onGetDept(token);
+    onDeptFetch();
   }, []);
 
-  const onAddProducts = async () => {
+  const onAddDept = async () => {
     try {
-      const dat = { products: products };
-      await post("add-product", token, dat);
-      await onProductFetch();
+      await post("new-department", token, department[0]);
+      console.warn(department);
+      await onDeptFetch();
     } catch {}
   };
 
-  const onEditProduct = async () => {
+  const onEditDept = async () => {
     try {
-      const dat = products[0];
-      await post("edit-product", token, dat);
-      await onProductFetch();
+      const dat = department[0];
+      await post("edit-department", token, dat);
+      await onDeptFetch();
     } catch {}
   };
 
   const statusCheck = (e) => {
-    // if (e?.status === 200) {
     onClear();
     setOpen(false);
     // } else {
@@ -219,11 +121,11 @@ export function ItemMaster() {
   const handleCloseModal = async (val = "") => {
     if (val === "submit") {
       if (page === "products") {
-        await onAddProducts()
+        await onAddDept()
           .then(statusCheck)
           .catch((e) => {});
       } else if (page === "product") {
-        await onEditProduct()
+        await onEditDept()
           .then(statusCheck)
           .catch((e) => {});
       }
@@ -235,17 +137,17 @@ export function ItemMaster() {
 
   const renderModalItem = () => {
     const handleChange = (e, i, itm) => {
-      let temp = [...products];
+      let temp = [...department];
       temp[i][itm] = e.currentTarget.value;
 
-      setProducts(temp);
+      setDepartment(temp);
     };
     const handleDelete = (i) => {
-      products.splice(i, 1);
-      setProducts([...products]);
+      department.splice(i, 1);
+      setDepartment([...department]);
     };
 
-    return products.map((itm, index) => (
+    return department.map((itm, index) => (
       <Box
         key={index}
         sx={{
@@ -254,20 +156,11 @@ export function ItemMaster() {
         validate
         autoComplete="off"
       >
-        {Object.keys(itm).map((item, indx) => (
+        {Object.keys(keys[0]).map((item, indx) => (
           <TextField
             key={indx}
             required
-            label={item}
-            type={item === "expiry" ? "date" : "text"}
-            InputLabelProps={
-              item === "expiry"
-                ? {
-                    shrink: true,
-                  }
-                : {}
-            }
-            disabled={item === "id"}
+            label={head[indx]}
             size="small"
             value={itm[item] ?? ""}
             onChange={(txt) => handleChange(txt, index, item)}
@@ -286,32 +179,17 @@ export function ItemMaster() {
   };
 
   const handleAddRowModal = () => {
-    let temp = [...products];
+    let temp = [...department];
     temp.push({
       name: "",
-      hsnCode: "",
-      itemCode: "",
-      purchaseUnit: "",
-      conversionUnit: "",
-      unit: "",
-      purchaseDept: "",
-      itemCategory: "",
-      itemType: "",
-      itemSubType: "",
-      itemNature: "",
-      stock: "",
-      batch: "",
-      packing: "",
-      expiry: "",
-      unitPrice: "",
     });
-    setProducts(temp);
+    setDepartment(temp);
   };
 
-  const onDeleteProduct = async (id) => {
+  const onDeleteDept = async (id) => {
     try {
-      await get("delete-product/" + id, token);
-      await onProductFetch();
+      await get("delete-department/" + id, token);
+      await onDeptFetch();
     } catch {}
   };
 
@@ -332,8 +210,8 @@ export function ItemMaster() {
         open={open}
         handleAddRow={handleAddRowModal}
         handleClose={handleCloseModal}
-        title={page === "product" ? "Edit Product" : "Add Products"}
-        page={page}
+        title={page === "product" ? "Edit Department" : "Add Department"}
+        page={"product"}
         renderItem={renderModalItem}
       />
       <TableContainer>
@@ -344,19 +222,17 @@ export function ItemMaster() {
         >
           <TableHead>
             <TableRow>
-              {!isOutlet && (
-                <StyledTableCell>
-                  <Button
-                    onClick={() => handleClickOpenModal("products")}
-                    variant="contained"
-                  >
-                    Add
-                  </Button>
-                </StyledTableCell>
-              )}
-              {Object.keys(pData3[0]).map((r, i) => (
+              <StyledTableCell>
+                <Button
+                  onClick={() => handleClickOpenModal("products")}
+                  variant="contained"
+                >
+                  Add
+                </Button>
+              </StyledTableCell>
+              {head?.map((r, i) => (
                 <StyledTableCell component="th" key={i}>
-                  {capitalizeFirstLetter(r)}
+                  {r}
                 </StyledTableCell>
               ))}
             </TableRow>
@@ -369,23 +245,21 @@ export function ItemMaster() {
               )
               ?.map((row, i) => (
                 <StyledTableRow key={i}>
-                  {!isOutlet && (
-                    <StyledTableCell component="th" scope="row" align={"right"}>
-                      <IconButton
-                        color="primary"
-                        onClick={() => handleClickOpenModal("product", i)}
-                      >
-                        <Edit />
-                      </IconButton>
-                      <IconButton
-                        color="primary"
-                        onClick={() => row?.id && onDeleteProduct(row?.id)}
-                      >
-                        <Delete />
-                      </IconButton>
-                    </StyledTableCell>
-                  )}
-                  {Object.keys(pData[0]).map((r, ind) => (
+                  <StyledTableCell component="th" scope="row" align={"right"}>
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleClickOpenModal("product", i)}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      color="primary"
+                      onClick={() => row?.id && onDeleteDept(row?.id)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </StyledTableCell>
+                  {Object.keys(keys[0])?.map((r, ind) => (
                     <StyledTableCell key={ind} align={"right"}>
                       {row[r]}
                     </StyledTableCell>

@@ -14,6 +14,8 @@ export const AppContext = React.createContext({
   onSetDrawer: () => {},
   vendors: [],
   onGetVendor: async () => {},
+  dept: [],
+  onGetDept: async () => {},
 });
 
 export const AppContextProvider = ({ children }) => {
@@ -23,6 +25,7 @@ export const AppContextProvider = ({ children }) => {
   const [userList, setUserList] = useState([]);
   const [drawer, setDrawer] = useState(true);
   const [vendors, setVendors] = useState([]);
+  const [dept, setDept] = useState([]);
 
   const history = useHistory();
 
@@ -40,10 +43,19 @@ export const AppContextProvider = ({ children }) => {
     } catch {}
   };
 
+  const onGetDept = async (tok) => {
+    try {
+      const data1 = (await get("list-departments", tok)) ?? [];
+      setDept(data1?.data?.response ?? []);
+      return data1?.data?.response ?? [];
+    } catch {}
+  };
+
   useEffect(() => {
     setUserData(token);
     onUserFetch(token);
     onGetVendors(token);
+    onGetDept(token);
     if (!token?.token?.accessToken) {
       history.push("/auth");
     } else {
@@ -68,6 +80,8 @@ export const AppContextProvider = ({ children }) => {
     drawer,
     onSetDrawer,
     onGetVendors,
+    onGetDept,
+    dept,
     vendors,
   };
 
