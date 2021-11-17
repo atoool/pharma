@@ -205,7 +205,12 @@ export function IntentEntry() {
             return { label: option.name, id: option.id };
           })}
           renderInput={(params) => (
-            <TextField {...params} label="Outlet User" size="small" />
+            <TextField
+              {...params}
+              label="Outlet User"
+              size="small"
+              sx={{ minWidth: 180 }}
+            />
           )}
         />
       </Box>
@@ -245,7 +250,12 @@ export function IntentEntry() {
                       };
                     })}
                     renderInput={(params) => (
-                      <TextField {...params} label="Product" size="small" />
+                      <TextField
+                        {...params}
+                        label="Product"
+                        size="small"
+                        sx={{ minWidth: 180 }}
+                      />
                     )}
                   />
                 </StyledTableCell>

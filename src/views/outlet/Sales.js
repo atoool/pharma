@@ -362,7 +362,7 @@ export function Sales() {
                         {...params}
                         label="Product"
                         size="small"
-                        sx={{ width: 130 }}
+                        sx={{ minWidth: 180 }}
                       />
                     )}
                   />

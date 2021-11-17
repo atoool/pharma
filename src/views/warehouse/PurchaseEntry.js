@@ -321,7 +321,7 @@ export function PurchaseEntry() {
                         {...params}
                         label="Item"
                         size="small"
-                        sx={{ width: 130 }}
+                        sx={{ minWidth: 180 }}
                       />
                     )}
                   />
@@ -339,7 +339,7 @@ export function PurchaseEntry() {
                     size="small"
                     type="date"
                     value={row?.expiry}
-                    sx={{ width: "140px" }}
+                    sx={{ minWidth: "150px" }}
                     onChange={(e) => onItemChange(e, ind, "expiry")}
                   />
                 </StyledTableCell>

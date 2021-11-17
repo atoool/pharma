@@ -3,47 +3,59 @@ import { Loader } from "component/loader/Loader";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import React from "react";
 import { Box } from "@mui/system";
+import { get } from "api/api";
+import { AppContext } from "context/AppContext";
+
+const data = [{ y: 155, label: "Jan" }];
+
+const form = [
+  {
+    title: "Analyze",
+    items: [
+      "Sales",
+      "Sales Return",
+      "Consolidated Stock",
+      "Stock",
+      "Expiry Items",
+    ],
+  },
+  { title: "Duration", items: ["Daily", "Monthly", "Yearly"] },
+];
 
 export function Reports() {
-  const [select, setSelect] = React.useState({ y: "Stock", x: "Daily" });
-  const handleChange = (e, itm) => {
+  const { userData } = React.useContext(AppContext);
+  const token = userData?.token?.accessToken ?? "";
+  const [select, setSelect] = React.useState({ y: "Sales", x: "Daily" });
+  const [report, setReport] = React.useState([]);
+  const [load, setLoad] = React.useState(false);
+
+  const handleChange = async (e, itm) => {
     const temp = { ...select };
     if (itm === "Duration") {
       temp.x = e.target.value;
     } else {
       temp.y = e.target.value;
+      await getReport(temp.y).catch(() => {});
     }
     setSelect(temp);
   };
-  const data = [
-    { y: 155, label: "Jan" },
-    { y: 150, label: "Feb" },
-    { y: 152, label: "Mar" },
-    { y: 148, label: "Apr" },
-    { y: 142, label: "May" },
-    { y: 150, label: "Jun" },
-    { y: 146, label: "Jul" },
-    { y: 149, label: "Aug" },
-    { y: 153, label: "Sept" },
-    { y: 158, label: "Oct" },
-    { y: 154, label: "Nov" },
-    { y: 150, label: "Dec" },
-  ];
-  const form = [
-    {
-      title: "Analyze",
-      items: [
-        "Sales Report",
-        "Sales Return",
-        "Consolidated Stock",
-        "Stock",
-        "Expiry Items",
-      ],
-    },
-    { title: "Duration", items: ["Daily", "Monthly", "Yearly"] },
-  ];
+
+  const getReport = async (y) => {
+    try {
+      setLoad(true);
+      const data1 = await get("reports/" + y?.toLowerCase(), token);
+      setReport(data1?.data?.response ?? []);
+      console.warn(data1?.data?.response);
+      setLoad(false);
+    } catch {}
+  };
+
+  React.useEffect(() => {
+    getReport(select.y);
+  }, []);
+
   return (
-    <Loader>
+    <Loader load={load}>
       <Box sx={{ m: 2 }}>
         {form?.map((f, i) => (
           <FormControl size="small" key={i} sx={{ ml: i === 1 ? 2 : 0 }}>
@@ -51,7 +63,9 @@ export function Reports() {
             <Select
               value={i === 0 ? select?.y : select?.x}
               label={f.title}
-              onChange={(e) => handleChange(e, f.title)}
+              onChange={async (e) =>
+                await handleChange(e, f.title).catch(() => {})
+              }
             >
               {f?.items?.map((j) => (
                 <MenuItem key={j} value={j}>
@@ -62,7 +76,11 @@ export function Reports() {
           </FormControl>
         ))}
       </Box>
-      <Charts data={data} xTitle="Duration" yTitle={select.y} />
+      <Charts
+        data={report[select.x?.toLowerCase()] ?? data}
+        xTitle="Duration"
+        yTitle={select.y}
+      />
     </Loader>
   );
 }

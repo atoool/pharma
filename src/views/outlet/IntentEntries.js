@@ -181,7 +181,12 @@ export function IntentEntries() {
                       };
                     })}
                     renderInput={(params) => (
-                      <TextField {...params} label="Product" size="small" />
+                      <TextField
+                        {...params}
+                        label="Product"
+                        size="small"
+                        sx={{ minWidth: 180 }}
+                      />
                     )}
                   />
                 </StyledTableCell>

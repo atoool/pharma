@@ -314,7 +314,12 @@ export function SalesReturn() {
             return { label: option.name, id: option.id };
           })}
           renderInput={(params) => (
-            <TextField {...params} label="Outlet User" size="small" />
+            <TextField
+              {...params}
+              label="Outlet User"
+              size="small"
+              sx={{ minWidth: 170 }}
+            />
           )}
         />
         <TextField
@@ -388,7 +393,7 @@ export function SalesReturn() {
                         {...params}
                         label="Product"
                         size="small"
-                        sx={{ width: 130 }}
+                        sx={{ minWidth: 180 }}
                       />
                     )}
                   />
