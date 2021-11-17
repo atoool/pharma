@@ -18,9 +18,8 @@ import {
 import { Modal } from "component/Modal/Modal";
 import { Add, Delete, Visibility } from "@mui/icons-material";
 import { AppContext } from "context/AppContext";
-import { get } from "api/api";
+import { get, post } from "api/api";
 import { generateBillNo } from "utils/generateBillNo";
-import { post } from "api/api";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -72,7 +71,7 @@ const data2 = {
 };
 
 export const Quotation = () => {
-  const { userData, productData } = React.useContext(AppContext);
+  const { userData, productData, vendors } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [open, setModal] = React.useState(false);
   const [open2, setModal2] = React.useState(false);
@@ -133,7 +132,11 @@ export const Quotation = () => {
 
   const onItemChange = async (e, i, itm) => {
     let temp = { ...quotes };
-    if (itm === "productId") {
+    if (itm === "vendor") {
+      temp[itm] = e.label;
+      temp["vendorId"] = e.id;
+      setQuotes(temp);
+    } else if (itm === "productId") {
       temp.items[i].itemId = e;
       let val = await getProductPrice(e);
       temp.items[i].itemName = val?.name;
@@ -154,25 +157,35 @@ export const Quotation = () => {
           sx={{
             bgcolor: "#FBF7F0",
             p: 2,
-            display: "flex",
-            justifyContent: "space-around",
-            flex: "wrap",
             width: window.innerWidth,
           }}
         >
-          <Box>
-            <TextField
-              label="Vendor"
-              size="small"
-              value={quotes?.vendor}
-              sx={{ mr: 2, width: "250px", mb: 2 }}
-              onChange={(e) => onItemChange(e, -1, "vendor")}
+          <Box sx={{ display: "flex" }}>
+            <Autocomplete
+              isOptionEqualToValue={(option, value) =>
+                option.label === value.label
+              }
+              onChange={(e, v) => v?.id && onItemChange(v, -1, "vendor")}
+              options={vendors?.map((option) => {
+                return {
+                  label: option.name,
+                  id: option.id,
+                };
+              })}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Vendor"
+                  size="small"
+                  sx={{ mr: 2, width: "250px" }}
+                />
+              )}
             />
             <TextField
               label="Quotation Date"
               size="small"
-              type="date"
-              sx={{ mr: 2, width: "250px", mb: 2 }}
+              type="datetime-local"
+              sx={{ mr: 2, width: "250px" }}
               InputLabelProps={{ shrink: true }}
               value={quotes?.quotationDate}
               onChange={(e) => onItemChange(e, -1, "quotationDate")}
@@ -196,11 +209,12 @@ export const Quotation = () => {
               onChange={(e) => onItemChange(e, -1, "vendor")}
             />
           </Box>
-          <Box>
+
+          <Box sx={{ display: "flex", mt: 2 }}>
             <TextField
               label="Department"
               size="small"
-              sx={{ mr: 2, width: "250px", mb: 2 }}
+              sx={{ mr: 2, width: "250px" }}
               value={quotes?.department}
               onChange={(e) => onItemChange(e, -1, "department")}
             />
@@ -208,7 +222,7 @@ export const Quotation = () => {
             <TextField
               label="Subject"
               size="small"
-              sx={{ mr: 2, width: "250px", mb: 2 }}
+              sx={{ mr: 2, width: "250px" }}
               value={quotes?.subject}
               onChange={(e) => onItemChange(e, -1, "subject")}
             />

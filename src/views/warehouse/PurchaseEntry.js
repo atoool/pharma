@@ -86,7 +86,7 @@ const data = {
 };
 
 export function PurchaseEntry() {
-  const { userData, productData } = React.useContext(AppContext);
+  const { userData, productData, vendors } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [order, setOrder] = React.useState(data);
   const [isLoad, setLoad] = React.useState(false);
@@ -94,7 +94,11 @@ export function PurchaseEntry() {
 
   const onItemChange = async (e, i, itm) => {
     let temp = { ...order };
-    if (i === -1 && itm === "is_cash") {
+    if (i === -1 && itm === "distributor") {
+      temp.distributor = e?.label;
+      temp.distributorId = e?.id;
+      setOrder(temp);
+    } else if (i === -1 && itm === "is_cash") {
       temp.is_cash = "1";
       temp.is_donate = "0";
       setOrder(temp);
@@ -252,11 +256,25 @@ export function PurchaseEntry() {
         }}
       >
         <Box>
-          <TextField
-            label="Vendor"
-            size="small"
-            sx={{ mr: 2 }}
-            onChange={(e) => onItemChange(e, -1, "distributor")}
+          <Autocomplete
+            isOptionEqualToValue={(option, value) =>
+              option.label === value.label
+            }
+            onChange={(e, v) => v?.id && onItemChange(v, -1, "distributor")}
+            options={vendors?.map((option) => {
+              return {
+                label: option.name,
+                id: option.id,
+              };
+            })}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Vendor"
+                size="small"
+                sx={{ width: 230 }}
+              />
+            )}
           />
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column" }}>

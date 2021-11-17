@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Box, styled } from "@mui/system";
 import { inWords } from "utils/inWords";
+import logo from "../../assets/images/logo.png";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -24,42 +25,15 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const data = {
-  customerName: "",
-  doctorName: "",
-  outletUserId: "",
-  billNo: "",
-  scheme: "",
-  date: new Date().toLocaleString(),
-  products: [
-    {
-      productId: "",
-      quantity: "",
-      hsnCode: "",
-      itemName: "",
-      batch: "",
-      expDate: "",
-      salePrice: "",
-      qty: "",
-      amount: "",
-      tax: "",
-      netRate: "",
-    },
-  ],
-  billAmount: "",
-  discAmount: "",
-  tax: "",
-  roundAmount: "",
-  remarks: "",
-  balance: "",
-  payment: "",
-  inPercent: "",
-  inAmount: "",
-};
-
-export const Invoice = React.forwardRef(({ bill = data }, ref) => {
-  let total = 0;
-  bill?.products?.map((f) => (total += parseFloat(f?.amount) ?? 0));
+export const Invoice = React.forwardRef(({ bill }, ref) => {
+  let amtTotal = 0;
+  let allTotal = 0;
+  let taxTotal = 0;
+  bill?.products?.map((f) => {
+    amtTotal += parseFloat(f?.amount) ?? 0;
+    allTotal += parseFloat(f?.total) ?? 0;
+    taxTotal += parseFloat(f?.amount * (f?.tax / 100)) ?? 0;
+  });
   return (
     <Box
       ref={ref}
@@ -79,23 +53,34 @@ export const Invoice = React.forwardRef(({ bill = data }, ref) => {
       >
         <Box
           sx={{
-            flexDirection: "column",
             display: "flex",
-            maxWidth: "50%",
-            flexWrap: "wrap",
           }}
         >
-          <Typography variant="h3" fontSize="20px">
-            MVR CANCER CENTRE & RESEARCH INSTITUTE
-          </Typography>
-          <Typography fontSize="12px">
-            CP 13/516 B,C, Vellalaseri, Poolacode, Choolor, via NIT P.O.
-            Kozhikode 673601 03-11-2021 03:43 PM Contact
-            No.:0495-2289500,0495-7199525 GST No: 32AABAC1051D1ZP, Email:
-            pharmacy@mvrccri.co, Whatsapp No: 8330 014 003, Google Pay No: 8330
-            014 042 DL. No. : KL-KKD-116153,116154. Location-OP PHARMACY, Ground
-            Floor, Hospital Block
-          </Typography>
+          <img
+            src={logo}
+            alt=""
+            style={{ width: 150, height: 60, marginRight: 10 }}
+          />
+          <Box
+            sx={{
+              flexDirection: "column",
+              display: "flex",
+              maxWidth: "50%",
+              flexWrap: "wrap",
+            }}
+          >
+            <Typography variant="h3" fontSize="20px">
+              MVR PharmaCare
+            </Typography>
+            <Typography fontSize="12px">
+              CP 13/516 B,C, Vellalaseri, Poolacode, Choolor, via NIT P.O.
+              Kozhikode 673601 03-11-2021 03:43 PM Contact
+              No.:0495-2289500,0495-7199525 GST No: 32AABAC1051D1ZP, Email:
+              pharmacy@mvrccri.co, Whatsapp No: 8330 014 003, Google Pay No:
+              8330 014 042 DL. No. : KL-KKD-116153,116154. Location-OP PHARMACY,
+              Ground Floor, Hospital Block
+            </Typography>
+          </Box>
         </Box>
         <Box
           sx={{
@@ -192,7 +177,9 @@ export const Invoice = React.forwardRef(({ bill = data }, ref) => {
                   </StyledTableCell>
                   <StyledTableCell align="right">{row?.pack}</StyledTableCell>
                   <StyledTableCell align="right">{row?.amount}</StyledTableCell>
-                  <StyledTableCell align="right">{row?.tax}</StyledTableCell>
+                  <StyledTableCell align="right">
+                    {(row?.tax / 100) * row?.amount}
+                  </StyledTableCell>
                   <StyledTableCell align="right">{row?.amount}</StyledTableCell>
                 </TableRow>
               ))}
@@ -207,9 +194,9 @@ export const Invoice = React.forwardRef(({ bill = data }, ref) => {
                 <StyledTableCell align="right"></StyledTableCell>
                 <StyledTableCell align="right"></StyledTableCell>
                 <StyledTableCell align="right"></StyledTableCell>
-                <StyledTableCell align="right">{total}</StyledTableCell>
-                <StyledTableCell align="right">0</StyledTableCell>
-                <StyledTableCell align="right">{total}</StyledTableCell>
+                <StyledTableCell align="right">{amtTotal}</StyledTableCell>
+                <StyledTableCell align="right">{bill?.tax}</StyledTableCell>
+                <StyledTableCell align="right">{allTotal}</StyledTableCell>
               </TableRow>
               <TableRow>
                 <StyledTableCell rowSpan={5}>
@@ -220,10 +207,8 @@ export const Invoice = React.forwardRef(({ bill = data }, ref) => {
                     **All figures are in Rupees (INR) only
                   </Typography>
                 </StyledTableCell>
-                <StyledTableCell colSpan={7}>CGST: 0</StyledTableCell>
-                <StyledTableCell colSpan={3} align="right">
-                  SGST: 0
-                </StyledTableCell>
+                <StyledTableCell colSpan={9}>CGST+SGST:</StyledTableCell>
+                <StyledTableCell align="right">{bill?.tax}</StyledTableCell>
               </TableRow>
               <TableRow>
                 <StyledTableCell colSpan={7}>
@@ -234,9 +219,9 @@ export const Invoice = React.forwardRef(({ bill = data }, ref) => {
                 </StyledTableCell>
               </TableRow>
               <TableRow>
-                <StyledTableCell colSpan={7}>Round Off: 0</StyledTableCell>
-                <StyledTableCell colSpan={3} align="right">
-                  Net Amt.: {bill?.roundAmount}
+                <StyledTableCell colSpan={9}>Net Amt.:</StyledTableCell>
+                <StyledTableCell align="right">
+                  {bill?.roundAmount}
                 </StyledTableCell>
               </TableRow>
               <TableRow>
@@ -266,7 +251,7 @@ export const Invoice = React.forwardRef(({ bill = data }, ref) => {
       >
         <Box>
           <Typography fontSize="16px" textAlign="center">
-            Thesni Noorjahan K
+            {"--"}
           </Typography>
           <Typography fontSize="14px" textAlign="center">
             Prepared by

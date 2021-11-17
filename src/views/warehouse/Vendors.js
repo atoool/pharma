@@ -61,19 +61,19 @@ const keys = [
 ];
 const head = ["Name", "Address", "Phone", "Email", "GST", "PanCard"];
 export function Vendors() {
-  const { userData, setProductData } = React.useContext(AppContext);
+  const { userData, onGetVendors } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
 
   const [page, setPage] = React.useState("product");
   const [open, setOpen] = React.useState(false);
-  let [products, setProducts] = React.useState(keys);
+  let [vendors, setVendors] = React.useState(keys);
   let [data, setData] = React.useState(keys);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
   const { enqueueSnackbar } = useSnackbar();
 
   const onClear = () => {
-    setProducts([
+    setVendors([
       {
         name: "",
         address: "",
@@ -96,40 +96,39 @@ export function Vendors() {
         gstno = "",
         pancard = "",
       } = data[i];
-      setProducts([{ id, name, address, phone, email, gstno, pancard }]);
+      setVendors([{ id, name, address, phone, email, gstno, pancard }]);
     }
     setPage(pg);
     setOpen(true);
   };
-  const onProductFetch = async () => {
+  const onVendorFetch = async () => {
     try {
-      const data1 = (await get("list-vendors", token)) ?? [];
-      data1?.data?.response && setData(data1?.data?.response);
-      data1?.data?.response && setProductData(data1?.data?.response);
+      const data1 = await onGetVendors(token);
+      setData(data1 ?? []);
     } catch {}
   };
 
   React.useEffect(() => {
-    onProductFetch();
+    onVendorFetch();
   }, []);
 
-  const onAddProducts = async () => {
+  const onAddVendor = async () => {
     try {
-      await post("new-vendor", token, products);
-      await onProductFetch();
+      await post("new-vendor", token, vendors[0]);
+      console.warn(vendors);
+      await onVendorFetch();
     } catch {}
   };
 
-  const onEditProduct = async () => {
+  const onEditVendor = async () => {
     try {
-      const dat = products[0];
+      const dat = vendors[0];
       await post("edit-vendor", token, dat);
-      await onProductFetch();
+      await onVendorFetch();
     } catch {}
   };
 
   const statusCheck = (e) => {
-    // if (e?.status === 200) {
     onClear();
     setOpen(false);
     // } else {
@@ -140,11 +139,11 @@ export function Vendors() {
   const handleCloseModal = async (val = "") => {
     if (val === "submit") {
       if (page === "products") {
-        await onAddProducts()
+        await onAddVendor()
           .then(statusCheck)
           .catch((e) => {});
       } else if (page === "product") {
-        await onEditProduct()
+        await onEditVendor()
           .then(statusCheck)
           .catch((e) => {});
       }
@@ -156,17 +155,17 @@ export function Vendors() {
 
   const renderModalItem = () => {
     const handleChange = (e, i, itm) => {
-      let temp = [...products];
+      let temp = [...vendors];
       temp[i][itm] = e.currentTarget.value;
 
-      setProducts(temp);
+      setVendors(temp);
     };
     const handleDelete = (i) => {
-      products.splice(i, 1);
-      setProducts([...products]);
+      vendors.splice(i, 1);
+      setVendors([...vendors]);
     };
 
-    return products.map((itm, index) => (
+    return vendors.map((itm, index) => (
       <Box
         key={index}
         sx={{
@@ -198,7 +197,7 @@ export function Vendors() {
   };
 
   const handleAddRowModal = () => {
-    let temp = [...products];
+    let temp = [...vendors];
     temp.push({
       name: "",
       address: "",
@@ -207,13 +206,13 @@ export function Vendors() {
       gstno: "",
       pancard: "",
     });
-    setProducts(temp);
+    setVendors(temp);
   };
 
-  const onDeleteProduct = async (id) => {
+  const onDeleteVendor = async (id) => {
     try {
       await get("delete-vendor/" + id, token);
-      await onProductFetch();
+      await onVendorFetch();
     } catch {}
   };
 
@@ -235,7 +234,7 @@ export function Vendors() {
         handleAddRow={handleAddRowModal}
         handleClose={handleCloseModal}
         title={page === "product" ? "Edit Vendor" : "Add Vendor"}
-        page={page}
+        page={"product"}
         renderItem={renderModalItem}
       />
       <TableContainer>
@@ -278,7 +277,7 @@ export function Vendors() {
                     </IconButton>
                     <IconButton
                       color="primary"
-                      onClick={() => row?.id && onDeleteProduct(row?.id)}
+                      onClick={() => row?.id && onDeleteVendor(row?.id)}
                     >
                       <Delete />
                     </IconButton>

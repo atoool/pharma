@@ -12,6 +12,10 @@ import {
   TextField,
   TableContainer,
   IconButton,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "context/AppContext";
@@ -29,11 +33,14 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
     fontSize: 15,
     fontWeight: "bold",
-    textAlign: "right",
+    textAlign: "left",
     height: 60,
+    paddingHorizontal: 0,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
+    textAlign: "left",
+    paddingHorizontal: 0,
   },
 }));
 
@@ -56,6 +63,7 @@ const head = [
   "Qty",
   "Amount",
   "Tax",
+  "Total",
 ];
 
 const data = {
@@ -77,6 +85,7 @@ const data = {
       qty: "",
       amount: "",
       tax: "",
+      total: "",
     },
   ],
   billAmount: "",
@@ -98,8 +107,6 @@ export function Sales() {
   const printRef = React.useRef();
   const { enqueueSnackbar } = useSnackbar();
 
-  const onUserChange = () => {};
-
   const getProductPrice = async (id) => {
     try {
       const dat = await get("get-product-price/" + id, token);
@@ -115,14 +122,29 @@ export function Sales() {
 
   const onItemChange = async (e, i, itm) => {
     let temp = { ...bill };
-    if (i === -1 && (itm === "outletUserId" || itm === "scheme")) {
+    if (itm === "tax" && i !== -1) {
+      temp.products[i].tax = e.target.value;
+      let tax = (e.target.value ?? 0) / 100;
+      tax = (temp.products[i].amount ?? 0) * tax;
+      let totalTax = 0;
+      temp.products?.map((f) => (totalTax += f?.amount * (f?.tax / 100)));
+      temp.tax = totalTax?.toFixed(2) ?? 0;
+      const total = tax + (temp.products[i].amount ?? 0);
+      temp.products[i].total = total?.toFixed(2);
+      let rAmount = 0;
+      temp.products?.map((f) => (rAmount += parseFloat(f?.total)));
+      temp.roundAmount = rAmount ? rAmount?.toFixed(2) : 0;
+      setBill(temp);
+    } else if (i === -1 && (itm === "outletUserId" || itm === "scheme")) {
       temp[itm] = e;
       setBill(temp);
     } else if (i === -1 && (itm === "in%" || itm === "inAmount")) {
+      const t = parseFloat(bill?.billAmount) + parseFloat(bill?.tax);
       temp.roundAmount =
         itm === "in%"
-          ? bill?.billAmount - bill?.billAmount * (e.target.value / 100)
-          : bill?.billAmount - e.target.value;
+          ? t - bill?.billAmount * (e.target.value / 100)
+          : t - e.target.value;
+      temp.roundAmount?.toFixed(2);
       itm === "in%"
         ? (temp.inPercent = e.target.value)
         : (temp.inAmount = e.target.value);
@@ -133,7 +155,7 @@ export function Sales() {
       temp.balance =
         temp?.payment && temp?.payment !== ""
           ? temp?.payment - temp.roundAmount
-          : temp?.billAmount - temp?.discAmount;
+          : t - temp?.discAmount;
       setBill(temp);
     } else if (i === -1 && itm === "payment") {
       temp.balance = e.target.value - bill?.roundAmount;
@@ -151,7 +173,7 @@ export function Sales() {
       temp.roundAmount = total - temp.discAmount;
       temp.products[i].quantity = v;
       setBill(temp);
-    } else if (itm === "productId") {
+    } else if (itm === "productId" || itm === "itemCode") {
       temp.products[i].productId = e;
       let val = await getProductPrice(e);
       temp.products[i].salePrice = val?.unitPrice === "0" ? 10 : val?.unitPrice;
@@ -257,6 +279,17 @@ export function Sales() {
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
 
+  const keyPress = (e) => {
+    if (e.keyCode === 13 && e.shiftKey) {
+      onAddRow();
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener("keydown", keyPress);
+    return () => document.removeEventListener("keydown", keyPress);
+  });
+
   const isLoad = false;
   return (
     <Loader load={isLoad}>
@@ -290,7 +323,7 @@ export function Sales() {
           sx={{ width: "15%" }}
           isOptionEqualToValue={(option, value) => option.label === value.label}
           onChange={(event, value) =>
-            value?.id && onUserChange(value?.id, -1, "outletUserId")
+            value?.id && onItemChange(value?.id, -1, "outletUserId")
           }
           options={userList?.map((option) => {
             return { label: option.name, id: option.id };
@@ -309,7 +342,7 @@ export function Sales() {
           sx={{ width: "15%" }}
           isOptionEqualToValue={(option, value) => option === value}
           onChange={(event, value) =>
-            value && onUserChange(value, -1, "scheme")
+            value && onItemChange(value, -1, "scheme")
           }
           options={["Regular", "Insurance"]}
           value={bill?.scheme}
@@ -342,12 +375,37 @@ export function Sales() {
                     <Delete />
                   </IconButton>
                 </StyledTableCell>
-                <StyledTableCell align="right">{row?.itemCode}</StyledTableCell>
                 <StyledTableCell align="right">
                   <Autocomplete
                     isOptionEqualToValue={(option, value) =>
                       option.label === value.label
                     }
+                    value={row?.itemCode}
+                    onChange={(e, v) =>
+                      v?.id && onItemChange(v?.id, ind, "itemCode")
+                    }
+                    options={productData?.map((option) => {
+                      return {
+                        label: option.itemCode,
+                        id: option.id,
+                      };
+                    })}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="ItemCode"
+                        size="small"
+                        sx={{ minWidth: 120 }}
+                      />
+                    )}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  <Autocomplete
+                    isOptionEqualToValue={(option, value) =>
+                      option.label === value.label
+                    }
+                    value={row?.itemName}
                     onChange={(e, v) =>
                       v?.id && onItemChange(v?.id, ind, "productId")
                     }
@@ -382,7 +440,20 @@ export function Sales() {
                   />
                 </StyledTableCell>
                 <StyledTableCell align="right">{row?.amount}</StyledTableCell>
-                <StyledTableCell align="right">{row?.tax}</StyledTableCell>
+                <StyledTableCell align="right">
+                  <FormControl size="small">
+                    <Select
+                      value={row?.tax}
+                      onChange={(e) => onItemChange(e, ind, "tax")}
+                    >
+                      <MenuItem value="9">9%</MenuItem>
+                      <MenuItem value="12">12%</MenuItem>
+                      <MenuItem value="16">16%</MenuItem>
+                      <MenuItem value="18">18%</MenuItem>
+                    </Select>
+                  </FormControl>
+                </StyledTableCell>
+                <StyledTableCell align="right">{row?.total}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
@@ -401,14 +472,14 @@ export function Sales() {
             <TableCell rowSpan={9} />
           </TableRow>
           <TableRow>
-            <TableCell>Bill Amount</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0 }}>Bill Amount</TableCell>
+            <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
               {bill?.billAmount}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Discount Amount</TableCell>
-            <TableCell align="right">
+            <TableCell sx={{ padding: 0 }}>Discount Amount</TableCell>
+            <TableCell align="right" sx={{ mt: 1, mb: 1 }}>
               <TextField
                 label="IN %"
                 size="small"
@@ -417,64 +488,72 @@ export function Sales() {
                 onChange={(e) => onItemChange(e, -1, "in%")}
               />
             </TableCell>
-            <TableCell align="right">
+            <TableCell align="right" sx={{ mr: 2 }}>
               <TextField
                 label="IN Amount"
                 size="small"
                 value={bill?.inAmount}
-                sx={{ width: "120px" }}
                 onChange={(e) => onItemChange(e, -1, "inAmount")}
               />
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Round Off</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+              Net. Rate
+            </TableCell>
+            <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
               {bill?.roundAmount}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Payment</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+              Payment
+            </TableCell>
+            <TableCell align="right" colSpan={2} sx={{ padding: 0 }}>
               <TextField
                 label=""
                 size="small"
-                sx={{ width: "120px" }}
+                sx={{ width: "120px", mt: 1, mb: 1, mr: 2 }}
                 value={bill?.payment}
                 onChange={(e) => onItemChange(e, -1, "payment")}
               />
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Balance</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+              Balance
+            </TableCell>
+            <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
               {bill?.balance}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Tax</TableCell>
-            <TableCell align="right" colSpan={2}>
-              18%
+            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+              Tax
+            </TableCell>
+            <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
+              {bill?.tax}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Remarks</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0 }}>Remarks</TableCell>
+            <TableCell sx={{ padding: 0 }} align="right" colSpan={2}>
               <TextField
                 size="small"
                 value={bill?.remarks}
+                sx={{ mt: 1, mb: 1, mr: 2 }}
                 onChange={(e) => onItemChange(e, -1, "remarks")}
               />
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>
-              <Button size="small" onClick={onSubmit}>
+              <Button variant="contained" onClick={onSubmit}>
                 Submit
               </Button>
             </TableCell>
             <TableCell align="right" colSpan={2}>
-              <Button size="small" onClick={onClear}>
+              <Button variant="contained" onClick={onClear}>
                 Clear
               </Button>
             </TableCell>
