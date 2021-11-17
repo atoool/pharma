@@ -105,14 +105,14 @@ var dashRoutes = [
         layout: "/Pharma",
         icon: () => <PowerInput />,
       },
-      {
-        path: "/PendingPurchase",
-        name: "Pending Purchase",
-        secondaryNavbar: true,
-        component: PendingPurchase,
-        layout: "/Pharma",
-        icon: () => <PendingActions />,
-      },
+      // {
+      //   path: "/PendingPurchase",
+      //   name: "Pending Purchase",
+      //   secondaryNavbar: true,
+      //   component: PendingPurchase,
+      //   layout: "/Pharma",
+      //   icon: () => <PendingActions />,
+      // },
       {
         path: "/Vendors",
         name: "Vendors List",
