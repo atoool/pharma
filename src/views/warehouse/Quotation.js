@@ -71,7 +71,7 @@ const data2 = {
 };
 
 export const Quotation = () => {
-  const { userData, productData, vendors } = React.useContext(AppContext);
+  const { userData, vendors } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [open, setModal] = React.useState(false);
   const [open2, setModal2] = React.useState(false);
@@ -79,18 +79,23 @@ export const Quotation = () => {
   const [quotations, setQuotations] = React.useState(data);
   const [quoteNum, setQuoteNum] = React.useState(0);
   const [load, setLoad] = React.useState(false);
+  const [productData, setProductData] = React.useState([{ id: "", name: "" }]);
 
-  const getProductPrice = async (id) => {
+  const getProducts = async (id) => {
     try {
-      const dat = await get("get-product-price/" + id, token);
-      return (
+      const dat = await get("list-product-in-quotation", token);
+      setProductData(
         dat?.data?.response ?? {
-          inStockCount: "0",
-          unitPrice: "0",
+          id: "",
+          name: "",
         }
       );
     } catch {}
   };
+
+  React.useEffect(() => {
+    getProducts().catch(() => {});
+  }, []);
 
   const getQuotations = async (id) => {
     try {
@@ -138,8 +143,7 @@ export const Quotation = () => {
       setQuotes(temp);
     } else if (itm === "productId") {
       temp.items[i].itemId = e;
-      let val = await getProductPrice(e);
-      temp.items[i].itemName = val?.name;
+      temp.items[i].itemName = e;
       setQuotes(temp);
     } else if (i === -1) {
       temp[itm] = e.target.value;
@@ -282,7 +286,7 @@ export const Quotation = () => {
                         option.label === value.label
                       }
                       onChange={(e, v) =>
-                        v?.id && onItemChange(v?.id, ind, "productId")
+                        v?.name && onItemChange(v?.name, ind, "productId")
                       }
                       options={productData?.map((option) => {
                         return {

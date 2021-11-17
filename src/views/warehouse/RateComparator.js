@@ -45,7 +45,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-const head = ["Start Date", "Exp Date", "Vendor", "Subject", "Status"];
+const head = ["Vendor", "Rate"];
 const head2 = [
   "Item",
   "Min qty",
@@ -66,17 +66,14 @@ const keys2 = [
   "tax",
   "rate",
 ];
-const keys = ["startDate", "expDate", "department", "subject", "status"];
+const keys = ["vendorName", "itemRate"];
 const data1 = {
-  startDate: "",
-  expDate: "",
+  itemId: "",
+  name: "",
   items: [
     {
-      startDate: "",
-      expDate: "",
-      department: "",
-      subject: "",
-      status: "",
+      vendorName: "",
+      itemRate: "",
     },
   ],
 };
@@ -102,7 +99,7 @@ const data2 = {
 };
 
 export const RateComparator = () => {
-  const { userData, productData } = React.useContext(AppContext);
+  const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [open, setModal] = React.useState(false);
   const [open2, setModal2] = React.useState(false);
@@ -111,37 +108,39 @@ export const RateComparator = () => {
   const [quoteNum, setQuoteNum] = React.useState(0);
   const [load, setLoad] = React.useState(false);
 
-  const getProductPrice = async (id) => {
+  const [productData, setProductData] = React.useState([{ id: "", name: "" }]);
+
+  const getProducts = async (id) => {
     try {
-      const dat = await get("get-product-price/" + id, token);
-      return (
+      const dat = await get("list-product-in-quotation", token);
+      setProductData(
         dat?.data?.response ?? {
-          inStockCount: "0",
-          unitPrice: "0",
+          id: "",
+          name: "",
         }
       );
     } catch {}
   };
 
-  const getQuotations = async (id) => {
+  React.useEffect(() => {
+    getProducts().catch(() => {});
+  }, []);
+
+  const getData = async (id) => {
     try {
-      // setLoad(true);
-      const dat = await get("list-quotations", token);
-      // setQuatations(dat?.data?.response ?? []);
+      setLoad(true);
+      const dat = await get("rate-comparator/" + id, token);
+      setData(dat?.data?.response ?? []);
 
       setLoad(false);
     } catch {}
   };
 
-  React.useEffect(() => {
-    getQuotations();
-  }, []);
-
   const handleCloseModal = async (action) => {
     if (action === "submit") {
       try {
         await get("new-quotation", token, submitData);
-        await getQuotations();
+        await getData(1);
       } catch {}
     }
     setModal(false);
@@ -171,19 +170,16 @@ export const RateComparator = () => {
   const onOpenModal = () => setModal(true);
 
   const onItemChange = async (e, i, itm) => {
-    let temp = { ...submitData };
     if (itm === "productId") {
-      temp.items[i].itemId = e;
-      let val = await getProductPrice(e);
-      temp.items[i].itemName = val?.name;
-      setSubmitData(temp);
-    } else if (i === -1) {
-      temp[itm] = e.target.value;
-      setSubmitData(temp);
-    } else if (itm === "rate") {
-      temp.items[i]["rate"] = e.currentTarget.value;
-      setSubmitData(temp);
+      await getData(e?.name).catch(() => {});
     }
+    // else if (i === -1) {
+    //   temp[itm] = e.target.value;
+    //   setSubmitData(temp);
+    // } else if (itm === "rate") {
+    //   temp.items[i]["rate"] = e.currentTarget.value;
+    //   setSubmitData(temp);
+    // }
   };
 
   const renderModal = () => {
@@ -335,7 +331,7 @@ export const RateComparator = () => {
       if (status === "created") {
         await get("approve-quotation/" + id, token);
       }
-      await getQuotations();
+      await getData(1);
     } catch {}
   };
 
@@ -386,15 +382,7 @@ export const RateComparator = () => {
           justifyContent: "space-between",
         }}
       >
-        <Button
-          variant="contained"
-          size="small"
-          color="primary"
-          onClick={onOpenModal}
-        >
-          New Contract
-        </Button>
-        <TextField
+        {/* <TextField
           label="Start Date"
           size="small"
           type="date"
@@ -411,10 +399,10 @@ export const RateComparator = () => {
           InputLabelProps={{ shrink: true }}
           value={data?.expDate}
           onChange={(e) => onItemChange(e, -1, "expDate")}
-        />
+        /> */}
         <Autocomplete
           isOptionEqualToValue={(option, value) => option.label === value.label}
-          onChange={(e, v) => v?.id && onItemChange(v?.id, -1, "productId")}
+          onChange={(e, v) => v?.id && onItemChange(v, -1, "productId")}
           options={productData?.map((option) => {
             return {
               label: option.name,
