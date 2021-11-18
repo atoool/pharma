@@ -4,6 +4,7 @@ import { SalesReturn } from "./outlet/SalesReturn";
 import { Reports } from "./outlet/Reports";
 import { Vendors } from "./warehouse/Vendors";
 import { Departments } from "./warehouse/Departments";
+import { SalesHistory } from "./outlet/SalesHistory";
 const { Stocks } = require("./outlet/Stocks");
 const { IntentIssue } = require("./warehouse/IndentIssue");
 const { IntentEntry } = require("./warehouse/IntentEntry");
@@ -36,4 +37,5 @@ export {
   Reports,
   Vendors,
   Departments,
+  SalesHistory,
 };

@@ -16,6 +16,7 @@ import {
   PendingActions,
   BadgeOutlined,
   Apartment,
+  History,
 } from "@mui/icons-material";
 import {
   IntentIssue,
@@ -36,6 +37,7 @@ import {
   Reports,
   Departments,
   Vendors,
+  SalesHistory,
 } from "./views";
 
 var dashRoutes = [
@@ -160,6 +162,14 @@ var dashRoutes = [
         component: SalesReturn,
         layout: "/Pharma",
         icon: () => <Receipt />,
+      },
+      {
+        path: "/SalesHistory",
+        name: "Sales History",
+        secondaryNavbar: true,
+        component: SalesHistory,
+        layout: "/Pharma",
+        icon: () => <History />,
       },
       {
         path: "/IndentEntries",
