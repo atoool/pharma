@@ -15,9 +15,9 @@ import { GppGood, Inventory2, Badge, AddBusiness } from "@mui/icons-material";
 import { AppContext } from "context/AppContext";
 
 export function Sidebar({ children, routes }) {
-  const { drawer } = React.useContext(AppContext);
-  // const role = userData?.user?.role ?? 3;
-  // const isOutlet = role === 3;
+  const { drawer, userData } = React.useContext(AppContext);
+  const role = userData?.user?.role ?? 3;
+  const isOutlet = role === 3;
   const [drawerWidth, setDrawerWidth] = React.useState(240);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
   const history = useHistory();
@@ -47,6 +47,11 @@ export function Sidebar({ children, routes }) {
   const listRender = () => {
     return routes.map((item, indx) => {
       if (item?.layout) {
+        return null;
+      }
+      if (item?.name === "Warehouse" && isOutlet && role !== 1) {
+        return null;
+      } else if (item?.name === "Outlet" && !isOutlet && role !== 1) {
         return null;
       }
       return (

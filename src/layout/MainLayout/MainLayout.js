@@ -2,17 +2,28 @@ import React from "react";
 import { Redirect, Route, Switch } from "react-router";
 import { Sidebar } from "./Sidebar";
 import routes from "routes.js";
+import { AppContext } from "../../context/AppContext";
 
 export const MainLayout = () => {
+  const {
+    userData: {
+      user: { role = "" },
+    },
+  } = React.useContext(AppContext);
   const getRoute = () => {
     return window.location.pathname !== "/Pharma/full-screen-maps";
   };
-  const getRoutes = (route) => {
+  const getRoutes = (route, show = true) => {
     return route.map((prop, key) => {
       if (prop.state) {
-        return getRoutes(prop.views);
+        if (role === 3 && prop.name === "Warehouse") {
+          return getRoutes(prop.views, false);
+        } else if (role === 2 && prop.name === "Outlet") {
+          return getRoutes(prop.views, false);
+        }
+        return getRoutes(prop.views, true);
       }
-      if (prop.layout === "/Pharma") {
+      if (prop.layout === "/Pharma" && show) {
         return (
           <Route
             path={prop.layout + prop.path}
@@ -30,7 +41,10 @@ export const MainLayout = () => {
       {getRoute() ? (
         <Switch>
           {getRoutes(routes)}
-          <Redirect from="/Pharma" to="/Pharma/Items" />
+          <Redirect
+            from="/Pharma"
+            to={role === 3 ? "/Pharma/Stocks" : "/Pharma/Items"}
+          />
         </Switch>
       ) : null}
     </Sidebar>
