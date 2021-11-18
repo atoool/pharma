@@ -12,12 +12,19 @@ import {
   TextField,
   TableContainer,
   IconButton,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "context/AppContext";
 import { Add, Delete, Directions } from "@mui/icons-material";
 import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
+import { Modal } from "../../component/Modal/Modal";
+import { Invoice } from "component/invoice/Invoice";
+import { useReactToPrint } from "react-to-print";
+import { generateBillNo } from "utils/generateBillNo";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -25,11 +32,14 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
     fontSize: 15,
     fontWeight: "bold",
-    textAlign: "right",
+    textAlign: "left",
     height: 60,
+    paddingHorizontal: 0,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 12,
+    textAlign: "left",
+    paddingHorizontal: 0,
   },
 }));
 
@@ -52,6 +62,7 @@ const head = [
   "Qty",
   "Amount",
   "Tax",
+  "Total",
 ];
 
 const billNo = "";
@@ -75,6 +86,7 @@ const data = {
       qty: "",
       amount: "",
       tax: "",
+      total: "",
     },
   ],
   billAmount: "",
@@ -92,9 +104,10 @@ export function SalesReturn() {
   const { userList, userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [bill, setBill] = React.useState(data);
+  const [open, setModal] = React.useState(false);
+  const [billNos, setBillNos] = React.useState([]);
+  const printRef = React.useRef();
   const { enqueueSnackbar } = useSnackbar();
-
-  const onUserChange = () => {};
 
   const getProductPrice = async (id) => {
     try {
@@ -108,50 +121,92 @@ export function SalesReturn() {
       );
     } catch {}
   };
+  const getBillNo = async () => {
+    try {
+      const dat = await get("bill-nos", token);
+      setBillNos(dat?.data?.response ?? []);
+    } catch {}
+  };
+
+  React.useEffect(() => {
+    getBillNo().catch(() => {});
+  }, []);
 
   const onItemChange = async (e, i, itm) => {
-    let temp = { ...bill };
-    if (i === -1 && (itm === "outletUserId" || itm === "scheme")) {
-      temp[itm] = e;
-      setBill(temp);
-    } else if (i === -1 && (itm === "in%" || itm === "inAmount")) {
-      temp.roundAmount =
+    try {
+      let temp = { ...bill };
+      if (itm === "tax" && i !== -1) {
+        temp.products[i].tax = e.target.value;
+        let tax = (e.target.value ?? 0) / 100;
+        tax = (temp.products[i].amount ?? 0) * tax;
+        let totalTax = 0;
+        temp.products?.map((f) => (totalTax += f?.amount * (f?.tax / 100)));
+        temp.tax = totalTax?.toFixed(2) ?? 0;
+        const total = tax + (temp.products[i].amount ?? 0);
+        temp.products[i].total = total?.toFixed(2);
+        let rAmount = 0;
+        temp.products?.map((f) => (rAmount += parseFloat(f?.total)));
+        temp.roundAmount = rAmount ? rAmount?.toFixed(2) : 0;
+        setBill(temp);
+      } else if (i === -1 && (itm === "outletUserId" || itm === "scheme")) {
+        temp[itm] = e;
+        setBill(temp);
+      } else if (i === -1 && (itm === "in%" || itm === "inAmount")) {
+        const t = parseFloat(bill?.billAmount) + parseFloat(bill?.tax);
+        temp.roundAmount =
+          itm === "in%"
+            ? t - bill?.billAmount * (e.target.value / 100)
+            : t - e.target.value;
+        temp.roundAmount?.toFixed(2);
         itm === "in%"
-          ? bill?.billAmount - bill?.billAmount * (e.target.value / 100)
-          : bill?.billAmount - e.target.value;
-      itm === "in%"
-        ? (temp.inPercent = e.target.value)
-        : (temp.inAmount = e.target.value);
-      setBill(temp);
-    } else if (i === -1 && itm === "payment") {
-      temp.balance = e.target.value - bill?.roundAmount;
-      temp.payment = e.target.value;
-      setBill(temp);
-    } else if (i === -1) {
-      temp[itm] = e.target.value;
-      setBill(temp);
-    } else if (itm === "quantity") {
-      const v = isNaN(e.target.value) ? 0 : JSON.parse(e.target.value);
-      temp.products[i].amount = v * temp.products[i].unitPrice;
-      let total = 0;
-      temp.products?.map((f) => (total += f?.amount));
-      temp.billAmount = total;
-      temp.products[i].quantity = v;
-      setBill(temp);
-    } else if (itm === "productId") {
-      temp.products[i].productId = e;
-      let val = await getProductPrice(e);
-      temp.products[i].unitPrice = val?.unitPrice === "0" ? 10 : val?.unitPrice;
-      temp.products[i].batch = val?.batch;
-      temp.products[i].hsnCode = val?.hsnCode;
-      temp.products[i].itemCode = val?.itemCode;
-      temp.products[i].expiry = val?.expiry;
-      temp.products[i].tax = 0;
-      setBill(temp);
-    } else {
-      temp.products[i][itm] = e.target.value;
-      setBill(temp);
-    }
+          ? (temp.inPercent = e.target.value)
+          : (temp.inAmount = e.target.value);
+        temp.discAmount =
+          itm === "in%"
+            ? bill?.billAmount * (e.target.value / 100)
+            : e.target.value;
+        temp.balance =
+          temp?.payment && temp?.payment !== ""
+            ? temp?.payment - temp.roundAmount
+            : t - temp?.discAmount;
+        setBill(temp);
+      } else if (i === -1 && itm === "payment") {
+        temp.balance = e.target.value - bill?.roundAmount;
+        temp.payment = e.target.value;
+        setBill(temp);
+      } else if (i === -1 && itm === "billNo") {
+        temp.billNo = e;
+        setBill(temp);
+        await getSaleDetail(e).catch(() => {});
+      } else if (i === -1) {
+        temp[itm] = e.target.value;
+        setBill(temp);
+      } else if (itm === "quantity") {
+        const v = isNaN(e.target.value) ? 0 : JSON.parse(e.target.value);
+        temp.products[i].amount = v * temp.products[i].unitPrice;
+        let total = 0;
+        temp.products?.map((f) => (total += f?.amount));
+        temp.billAmount = total;
+        temp.roundAmount = total - temp.discAmount;
+        temp.products[i].quantity = v;
+        setBill(temp);
+      } else if (itm === "productId" || itm === "itemCode") {
+        temp.products[i].productId = e;
+        let val = await getProductPrice(e);
+        temp.products[i].unitPrice =
+          val?.unitPrice === "0" ? 10 : val?.unitPrice;
+        temp.products[i].batch = val?.batch;
+        temp.products[i].hsnCode = val?.hsnCode;
+        temp.products[i].itemCode = val?.itemCode;
+        temp.products[i].expiry = val?.expiry;
+        temp.products[i].tax = 0;
+        temp.products[i].name = val?.name;
+        setBill(temp);
+      } else {
+        temp.products[i][itm] = e.target.value;
+        setBill(temp);
+      }
+    } catch {}
   };
 
   const onAddRow = () => {
@@ -161,7 +216,7 @@ export function SalesReturn() {
       quantity: "",
       hsnCode: "",
       itemCode: "",
-      name: "",
+      itemName: "",
       batch: "",
       expiry: "",
       unitPrice: "",
@@ -179,46 +234,27 @@ export function SalesReturn() {
   };
 
   const onSubmit = async () => {
+    setModal(true);
     try {
       bill.salesId = bill?.id;
       const dat = bill;
-      console.warn(dat);
       await post("sales-return", token, dat).then(() => {
         onAlert("success");
-        setBill({
-          customerName: "",
-          doctorName: "",
-          outletUserId: "",
-          billNo,
-          scheme: "",
-          products: [
-            {
-              productId: "",
-              quantity: "",
-              hsnCode: "",
-              itemCode: "",
-              name: "",
-              batch: "",
-              expiry: "",
-              unitPrice: "",
-              qty: "",
-              amount: "",
-              tax: "",
-            },
-          ],
-          billAmount: "",
-          discAmount: "",
-          tax: "",
-          roundAmount: "",
-          remarks: "",
-          balance: "",
-          payment: "",
-          inPercent: "",
-          inAmount: "",
-        });
       });
     } catch {
       onAlert("error");
+    }
+  };
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+  const handleCloseModal = (action) => {
+    if (action === "submit") {
+      handlePrint();
+    } else {
+      setModal(false);
+      onClear();
     }
   };
 
@@ -235,7 +271,7 @@ export function SalesReturn() {
           quantity: "",
           hsnCode: "",
           itemCode: "",
-          name: "",
+          itemName: "",
           batch: "",
           expiry: "",
           unitPrice: "",
@@ -263,9 +299,20 @@ export function SalesReturn() {
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
 
-  const getSaleDetail = async () => {
+  const keyPress = (e) => {
+    if (e.keyCode === 13 && e.shiftKey) {
+      onAddRow();
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener("keydown", keyPress);
+    return () => document.removeEventListener("keydown", keyPress);
+  });
+
+  const getSaleDetail = async (billN) => {
     try {
-      await get("sales-details/" + bill?.billNo, token).then((res) => {
+      await get("sales-details/" + billN, token).then((res) => {
         onAlert("success");
         let dat = res?.data?.response;
         console.warn(dat);
@@ -284,6 +331,12 @@ export function SalesReturn() {
   const isLoad = false;
   return (
     <Loader load={isLoad}>
+      <Modal
+        open={open}
+        page="sale"
+        handleClose={handleCloseModal}
+        renderItem={() => <Invoice ref={printRef} bill={bill} />}
+      />
       <Box
         sx={{
           bgcolor: "#FBF7F0",
@@ -292,6 +345,21 @@ export function SalesReturn() {
           justifyContent: "space-between",
         }}
       >
+        <Autocomplete
+          isOptionEqualToValue={(option, value) => option === value}
+          onChange={(event, value) =>
+            value && onItemChange(value, -1, "billNo")
+          }
+          options={billNos}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Bill No."
+              size="small"
+              sx={{ minWidth: 250 }}
+            />
+          )}
+        />
         <TextField
           label="Name"
           size="small"
@@ -308,39 +376,20 @@ export function SalesReturn() {
           sx={{ width: "15%" }}
           isOptionEqualToValue={(option, value) => option.label === value.label}
           onChange={(event, value) =>
-            value?.id && onUserChange(value?.id, -1, "outletUserId")
+            value?.id && onItemChange(value?.id, -1, "outletUserId")
           }
           options={userList?.map((option) => {
             return { label: option.name, id: option.id };
           })}
           renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Outlet User"
-              size="small"
-              sx={{ minWidth: 170 }}
-            />
+            <TextField {...params} label="Outlet User" size="small" />
           )}
         />
-        <TextField
-          label="Bill No."
-          size="small"
-          value={bill?.billNo}
-          onChange={(e) => onItemChange(e, -1, "billNo")}
-        />
-        <IconButton
-          color="primary"
-          sx={{ p: "10px" }}
-          aria-label="directions"
-          onClick={getSaleDetail}
-        >
-          <Directions />
-        </IconButton>
         <Autocomplete
           sx={{ width: "15%" }}
           isOptionEqualToValue={(option, value) => option === value}
           onChange={(event, value) =>
-            value && onUserChange(value, -1, "scheme")
+            value && onItemChange(value, -1, "scheme")
           }
           options={["Regular", "Insurance"]}
           value={bill?.scheme}
@@ -373,12 +422,37 @@ export function SalesReturn() {
                     <Delete />
                   </IconButton>
                 </StyledTableCell>
-                <StyledTableCell align="right">{row?.itemCode}</StyledTableCell>
                 <StyledTableCell align="right">
                   <Autocomplete
                     isOptionEqualToValue={(option, value) =>
                       option.label === value.label
                     }
+                    value={row?.itemCode}
+                    onChange={(e, v) =>
+                      v?.id && onItemChange(v?.id, ind, "itemCode")
+                    }
+                    options={productData?.map((option) => {
+                      return {
+                        label: option.itemCode,
+                        id: option.id,
+                      };
+                    })}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="ItemCode"
+                        size="small"
+                        sx={{ minWidth: 120 }}
+                      />
+                    )}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  <Autocomplete
+                    isOptionEqualToValue={(option, value) =>
+                      option?.label === value?.label
+                    }
+                    value={row?.name}
                     onChange={(e, v) =>
                       v?.id && onItemChange(v?.id, ind, "productId")
                     }
@@ -413,7 +487,20 @@ export function SalesReturn() {
                   />
                 </StyledTableCell>
                 <StyledTableCell align="right">{row?.amount}</StyledTableCell>
-                <StyledTableCell align="right">{row?.tax}</StyledTableCell>
+                <StyledTableCell align="right">
+                  <FormControl size="small">
+                    <Select
+                      value={row?.tax}
+                      onChange={(e) => onItemChange(e, ind, "tax")}
+                    >
+                      <MenuItem value="9">9%</MenuItem>
+                      <MenuItem value="12">12%</MenuItem>
+                      <MenuItem value="16">16%</MenuItem>
+                      <MenuItem value="18">18%</MenuItem>
+                    </Select>
+                  </FormControl>
+                </StyledTableCell>
+                <StyledTableCell align="right">{row?.total}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
@@ -432,14 +519,14 @@ export function SalesReturn() {
             <TableCell rowSpan={9} />
           </TableRow>
           <TableRow>
-            <TableCell>Bill Amount</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0 }}>Bill Amount</TableCell>
+            <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
               {bill?.billAmount}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Discount Amount</TableCell>
-            <TableCell align="right">
+            <TableCell sx={{ padding: 0 }}>Discount Amount</TableCell>
+            <TableCell align="right" sx={{ mt: 1, mb: 1 }}>
               <TextField
                 label="IN %"
                 size="small"
@@ -448,64 +535,72 @@ export function SalesReturn() {
                 onChange={(e) => onItemChange(e, -1, "in%")}
               />
             </TableCell>
-            <TableCell align="right">
+            <TableCell align="right" sx={{ mr: 2 }}>
               <TextField
                 label="IN Amount"
                 size="small"
                 value={bill?.inAmount}
-                sx={{ width: "120px" }}
                 onChange={(e) => onItemChange(e, -1, "inAmount")}
               />
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Round Off</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+              Net. Rate
+            </TableCell>
+            <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
               {bill?.roundAmount}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Payment</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+              Payment
+            </TableCell>
+            <TableCell align="right" colSpan={2} sx={{ padding: 0 }}>
               <TextField
                 label=""
                 size="small"
-                sx={{ width: "120px" }}
+                sx={{ width: "120px", mt: 1, mb: 1, mr: 2 }}
                 value={bill?.payment}
                 onChange={(e) => onItemChange(e, -1, "payment")}
               />
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Balance</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+              Balance
+            </TableCell>
+            <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
               {bill?.balance}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Tax</TableCell>
-            <TableCell align="right" colSpan={2}>
-              18%
+            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+              Tax
+            </TableCell>
+            <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
+              {bill?.tax}
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Remarks</TableCell>
-            <TableCell align="right" colSpan={2}>
+            <TableCell sx={{ padding: 0 }}>Remarks</TableCell>
+            <TableCell sx={{ padding: 0 }} align="right" colSpan={2}>
               <TextField
                 size="small"
                 value={bill?.remarks}
+                sx={{ mt: 1, mb: 1, mr: 2 }}
                 onChange={(e) => onItemChange(e, -1, "remarks")}
               />
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>
-              <Button size="small" onClick={onSubmit}>
+              <Button variant="contained" onClick={onSubmit}>
                 Submit
               </Button>
             </TableCell>
             <TableCell align="right" colSpan={2}>
-              <Button size="small" onClick={onClear}>
+              <Button variant="contained" onClick={onClear}>
                 Clear
               </Button>
             </TableCell>
