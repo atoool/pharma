@@ -360,7 +360,7 @@ export function ItemMaster() {
                   {capitalizeFirstLetter(r)}
                 </StyledTableCell>
               ))}
-              <StyledTableCell>Save</StyledTableCell>
+              {/* <StyledTableCell>Save</StyledTableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -392,11 +392,11 @@ export function ItemMaster() {
                       {row[r]}
                     </StyledTableCell>
                   ))}
-                  <StyledTableCell>
+                  {/* <StyledTableCell>
                     <IconButton color="primary" onClick={() => {}}>
                       <Save />
                     </IconButton>
-                  </StyledTableCell>
+                  </StyledTableCell> */}
                 </StyledTableRow>
               ))}
           </TableBody>
