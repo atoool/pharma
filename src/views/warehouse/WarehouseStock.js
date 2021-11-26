@@ -14,18 +14,16 @@ import {
   TextField,
   Divider,
   TablePagination,
-  FormControl,
-  Select,
-  MenuItem,
-  InputLabel,
 } from "@mui/material";
-import { Delete, Edit, Save } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 import { Modal } from "component/Modal/Modal";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
 import capitalizeFirstLetter from "utils/capitalizeFirstLetter";
 import { Loader } from "component/loader/Loader";
 import { useSnackbar } from "notistack";
+import { CSVLink } from "react-csv";
+import { generateBillNo } from "utils/generateBillNo";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -55,45 +53,41 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const pData1 = [
   {
-    itemCode: "",
     name: "",
-    genericName: "",
+    itemCode: "",
     hsnCode: "",
+    genericName: "",
+    batch: "",
     purchaseUnit: "",
-    conversionUnit: "",
     unit: "",
-    itemType: "",
     itemCategory: "",
-    tax: "",
+    itemType: "",
+    stock: "",
+    rate: "",
+    packing: "",
+    expiry: "",
+    unitPrice: "",
   },
 ];
 const pData11 = [
   {
-    Code: "",
     Name: "",
-    GenericName: "",
+    Code: "",
     HSN: "",
+    GenericName: "",
+    Batch: "",
     PUnit: "",
-    CUnit: "",
     Unit: "",
-    Type: "",
     Category: "",
-    tax: "",
+    Type: "",
+    Stock: "",
+    Rate: "",
+    Packing: "",
+    Expiry: "",
+    Price: "",
   },
 ];
-const cat = [
-  "DISCOUNT MARKUP 5%",
-  "MARKUP 10%",
-  "MARKUP 20%",
-  "MARKDOWN 5%",
-  "MARKDOWN 10%",
-  "MARKDOWN 20%",
-];
-const tx = ["9", "12", "16", "18"];
-const unt = ["NOS", "BOTTLE", "INJECTION", "GRAM", "LITR"];
-const typ = ["TABLET", "CAPSULE", "INJECTION"];
-
-export function ItemMaster() {
+export function WarehouseStock() {
   const { userData, setProductData, onGetVendors, onGetDept } =
     React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
@@ -105,6 +99,7 @@ export function ItemMaster() {
   const [open, setOpen] = React.useState(false);
   let [products, setProducts] = React.useState(pData);
   let [data, setData] = React.useState(pData);
+  let [tempData, setTempData] = React.useState(pData);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
   const { enqueueSnackbar } = useSnackbar();
@@ -112,16 +107,20 @@ export function ItemMaster() {
   const onClear = () => {
     setProducts([
       {
-        itemCode: "",
         name: "",
-        genericName: "",
+        itemCode: "",
         hsnCode: "",
+        genericName: "",
+        batch: "",
         purchaseUnit: "",
-        conversionUnit: "",
         unit: "",
-        itemType: "",
         itemCategory: "",
-        tax: "",
+        itemType: "",
+        stock: "",
+        rate: "",
+        packing: "",
+        expiry: "",
+        unitPrice: "",
       },
     ]);
   };
@@ -131,29 +130,41 @@ export function ItemMaster() {
       const {
         id = "",
         name = "",
-        genericName = "",
         hsnCode = "",
         itemCode = "",
         purchaseUnit = "",
         conversionUnit = "",
         unit = "",
-        itemType = "",
+        purchaseDept = "",
         itemCategory = "",
-        tax = "",
-      } = data[i];
+        itemType = "",
+        itemSubType = "",
+        itemNature = "",
+        stock = "",
+        batch = "",
+        packing = "",
+        expiry = "",
+        unitPrice = "",
+      } = tempData[i];
       setProducts([
         {
           id,
           name,
-          genericName,
           hsnCode,
           itemCode,
           purchaseUnit,
           conversionUnit,
           unit,
+          purchaseDept,
           itemCategory,
           itemType,
-          tax,
+          itemSubType,
+          itemNature,
+          stock,
+          batch,
+          packing,
+          expiry,
+          unitPrice,
         },
       ]);
     }
@@ -162,10 +173,12 @@ export function ItemMaster() {
   };
   const onProductFetch = async () => {
     try {
-      const data1 = await get("list-products-item-master", token);
-      data1?.data && setData(data1?.data);
-      const data2 = await get("list-products", token);
-      data2?.data && setProductData(data2?.data);
+      const data1 = await get("list-products", token);
+      if (data1?.data) {
+        setData(data1?.data);
+        setTempData(data1?.data);
+        setProductData(data1?.data);
+      }
     } catch {}
   };
 
@@ -220,7 +233,7 @@ export function ItemMaster() {
   const renderModalItem = () => {
     const handleChange = (e, i, itm) => {
       let temp = [...products];
-      temp[i][itm] = e.target.value;
+      temp[i][itm] = e.currentTarget.value;
 
       setProducts(temp);
     };
@@ -228,8 +241,6 @@ export function ItemMaster() {
       products.splice(i, 1);
       setProducts([...products]);
     };
-
-    const menus = { tax: tx, itemCategory: cat, unit: unt, itemType: typ };
 
     return products.map((itm, index) => (
       <Box
@@ -240,47 +251,25 @@ export function ItemMaster() {
         validate
         autoComplete="off"
       >
-        {Object.keys(pData1[0]).map((item, indx) =>
-          item === "tax" ||
-          item === "itemCategory" ||
-          item === "unit" ||
-          item === "itemType" ? (
-            <FormControl
-              size="small"
-              sx={{
-                width: item === "tax" ? "90px" : "195px",
-                mt: 2,
-                ml: item === "unit" ? 2 : 4,
-              }}
-              required
-            >
-              <InputLabel>{item}</InputLabel>
-              <Select
-                value={itm[item]}
-                label={item}
-                onChange={(e) => handleChange(e, index, item)}
-              >
-                {menus[item].map((f, i) => (
-                  <MenuItem key={i} value={f}>
-                    {f}
-                    {item === "tax" ? "%" : ""}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ) : (
-            <TextField
-              key={indx}
-              required
-              label={item}
-              type={"text"}
-              disabled={item === "id"}
-              size="small"
-              value={itm[item] ?? ""}
-              onChange={(txt) => handleChange(txt, index, item)}
-            />
-          )
-        )}
+        {Object.keys(itm).map((item, indx) => (
+          <TextField
+            key={indx}
+            required
+            label={item}
+            type={item === "expiry" ? "date" : "text"}
+            InputLabelProps={
+              item === "expiry"
+                ? {
+                    shrink: true,
+                  }
+                : {}
+            }
+            disabled={item === "id"}
+            size="small"
+            value={itm[item] ?? ""}
+            onChange={(txt) => handleChange(txt, index, item)}
+          />
+        ))}
         <IconButton
           color="primary"
           onClick={() => handleDelete(index)}
@@ -297,7 +286,6 @@ export function ItemMaster() {
     let temp = [...products];
     temp.push({
       name: "",
-      genericName: "",
       hsnCode: "",
       itemCode: "",
       purchaseUnit: "",
@@ -306,7 +294,13 @@ export function ItemMaster() {
       purchaseDept: "",
       itemCategory: "",
       itemType: "",
-      tax: "",
+      itemSubType: "",
+      itemNature: "",
+      stock: "",
+      batch: "",
+      packing: "",
+      expiry: "",
+      unitPrice: "",
     });
     setProducts(temp);
   };
@@ -327,18 +321,67 @@ export function ItemMaster() {
     setCurrentPage(0);
   };
 
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...data];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempData(tmpData);
+    (search === "" || !search) && setTempData(data);
+  };
+
   const isLoaded = data?.length > 0 && data[0]?.name === "";
 
   return (
     <Loader load={isLoaded}>
-      <Modal
-        open={open}
-        handleAddRow={handleAddRowModal}
-        handleClose={handleCloseModal}
-        title={page === "product" ? "Edit Product" : "Add Products"}
-        page={page}
-        renderItem={renderModalItem}
-      />
+      <Box
+        sx={{
+          bgcolor: "#FBF7F0",
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <TextField
+          required
+          label={"Item Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "name")}
+        />
+        <TextField
+          required
+          label={"Item Code"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "itemCode")}
+        />
+        <TextField
+          required
+          label={"Generic Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "genericName")}
+        />
+        <TextField
+          required
+          label={"Batch"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "batch")}
+        />
+        <Button variant="contained">
+          <CSVLink
+            data={data}
+            filename={generateBillNo("ITMMASTER") + ".csv"}
+            target="_blank"
+            style={{ textDecorationLine: "none", color: "inherit" }}
+          >
+            EXPORT CSV
+          </CSVLink>
+        </Button>
+      </Box>
       <TableContainer>
         <Table
           sx={{ minWidth: window.innerWidth }}
@@ -347,31 +390,22 @@ export function ItemMaster() {
         >
           <TableHead>
             <TableRow>
-              <StyledTableCell>
-                <Button
-                  onClick={() => handleClickOpenModal("products")}
-                  variant="contained"
-                >
-                  Add
-                </Button>
-              </StyledTableCell>
               {Object.keys(pData3[0]).map((r, i) => (
                 <StyledTableCell component="th" key={i}>
                   {capitalizeFirstLetter(r)}
                 </StyledTableCell>
               ))}
-              <StyledTableCell>Save</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data
+            {tempData
               ?.slice(
                 currentPage * rowsPerPage,
                 currentPage * rowsPerPage + rowsPerPage
               )
               ?.map((row, i) => (
                 <StyledTableRow key={i}>
-                  {!isOutlet && (
+                  {/* {!isOutlet && (
                     <StyledTableCell component="th" scope="row" align={"right"}>
                       <IconButton
                         color="primary"
@@ -386,17 +420,12 @@ export function ItemMaster() {
                         <Delete />
                       </IconButton>
                     </StyledTableCell>
-                  )}
+                  )} */}
                   {Object.keys(pData[0]).map((r, ind) => (
                     <StyledTableCell key={ind} align={"right"}>
                       {row[r]}
                     </StyledTableCell>
                   ))}
-                  <StyledTableCell>
-                    <IconButton color="primary" onClick={() => {}}>
-                      <Save />
-                    </IconButton>
-                  </StyledTableCell>
                 </StyledTableRow>
               ))}
           </TableBody>

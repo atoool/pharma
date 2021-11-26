@@ -38,6 +38,7 @@ import {
   Departments,
   Vendors,
   SalesHistory,
+  WarehouseStock,
 } from "./views";
 
 var dashRoutes = [
@@ -52,6 +53,14 @@ var dashRoutes = [
         component: ItemMaster,
         layout: "/Pharma",
         icon: () => <Inventory2 />,
+      },
+      {
+        path: "/WarehouseStock",
+        name: "Stocks",
+        secondaryNavbar: true,
+        component: WarehouseStock,
+        layout: "/Pharma",
+        icon: () => <List />,
       },
       {
         path: "/Quotation",
