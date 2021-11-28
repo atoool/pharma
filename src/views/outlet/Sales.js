@@ -384,7 +384,7 @@ export function Sales() {
                     onChange={(e, v) =>
                       v?.id && onItemChange(v?.id, ind, "itemCode")
                     }
-                    options={productData?.map((option) => {
+                    options={productData?.oStock?.map((option) => {
                       return {
                         label: option.itemCode,
                         id: option.id,
@@ -409,7 +409,7 @@ export function Sales() {
                     onChange={(e, v) =>
                       v?.id && onItemChange(v?.id, ind, "productId")
                     }
-                    options={productData?.map((option) => {
+                    options={productData?.oStock?.map((option) => {
                       return {
                         label: option.name,
                         id: option.id,

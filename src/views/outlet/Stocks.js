@@ -65,7 +65,8 @@ const pData22 = [
   },
 ];
 export function Stocks() {
-  const { userData, setProductData } = React.useContext(AppContext);
+  const { userData, setProductData, productData } =
+    React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const isOutlet = true;
   const pData = pData2;
@@ -104,10 +105,12 @@ export function Stocks() {
     try {
       const data1 = await get("list-products", token);
       const data2 = isOutlet ? await get("list-stocks", token) : [];
-      isOutlet
-        ? data2?.data && setData(data2?.data)
-        : data1?.data && setData(data1?.data);
-      data1?.data && setProductData(data1?.data);
+      data2?.data && setData(data2?.data);
+      setProductData({
+        wStock: data1?.data ?? [],
+        oStock: data2?.data ?? [],
+        master: productData?.master ?? [],
+      });
     } catch {}
   };
 

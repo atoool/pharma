@@ -5,7 +5,11 @@ import useToken from "../hooks/useToken";
 
 export const AppContext = React.createContext({
   userData: { token: { accessToken: null }, user: { role: null } },
-  userList: [],
+  userList: {
+    master: [],
+    wStock: [],
+    oStock: [],
+  },
   onSetUserData: () => {},
   productData: [],
   setProductData: () => {},
@@ -21,7 +25,11 @@ export const AppContext = React.createContext({
 export const AppContextProvider = ({ children }) => {
   const { token, setToken } = useToken();
   const [userData, setUserData] = useState(token);
-  const [productData, setProductData] = useState([]);
+  const [productData, setProductData] = useState({
+    master: [],
+    wStock: [],
+    oStock: [],
+  });
   const [userList, setUserList] = useState([]);
   const [drawer, setDrawer] = useState(true);
   const [vendors, setVendors] = useState([]);

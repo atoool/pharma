@@ -88,7 +88,7 @@ const pData11 = [
   },
 ];
 export function WarehouseStock() {
-  const { userData, setProductData, onGetVendors, onGetDept } =
+  const { userData, setProductData, productData, onGetVendors, onGetDept } =
     React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const isOutlet = false;
@@ -173,12 +173,16 @@ export function WarehouseStock() {
   };
   const onProductFetch = async () => {
     try {
-      const data1 = await get("list-products", token);
+      const data1 = await get("list-products", token).catch(() => {});
       if (data1?.data) {
         setData(data1?.data);
         setTempData(data1?.data);
-        setProductData(data1?.data);
       }
+      setProductData({
+        wStocks: data1?.data ?? [],
+        oStock: productData?.oStock ?? [],
+        master: productData?.master ?? [],
+      });
     } catch {}
   };
 

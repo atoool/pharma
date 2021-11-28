@@ -174,7 +174,7 @@ export function IntentEntries() {
                     onChange={(e, v) =>
                       v?.id && handleChange(v?.id, ind, "productId")
                     }
-                    options={productData?.map((option) => {
+                    options={productData?.wStock?.map((option) => {
                       return {
                         label: option.name,
                         id: option.id,

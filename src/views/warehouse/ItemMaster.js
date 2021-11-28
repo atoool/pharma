@@ -162,10 +162,17 @@ export function ItemMaster() {
   };
   const onProductFetch = async () => {
     try {
-      const data1 = await get("list-products-item-master", token);
+      const data1 = await get("list-products-item-master", token).catch(
+        () => {}
+      );
       data1?.data && setData(data1?.data);
-      const data2 = await get("list-products", token);
-      data2?.data && setProductData(data2?.data);
+      const data2 = await get("list-products", token).catch(() => {});
+      const data3 = await get("list-stocks", token).catch(() => {});
+      setProductData({
+        wStock: data3?.data ?? [],
+        oStock: data2?.data ?? [],
+        master: data1?.data ?? [],
+      });
     } catch {}
   };
 

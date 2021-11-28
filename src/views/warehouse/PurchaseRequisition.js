@@ -223,7 +223,7 @@ export const PurchaseRequisition = () => {
                       onChange={(e, v) =>
                         v?.id && onItemChange(v?.id, ind, "productId")
                       }
-                      options={productData?.map((option) => {
+                      options={productData?.master?.map((option) => {
                         return {
                           label: option.name,
                           id: option.id,
