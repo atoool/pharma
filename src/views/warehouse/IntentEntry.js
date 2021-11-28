@@ -15,7 +15,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Delete } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import { get, post } from "api/api";
 import { AppContext } from "context/AppContext";
 import { useSnackbar } from "notistack";
@@ -218,7 +218,11 @@ export function IntentEntry() {
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              <StyledTableCell align="right">Action</StyledTableCell>
+              <StyledTableCell align="right">
+                <Button variant="contained" sx={{ mr: 1 }} onClick={onAddRow}>
+                  <Add />
+                </Button>
+              </StyledTableCell>
               {iData.map((itm, i) => (
                 <StyledTableCell key={i} align="right">
                   {itm}
@@ -297,9 +301,6 @@ export function IntentEntry() {
           justifyContent: "flex-end",
         }}
       >
-        <Button variant="contained" sx={{ mr: 1 }} onClick={onAddRow}>
-          Add row
-        </Button>
         <Button variant="contained" sx={{ mr: 1 }} onClick={onIssue}>
           Create
         </Button>
