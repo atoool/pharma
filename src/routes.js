@@ -25,6 +25,7 @@ import {
   ItemMaster,
   PendingPurchase,
   PurchaseEntry,
+  PurchaseReturn,
   PurchaseOrder,
   PurchaseRequisition,
   Quotation,
@@ -101,6 +102,14 @@ var dashRoutes = [
         component: PurchaseEntry,
         layout: "/Pharma",
         icon: () => <Input />,
+      },
+      {
+        path: "/PurchaseReturn",
+        name: "Purchase Return",
+        secondaryNavbar: true,
+        component: PurchaseReturn,
+        layout: "/Pharma",
+        icon: () => <Receipt />,
       },
       {
         path: "/IndentIssue",
