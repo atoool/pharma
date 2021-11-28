@@ -215,7 +215,6 @@ export function Sales() {
   };
 
   const onSubmit = async () => {
-    setModal(true);
     try {
       const dat = bill;
       await post("add-sales", token, dat).then(() => {
@@ -234,7 +233,6 @@ export function Sales() {
       handlePrint();
     } else {
       setModal(false);
-      onClear();
     }
   };
 
@@ -290,6 +288,9 @@ export function Sales() {
     return () => document.removeEventListener("keydown", keyPress);
   });
 
+  const isEmptyProd =
+    bill?.products?.filter((f) => f?.total == null || f?.total === "")?.length >
+    0;
   const isLoad = false;
   return (
     <Loader load={isLoad}>
@@ -486,6 +487,7 @@ export function Sales() {
                 value={bill?.inPercent}
                 sx={{ width: "70px" }}
                 onChange={(e) => onItemChange(e, -1, "in%")}
+                disabled={isEmptyProd}
               />
             </TableCell>
             <TableCell align="right" sx={{ mr: 2 }}>
@@ -494,6 +496,7 @@ export function Sales() {
                 size="small"
                 value={bill?.inAmount}
                 onChange={(e) => onItemChange(e, -1, "inAmount")}
+                disabled={isEmptyProd}
               />
             </TableCell>
           </TableRow>
@@ -516,6 +519,7 @@ export function Sales() {
                 sx={{ width: "120px", mt: 1, mb: 1, mr: 2 }}
                 value={bill?.payment}
                 onChange={(e) => onItemChange(e, -1, "payment")}
+                disabled={isEmptyProd}
               />
             </TableCell>
           </TableRow>
@@ -543,10 +547,11 @@ export function Sales() {
                 value={bill?.remarks}
                 sx={{ mt: 1, mb: 1, mr: 2 }}
                 onChange={(e) => onItemChange(e, -1, "remarks")}
+                disabled={isEmptyProd}
               />
             </TableCell>
           </TableRow>
-          <TableRow>
+          {/* <TableRow>
             <TableCell>
               <Button variant="contained" onClick={onSubmit}>
                 Submit
@@ -557,9 +562,30 @@ export function Sales() {
                 Clear
               </Button>
             </TableCell>
-          </TableRow>
+          </TableRow> */}
         </TableBody>
       </Table>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button variant="contained" onClick={onSubmit} sx={{ m: 1 }}>
+          Submit
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => setModal(true)}
+          sx={{ m: 1 }}
+        >
+          Print
+        </Button>
+        <Button variant="contained" onClick={onClear} sx={{ m: 1 }}>
+          Clear
+        </Button>
+      </Box>
     </Loader>
   );
 }

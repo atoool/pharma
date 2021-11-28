@@ -211,7 +211,7 @@ export const Invoice = React.forwardRef(({ bill }, ref) => {
                 <StyledTableCell align="right">{bill?.tax}</StyledTableCell>
               </TableRow>
               <TableRow>
-                <StyledTableCell colSpan={7}>
+                <StyledTableCell colSpan={7} sx={{ fontWeight: "bold" }}>
                   Discount: {bill?.discAmount}
                 </StyledTableCell>
                 <StyledTableCell colSpan={3} align="right">
