@@ -143,7 +143,8 @@ export function SalesReturn() {
         temp.products?.map((f) => (totalTax += f?.amount * (f?.tax / 100)));
         temp.tax = totalTax?.toFixed(2) ?? 0;
         const total = tax + (temp.products[i].amount ?? 0);
-        temp.products[i].total = total?.toFixed(2);
+        temp.products[i].total =
+          total === "0" || !total ? total : total?.toFixed(2);
         let rAmount = 0;
         temp.products?.map((f) => (rAmount += parseFloat(f?.total)));
         temp.roundAmount = rAmount ? rAmount?.toFixed(2) : 0;
@@ -234,7 +235,6 @@ export function SalesReturn() {
   };
 
   const onSubmit = async () => {
-    setModal(true);
     try {
       bill.salesId = bill?.id;
       const dat = bill;
@@ -593,20 +593,29 @@ export function SalesReturn() {
               />
             </TableCell>
           </TableRow>
-          <TableRow>
-            <TableCell>
-              <Button variant="contained" onClick={onSubmit}>
-                Submit
-              </Button>
-            </TableCell>
-            <TableCell align="right" colSpan={2}>
-              <Button variant="contained" onClick={onClear}>
-                Clear
-              </Button>
-            </TableCell>
-          </TableRow>
         </TableBody>
       </Table>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button variant="contained" onClick={onSubmit} sx={{ m: 1 }}>
+          Submit
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => setModal(true)}
+          sx={{ m: 1 }}
+        >
+          Print
+        </Button>
+        <Button variant="contained" onClick={onClear} sx={{ m: 1 }}>
+          Clear
+        </Button>
+      </Box>
     </Loader>
   );
 }

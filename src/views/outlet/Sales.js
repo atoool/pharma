@@ -130,7 +130,8 @@ export function Sales() {
       temp.products?.map((f) => (totalTax += f?.amount * (f?.tax / 100)));
       temp.tax = totalTax?.toFixed(2) ?? 0;
       const total = tax + (temp.products[i].amount ?? 0);
-      temp.products[i].total = total?.toFixed(2);
+      temp.products[i].total =
+        total === "0" || !total ? total : total?.toFixed(2);
       let rAmount = 0;
       temp.products?.map((f) => (rAmount += parseFloat(f?.total)));
       temp.roundAmount = rAmount ? rAmount?.toFixed(2) : 0;
