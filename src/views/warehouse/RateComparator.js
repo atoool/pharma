@@ -111,10 +111,12 @@ export const RateComparator = () => {
     try {
       const dat = await get("list-product-in-quotation", token);
       setProductData(
-        dat?.data?.response ?? {
-          id: "",
-          name: "",
-        }
+        dat?.data?.response ?? [
+          {
+            id: "",
+            name: "",
+          },
+        ]
       );
     } catch {}
   };
