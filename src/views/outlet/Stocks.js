@@ -76,6 +76,7 @@ export function Stocks() {
   const [open, setOpen] = React.useState(false);
   let [products, setProducts] = React.useState(pData);
   let [data, setData] = React.useState(pData);
+  let [tempData, setTempData] = React.useState(pData);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
 
@@ -103,9 +104,12 @@ export function Stocks() {
   };
   const onProductFetch = async () => {
     try {
+      const data2 = await get("list-stocks", token).catch(() => {});
+      if (data2?.data) {
+        setData(data2?.data);
+        setTempData(data2?.data);
+      }
       const data1 = await get("list-products", token);
-      const data2 = isOutlet ? await get("list-stocks", token) : [];
-      data2?.data && setData(data2?.data);
       setProductData({
         wStock: data1?.data ?? [],
         oStock: data2?.data ?? [],
@@ -222,6 +226,16 @@ export function Stocks() {
     setCurrentPage(0);
   };
 
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...data];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempData(tmpData);
+    (search === "" || !search) && setTempData(data);
+  };
+
   const isLoaded = data?.length > 0 && data[0]?.prodName === "";
   return (
     <Loader load={isLoaded}>
@@ -233,20 +247,33 @@ export function Stocks() {
         page={page}
         renderItem={renderModalItem}
       />
+      <Box
+        sx={{
+          bgcolor: "#FBF7F0",
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <TextField
+          required
+          label={"Item Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "name")}
+        />
+        <TextField
+          required
+          label={"Batch"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "batch")}
+        />
+      </Box>
       <TableContainer>
         <Table sx={{ minWidth: 700 }} size="small" aria-label="a dense table">
           <TableHead>
             <TableRow>
-              {!isOutlet && (
-                <StyledTableCell>
-                  <Button
-                    onClick={() => handleClickOpenModal("products")}
-                    variant="contained"
-                  >
-                    Add
-                  </Button>
-                </StyledTableCell>
-              )}
               {Object.keys(pData3[0]).map((r, i) => (
                 <StyledTableCell component="th" key={i}>
                   {capitalizeFirstLetter(r)}
@@ -255,7 +282,7 @@ export function Stocks() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data
+            {tempData
               ?.slice(
                 currentPage * rowsPerPage,
                 currentPage * rowsPerPage + rowsPerPage
