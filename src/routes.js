@@ -17,6 +17,7 @@ import {
   BadgeOutlined,
   Apartment,
   History,
+  PersonAdd,
 } from "@mui/icons-material";
 import {
   IntentIssue,
@@ -40,6 +41,7 @@ import {
   Vendors,
   SalesHistory,
   WarehouseStock,
+  Register,
 } from "./views";
 
 var dashRoutes = [
@@ -212,6 +214,20 @@ var dashRoutes = [
         component: Reports,
         layout: "/Pharma",
         icon: () => <Flag />,
+      },
+    ],
+  },
+  {
+    name: "Admin",
+    state: "pageCollapse",
+    views: [
+      {
+        path: "/CreateUser",
+        name: "Create User",
+        secondaryNavbar: true,
+        component: Register,
+        layout: "/Pharma",
+        icon: () => <PersonAdd />,
       },
     ],
   },

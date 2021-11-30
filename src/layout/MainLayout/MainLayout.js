@@ -5,11 +5,9 @@ import routes from "routes.js";
 import { AppContext } from "../../context/AppContext";
 
 export const MainLayout = () => {
-  const {
-    userData: {
-      user: { role = "" },
-    },
-  } = React.useContext(AppContext);
+  const { userData } = React.useContext(AppContext);
+  const role = userData?.user?.role ?? "";
+  const token = userData?.token?.accessToken ?? null;
   const getRoute = () => {
     return window.location.pathname !== "/Pharma/full-screen-maps";
   };
@@ -43,7 +41,7 @@ export const MainLayout = () => {
           {getRoutes(routes)}
           <Redirect
             from="/Pharma"
-            to={role === 3 ? "/Pharma/Stocks" : "/Pharma/Items"}
+            to={token ? (role === 3 ? "/Pharma/Stocks" : "/Pharma/Items") : "/"}
           />
         </Switch>
       ) : null}

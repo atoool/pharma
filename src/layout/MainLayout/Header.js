@@ -42,7 +42,7 @@ export function Header({ routeName = "" }) {
 
   const handleMenuClose = (val = "") => {
     if (val === "SignOut") {
-      history.push("/auth/");
+      history.replace("/auth/");
       sessionStorage.clear();
     }
     setAnchorEl(null);
