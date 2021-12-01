@@ -185,6 +185,8 @@ export function IntentEntry() {
     v === "error" &&
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
+
+  console.warn(productData);
   return (
     <Loader load={load}>
       <Box
@@ -197,12 +199,14 @@ export function IntentEntry() {
       >
         <Autocomplete
           sx={{ width: "15%" }}
-          isOptionEqualToValue={(option, value) => option.label === value.label}
+          isOptionEqualToValue={(option, value) =>
+            option?.label === value?.label
+          }
           onChange={(event, value) =>
             value?.id && handleChange(value?.id, -1, "outletUserId")
           }
           options={userList?.map((option) => {
-            return { label: option.name, id: option.id };
+            return { label: option?.name, id: option?.id };
           })}
           renderInput={(params) => (
             <TextField
@@ -242,15 +246,15 @@ export function IntentEntry() {
                 <StyledTableCell align="right">
                   <Autocomplete
                     isOptionEqualToValue={(option, value) =>
-                      option.label === value.label
+                      option?.label === value?.label
                     }
                     onChange={(e, v) =>
                       v?.id && handleChange(v?.id, ind, "productId")
                     }
                     options={productData?.wStock?.map((option) => {
                       return {
-                        label: option.name,
-                        id: option.id,
+                        label: option?.name,
+                        id: option?.id,
                       };
                     })}
                     renderInput={(params) => (

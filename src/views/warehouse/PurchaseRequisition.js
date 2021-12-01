@@ -45,7 +45,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-const head = ["Item", "Qty", "Rate"];
+const head = ["Item", "Qty"];
 const head1 = ["PRNumber", "Date", "Status"];
 const keys = ["prNumber", "createdAt", "status"];
 const data = {
@@ -248,7 +248,7 @@ export const PurchaseRequisition = () => {
                       onChange={(e) => onItemChange(e, ind, "quantity")}
                     />
                   </StyledTableCell>
-                  <StyledTableCell align="right">{row?.rate}</StyledTableCell>
+                  {/* <StyledTableCell align="right">{row?.rate}</StyledTableCell> */}
                 </StyledTableRow>
               ))}
             </TableBody>
