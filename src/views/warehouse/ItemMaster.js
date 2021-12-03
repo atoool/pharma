@@ -169,8 +169,8 @@ export function ItemMaster() {
       const data2 = await get("list-products", token).catch(() => {});
       const data3 = await get("list-stocks", token).catch(() => {});
       setProductData({
-        wStock: data3?.data ?? [],
-        oStock: data2?.data ?? [],
+        wStock: data2?.data ?? [],
+        oStock: data3?.data ?? [],
         master: data1?.data ?? [],
       });
     } catch {}

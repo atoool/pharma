@@ -179,7 +179,7 @@ export function WarehouseStock() {
         setTempData(data1?.data);
       }
       setProductData({
-        wStocks: data1?.data ?? [],
+        wStock: data1?.data ?? [],
         oStock: productData?.oStock ?? [],
         master: productData?.master ?? [],
       });
