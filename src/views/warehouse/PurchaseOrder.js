@@ -76,6 +76,7 @@ export function PurchaseOrder() {
   const { userData, vendors, dept } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [orders, setOrders] = React.useState(data);
+  const [ordersTemp, setOrdersTemp] = React.useState(data);
   const [open, setOpen] = React.useState(false);
   const [open1, setOpen1] = React.useState(false);
   const [isLoad, setLoad] = React.useState(true);
@@ -91,6 +92,7 @@ export function PurchaseOrder() {
       const dat = await get("purchase-order", token);
       const temp = dat?.data?.response ?? [];
       setOrders([...temp]);
+      setOrdersTemp([...temp]);
       setLoad(false);
     } catch {
       setLoad(false);
@@ -245,6 +247,19 @@ export function PurchaseOrder() {
     }
   };
 
+  const onSearch = (search) => {
+    const temp = [...orders];
+    if (!search || search === "") {
+      setOrdersTemp(temp);
+    } else if (temp?.length === 0) {
+      const temp1 =
+        temp?.filter(
+          (f) => f?.vendorName?.toLowerCase() === search?.toLowerCase()
+        ) ?? [];
+      setOrdersTemp(temp1);
+    }
+  };
+
   return (
     <Loader load={isLoad}>
       <Modal
@@ -276,9 +291,9 @@ export function PurchaseOrder() {
           label="Vendor search"
           size="small"
           sx={{ mr: 2 }}
-          // onChange={(e) => onItemChange(e, -1, "ordersNo")}
+          onChange={(e) => onSearch(e?.target?.value ?? "")}
         />
-        <TextField
+        {/* <TextField
           label="PO Date"
           InputLabelProps={{
             shrink: true,
@@ -286,11 +301,11 @@ export function PurchaseOrder() {
           size="small"
           type="date"
           // onChange={(e) => onItemChange(e, -1, "ordersNo")}
-        />
+        /> */}
       </Box>
       <Tables
         keys={keys}
-        data={orders}
+        data={ordersTemp}
         head={head}
         ExtraHead={ExtraHead}
         ExtraBody={ExtraBody}
