@@ -5,7 +5,10 @@ import { Box, styled } from "@mui/system";
 import {
   Autocomplete,
   Button,
+  FormControl,
   IconButton,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -53,7 +56,7 @@ const head = [
   "Subject",
   "Status",
 ];
-const head2 = ["Item", "Rate"];
+const head2 = ["Item", "Min Qty", "MRP", "Rate", "Tax", "Tax Amt", "Net Rate"];
 const keys = [
   "quotationDate",
   "validDate",
@@ -82,7 +85,17 @@ const data2 = {
   status: "",
   department: "",
   deliveryDate: "",
-  items: [{ itemName: "", itemId: "", rate: "" }],
+  items: [
+    {
+      itemName: "",
+      minQty: "",
+      mrp: "",
+      rate: "",
+      tax: "",
+      taxAmount: "",
+      netRate: "",
+    },
+  ],
 };
 
 export const Quotation = () => {
@@ -143,7 +156,15 @@ export const Quotation = () => {
 
   const onAddRow = () => {
     let temp = { ...quotes };
-    temp.items.push({ itemName: "", itemId: "", rate: "" });
+    temp.items.push({
+      itemName: "",
+      minQty: "",
+      mrp: "",
+      rate: "",
+      tax: "",
+      taxAmount: "",
+      netRate: "",
+    });
     setQuotes(temp);
   };
 
@@ -172,8 +193,8 @@ export const Quotation = () => {
     } else if (i === -1) {
       temp[itm] = e.target.value;
       setQuotes(temp);
-    } else if (itm === "rate") {
-      temp.items[i]["rate"] = e.currentTarget.value;
+    } else {
+      temp.items[i][itm] = e.target.value;
       setQuotes(temp);
     }
   };
@@ -316,39 +337,66 @@ export const Quotation = () => {
                       <Delete />
                     </IconButton>
                   </StyledTableCell>
-                  <StyledTableCell align="right">
-                    <Autocomplete
-                      isOptionEqualToValue={(option, value) =>
-                        option.label === value.label
-                      }
-                      onChange={(e, v) =>
-                        v?.label && onItemChange(v?.label, ind, "productId")
-                      }
-                      options={productData?.map((option) => {
-                        return {
-                          label: option.name,
-                          id: option.id,
-                        };
-                      })}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Product"
-                          size="small"
-                          sx={{ width: 230 }}
-                        />
-                      )}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    <TextField
-                      label=""
-                      size="small"
-                      sx={{ width: "70px" }}
-                      value={row?.rate}
-                      onChange={(e) => onItemChange(e, ind, "rate")}
-                    />
-                  </StyledTableCell>
+
+                  {Object.keys(data2?.items[0]).map((itms, i) => {
+                    if (itms === "itemName") {
+                      return (
+                        <StyledTableCell align="right" key={i}>
+                          <Autocomplete
+                            isOptionEqualToValue={(option, value) =>
+                              option.label === value.label
+                            }
+                            onChange={(e, v) =>
+                              v?.label &&
+                              onItemChange(v?.label, ind, "productId")
+                            }
+                            options={productData?.map((option) => {
+                              return {
+                                label: option.name,
+                                id: option.id,
+                              };
+                            })}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Product"
+                                size="small"
+                                sx={{ width: 230 }}
+                              />
+                            )}
+                          />
+                        </StyledTableCell>
+                      );
+                    } else if (itms === "tax") {
+                      return (
+                        <StyledTableCell align="right" key={i}>
+                          <FormControl size="small" sx={{ width: 90 }}>
+                            <Select
+                              value={row?.tax}
+                              onChange={(e) => onItemChange(e, ind, "tax")}
+                            >
+                              <MenuItem value="9">9%</MenuItem>
+                              <MenuItem value="12">12%</MenuItem>
+                              <MenuItem value="16">16%</MenuItem>
+                              <MenuItem value="18">18%</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </StyledTableCell>
+                      );
+                    } else if (itms !== "itemName" || itms !== "tax") {
+                      return (
+                        <StyledTableCell align="right" key={i}>
+                          <TextField
+                            label=""
+                            size="small"
+                            sx={{ width: "70px" }}
+                            value={row[itms]}
+                            onChange={(e) => onItemChange(e, ind, itms)}
+                          />
+                        </StyledTableCell>
+                      );
+                    }
+                  })}
                 </StyledTableRow>
               ))}
             </TableBody>
@@ -360,8 +408,8 @@ export const Quotation = () => {
 
   const renderModalItem2 = () => (
     <Tables
-      head={["Item", "Rate"]}
-      keys={["name", "rate"]}
+      head={head2}
+      keys={Object.keys(data2?.items[0])}
       data={quotations[quoteNum]?.items}
     />
   );
