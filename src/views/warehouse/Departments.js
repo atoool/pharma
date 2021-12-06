@@ -63,6 +63,7 @@ export function Departments() {
   const [open, setOpen] = React.useState(false);
   let [department, setDepartment] = React.useState(keys);
   let [data, setData] = React.useState(keys);
+  let [tempData, setTempData] = React.useState(keys);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
   const { enqueueSnackbar } = useSnackbar();
@@ -77,7 +78,7 @@ export function Departments() {
 
   const handleClickOpenModal = (pg = "product", i = 0) => {
     if (pg === "product") {
-      const { id = "", name = "" } = data[i];
+      const { id = "", name = "" } = tempData[i];
       setDepartment([{ id, name }]);
     }
     setPage(pg);
@@ -87,6 +88,7 @@ export function Departments() {
     try {
       const data1 = await onGetDept(token);
       setData(data1 ?? []);
+      setTempData(data1 ?? []);
     } catch {}
   };
 
@@ -202,6 +204,16 @@ export function Departments() {
     setCurrentPage(0);
   };
 
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...data];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempData(tmpData);
+    (search === "" || !search) && setTempData(data);
+  };
+
   const isLoaded = data?.length > 0 && data[0]?.name === "";
 
   return (
@@ -214,6 +226,22 @@ export function Departments() {
         page={"product"}
         renderItem={renderModalItem}
       />
+      <Box
+        sx={{
+          bgcolor: "#FBF7F0",
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <TextField
+          required
+          label={"Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "name")}
+        />
+      </Box>
       <TableContainer>
         <Table
           sx={{ minWidth: window.innerWidth }}
@@ -238,7 +266,7 @@ export function Departments() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data
+            {tempData
               ?.slice(
                 currentPage * rowsPerPage,
                 currentPage * rowsPerPage + rowsPerPage

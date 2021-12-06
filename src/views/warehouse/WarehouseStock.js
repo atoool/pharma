@@ -171,6 +171,7 @@ export function WarehouseStock() {
     setPage(pg);
     setOpen(true);
   };
+
   const onProductFetch = async () => {
     try {
       const data1 = await get("list-products", token).catch(() => {});

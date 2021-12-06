@@ -77,6 +77,7 @@ export const PurchaseRequisition = () => {
   const [open, setModal] = React.useState(false);
   const [open2, setModal2] = React.useState(false);
   const [reqs, setReqs] = React.useState(data1);
+  const [tempReqs, setTempReqs] = React.useState(data1);
   const [reqNum, setReqNum] = React.useState(0);
   const [requests, setRequests] = React.useState(data);
   const [load, setLoad] = React.useState(false);
@@ -99,6 +100,7 @@ export const PurchaseRequisition = () => {
       setLoad(true);
       const dat = await get("purchase-requisitions", token);
       setReqs(dat?.data?.response ?? []);
+      setTempReqs(dat?.data?.response ?? []);
       setLoad(false);
     } catch {}
   };
@@ -316,9 +318,20 @@ export const PurchaseRequisition = () => {
     <Tables
       head={["Item", "Qty", "Rate"]}
       keys={["name", "quantity", "rate"]}
-      data={reqs[reqNum]?.items}
+      data={tempReqs[reqNum]?.items}
     />
   );
+
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...reqs];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempReqs(tmpData);
+    (search === "" || !search) && setTempReqs(reqs);
+  };
+
   return (
     <Loader load={load}>
       <Modal
@@ -347,11 +360,18 @@ export const PurchaseRequisition = () => {
         <Button variant="contained" color="primary" onClick={onOpenModal}>
           New requisition
         </Button>
+        <TextField
+          required
+          label={"PRNumber"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "prNumber")}
+        />
       </Box>
       <Tables
         keys={keys}
         head={head1}
-        data={reqs}
+        data={tempReqs}
         ExtraHead={ExtraHead}
         ExtraBody={ExtraBody}
         extra

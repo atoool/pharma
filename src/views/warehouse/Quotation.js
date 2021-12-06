@@ -106,6 +106,7 @@ export const Quotation = () => {
   const [open2, setModal2] = React.useState(false);
   const [quotes, setQuotes] = React.useState(data2);
   const [quotations, setQuotations] = React.useState(data);
+  const [tempQuotations, setTempQuotations] = React.useState(data);
   const [quoteNum, setQuoteNum] = React.useState(0);
   const [load, setLoad] = React.useState(false);
   const [productData, setProductData] = React.useState([{ id: "", name: "" }]);
@@ -135,6 +136,7 @@ export const Quotation = () => {
       setLoad(true);
       const dat = await get("list-quotations", token);
       setQuotations(dat?.data?.response ?? []);
+      setTempQuotations(dat?.data?.response ?? []);
 
       setLoad(false);
     } catch {}
@@ -410,7 +412,7 @@ export const Quotation = () => {
     <Tables
       head={head2}
       keys={Object.keys(data2?.items[0])}
-      data={quotations[quoteNum]?.items}
+      data={tempQuotations[quoteNum]?.items}
     />
   );
 
@@ -450,6 +452,16 @@ export const Quotation = () => {
     </>
   );
 
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...quotations];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempQuotations(tmpData);
+    (search === "" || !search) && setTempQuotations(quotations);
+  };
+
   return (
     <Loader load={load}>
       <Modal
@@ -478,17 +490,25 @@ export const Quotation = () => {
         <Button variant="contained" color="primary" onClick={onOpenModal}>
           New Quotation
         </Button>
-        {/* <Button variant="contained" color="primary">
-          Valid Quotation/Canceled
-        </Button>
-        <Button variant="contained" color="primary">
-          Status
-        </Button> */}
+        <TextField
+          required
+          label={"Vendor Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "name")}
+        />
+        <TextField
+          required
+          label={"Department"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "department")}
+        />
       </Box>
       <Tables
         keys={keys}
         head={head}
-        data={quotations}
+        data={tempQuotations}
         ExtraBody={ExtraBody}
         ExtraHead={ExtraHead}
         extra

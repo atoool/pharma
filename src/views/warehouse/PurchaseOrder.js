@@ -104,7 +104,7 @@ export function PurchaseOrder() {
   }, []);
 
   const renderModalItem = () => (
-    <Tables head={head2} keys={keys2} data={orders[orderNum]?.items} />
+    <Tables head={head2} keys={keys2} data={ordersTemp[orderNum]?.items} />
   );
 
   const onViewItem = (i) => {
@@ -247,15 +247,14 @@ export function PurchaseOrder() {
     }
   };
 
-  const onSearch = (search) => {
+  const onSearch = (search, type) => {
     const temp = [...orders];
     if (!search || search === "") {
       setOrdersTemp(temp);
-    } else if (temp?.length === 0) {
+    } else if (temp?.length !== 0) {
       const temp1 =
-        temp?.filter(
-          (f) => f?.vendorName?.toLowerCase() === search?.toLowerCase()
-        ) ?? [];
+        temp?.filter((f) => f[type]?.toLowerCase() === search?.toLowerCase()) ??
+        [];
       setOrdersTemp(temp1);
     }
   };
@@ -290,8 +289,9 @@ export function PurchaseOrder() {
         <TextField
           label="Vendor search"
           size="small"
+          type="search"
           sx={{ mr: 2 }}
-          onChange={(e) => onSearch(e?.target?.value ?? "")}
+          onChange={(e) => onSearch(e?.target?.value ?? "", "distributor")}
         />
         {/* <TextField
           label="PO Date"

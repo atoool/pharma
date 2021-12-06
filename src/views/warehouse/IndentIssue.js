@@ -72,6 +72,7 @@ export function IntentIssue() {
   const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [data, setData] = React.useState(iData);
+  let [tempData, setTempData] = React.useState(iData);
   const [selected, setSelected] = React.useState(0);
   const [open, setOpen] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -81,6 +82,7 @@ export function IntentIssue() {
     try {
       const datas = await get("list-stocks-requests", token);
       datas?.data && setData(datas?.data);
+      datas?.data && setTempData(datas?.data);
     } catch {}
   };
 
@@ -183,6 +185,16 @@ export function IntentIssue() {
     setOpen(false);
   };
 
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...data];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempData(tmpData);
+    (search === "" || !search) && setTempData(data);
+  };
+
   const isLoading = data?.length > 0 && data[0]?.intendNo === "";
   return (
     <Loader load={isLoading}>
@@ -193,6 +205,36 @@ export function IntentIssue() {
         page={"product"}
         renderItem={renderModalItem}
       />
+      <Box
+        sx={{
+          bgcolor: "#FBF7F0",
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <TextField
+          required
+          label={"Indent No."}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "intendNo")}
+        />
+        <TextField
+          required
+          label={"Warehouse"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "warehouseName")}
+        />
+        <TextField
+          required
+          label={"Outlet"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "userName")}
+        />
+      </Box>
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -207,7 +249,7 @@ export function IntentIssue() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data
+            {tempData
               ?.slice(
                 currentPage * rowsPerPage,
                 currentPage * rowsPerPage + rowsPerPage

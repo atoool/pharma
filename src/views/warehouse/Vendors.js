@@ -68,6 +68,7 @@ export function Vendors() {
   const [open, setOpen] = React.useState(false);
   let [vendors, setVendors] = React.useState(keys);
   let [data, setData] = React.useState(keys);
+  let [tempData, setTempData] = React.useState(keys);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
   const { enqueueSnackbar } = useSnackbar();
@@ -95,7 +96,7 @@ export function Vendors() {
         email = "",
         gstno = "",
         pancard = "",
-      } = data[i];
+      } = tempData[i];
       setVendors([{ id, name, address, phone, email, gstno, pancard }]);
     }
     setPage(pg);
@@ -105,6 +106,7 @@ export function Vendors() {
     try {
       const data1 = await onGetVendors(token);
       setData(data1 ?? []);
+      setTempData(data1 ?? []);
     } catch {}
   };
 
@@ -225,6 +227,16 @@ export function Vendors() {
     setCurrentPage(0);
   };
 
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...data];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempData(tmpData);
+    (search === "" || !search) && setTempData(data);
+  };
+
   const isLoaded = data?.length > 0 && data[0]?.name === "";
 
   return (
@@ -237,6 +249,22 @@ export function Vendors() {
         page={"product"}
         renderItem={renderModalItem}
       />
+      <Box
+        sx={{
+          bgcolor: "#FBF7F0",
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <TextField
+          required
+          label={"Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "name")}
+        />
+      </Box>
       <TableContainer>
         <Table
           sx={{ minWidth: window.innerWidth }}
@@ -261,7 +289,7 @@ export function Vendors() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data
+            {tempData
               ?.slice(
                 currentPage * rowsPerPage,
                 currentPage * rowsPerPage + rowsPerPage

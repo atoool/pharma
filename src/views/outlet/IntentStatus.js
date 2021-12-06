@@ -68,11 +68,13 @@ export function IntentStatus() {
   const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [data, setData] = React.useState(iData);
+  let [tempData, setTempData] = React.useState(iData);
 
   const onIndentFetch = async () => {
     try {
       const datas = await get("list-stocks-requests-outlet", token);
       datas?.data && setData(datas?.data);
+      datas?.data && setTempData(datas?.data);
     } catch {}
   };
 
@@ -87,8 +89,41 @@ export function IntentStatus() {
     } catch {}
   };
 
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...data];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempData(tmpData);
+    (search === "" || !search) && setTempData(data);
+  };
+
   return (
     <Box sx={{ width: "100%" }}>
+      <Box
+        sx={{
+          bgcolor: "#FBF7F0",
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <TextField
+          required
+          label={"Warehouse Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "warehouseName")}
+        />
+        <TextField
+          required
+          label={"Indent No"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "intendNo")}
+        />
+      </Box>
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>

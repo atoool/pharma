@@ -105,6 +105,7 @@ export function ItemMaster() {
   const [open, setOpen] = React.useState(false);
   let [products, setProducts] = React.useState(pData);
   let [data, setData] = React.useState(pData);
+  let [tempData, setTempData] = React.useState(pData);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentPage, setCurrentPage] = React.useState(0);
   const { enqueueSnackbar } = useSnackbar();
@@ -140,7 +141,7 @@ export function ItemMaster() {
         itemType = "",
         itemCategory = "",
         tax = "",
-      } = data[i];
+      } = tempData[i];
       setProducts([
         {
           id,
@@ -166,6 +167,7 @@ export function ItemMaster() {
         () => {}
       );
       data1?.data && setData(data1?.data);
+      data1?.data && setTempData(data1?.data);
       const data2 = await get("list-products", token).catch(() => {});
       const data3 = await get("list-stocks", token).catch(() => {});
       setProductData({
@@ -334,6 +336,16 @@ export function ItemMaster() {
     setCurrentPage(0);
   };
 
+  const onSearch = (e, type) => {
+    const search = e.target.value?.toLowerCase();
+    const temp = [...data];
+    const tmpData = temp?.filter(
+      (f) => f[type]?.toLowerCase()?.indexOf(search) > -1
+    );
+    tmpData && setTempData(tmpData);
+    (search === "" || !search) && setTempData(data);
+  };
+
   const isLoaded = data?.length > 0 && data[0]?.name === "";
 
   return (
@@ -346,6 +358,36 @@ export function ItemMaster() {
         page={page}
         renderItem={renderModalItem}
       />
+      <Box
+        sx={{
+          bgcolor: "#FBF7F0",
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <TextField
+          required
+          label={"Item Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "name")}
+        />
+        <TextField
+          required
+          label={"Item Code"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "itemCode")}
+        />
+        <TextField
+          required
+          label={"Generic Name"}
+          type={"search"}
+          size="small"
+          onChange={(txt) => onSearch(txt, "genericName")}
+        />
+      </Box>
       <TableContainer>
         <Table
           sx={{ minWidth: window.innerWidth }}
@@ -371,7 +413,7 @@ export function ItemMaster() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data
+            {tempData
               ?.slice(
                 currentPage * rowsPerPage,
                 currentPage * rowsPerPage + rowsPerPage
@@ -412,7 +454,7 @@ export function ItemMaster() {
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component="div"
-        count={data?.length ?? 0}
+        count={tempData?.length ?? 0}
         rowsPerPage={rowsPerPage}
         page={currentPage}
         onPageChange={onChangePage}
