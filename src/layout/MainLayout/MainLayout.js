@@ -14,12 +14,19 @@ export const MainLayout = () => {
   const getRoutes = (route, show = true) => {
     return route.map((prop, key) => {
       if (prop.state) {
-        if (role === 3 && prop.name === "Warehouse") {
+        if (
+          role === 3 &&
+          (prop.name === "Warehouse" || prop.name === "Admin")
+        ) {
           return getRoutes(prop.views, false);
-        } else if (role === 2 && prop.name === "Outlet") {
+        } else if (
+          role === 2 &&
+          (prop.name === "Outlet" || prop.name === "Admin")
+        ) {
           return getRoutes(prop.views, false);
+        } else {
+          return getRoutes(prop.views, true);
         }
-        return getRoutes(prop.views, true);
       }
       if (prop.layout === "/Pharma" && show) {
         return (

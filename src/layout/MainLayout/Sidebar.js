@@ -49,9 +49,17 @@ export function Sidebar({ children, routes }) {
       if (item?.layout) {
         return null;
       }
-      if (item?.name === "Warehouse" && isOutlet && role !== 1) {
+      if (
+        (item?.name === "Warehouse" || item?.name === "Admin") &&
+        isOutlet &&
+        role !== 1
+      ) {
         return null;
-      } else if (item?.name === "Outlet" && !isOutlet && role !== 1) {
+      } else if (
+        (item?.name === "Outlet" || item?.name === "Admin") &&
+        !isOutlet &&
+        role !== 1
+      ) {
         return null;
       }
       return (
