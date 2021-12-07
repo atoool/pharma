@@ -17,12 +17,16 @@ import {
   Typography,
   RadioGroup,
   Radio,
+  Select,
+  FormControl,
+  MenuItem,
 } from "@mui/material";
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "context/AppContext";
 import { Add, Delete, Directions } from "@mui/icons-material";
 import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
+import { generateBillNo } from "utils/generateBillNo";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -55,6 +59,8 @@ const head = [
   "Batch",
   "Expiry",
   "Qty",
+  "Case",
+  "MRP",
   "Rate",
   "Amount",
   "Discount",
@@ -64,11 +70,16 @@ const head = [
 
 const data = {
   distributor: "",
+  department: "",
+  invoiceDate: "",
+  invoiceNo: "",
+  transactionDate: "",
   is_cash: "0",
   is_donate: "1",
   billAmount: "",
   discount: "",
   payableAmount: "",
+  grnNumber: generateBillNo("GRN"),
   items: [
     {
       itemId: "",
@@ -76,6 +87,8 @@ const data = {
       packing: "",
       expiry: "",
       quantity: "",
+      case: "",
+      mrp: "",
       unitPrice: "",
       amount: "",
       discount: "",
@@ -86,7 +99,7 @@ const data = {
 };
 
 export function PurchaseReturn() {
-  const { userData, productData, vendors } = React.useContext(AppContext);
+  const { userData, productData, vendors, dept } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [order, setOrder] = React.useState(data);
   const [isLoad, setLoad] = React.useState(false);
@@ -94,9 +107,13 @@ export function PurchaseReturn() {
 
   const onItemChange = async (e, i, itm) => {
     let temp = { ...order };
-    if (i === -1 && itm === "distributor") {
-      temp.distributor = e?.label;
-      temp.distributorId = e?.id;
+    if (i === -1 && itm === "invoiceNo") {
+      temp[itm] = e?.label;
+
+      setOrder(temp);
+    } else if (i === -1 && (itm === "distributor" || itm === "department")) {
+      temp[itm] = e?.label;
+      temp[itm === "distributor" ? "distributorId" : "department"] = e?.id;
       setOrder(temp);
     } else if (i === -1 && itm === "is_cash") {
       temp.is_cash = "1";
@@ -118,13 +135,14 @@ export function PurchaseReturn() {
       temp[itm] = e.target.value;
       setOrder(temp);
     } else if (itm === "unitPrice" || itm === "quantity") {
+      const taxAmt = parseFloat(temp.items[i].tax) / 100;
       const v = e.target.value;
       const itmAlt = itm === "unitPrice" ? "quantity" : "unitPrice";
       temp.items[i].amount = v * temp.items[i][itmAlt];
       temp.items[i].netRate =
         parseFloat(v * temp.items[i][itmAlt]) ??
         0 - parseFloat(temp.items[i].discount) ??
-        0 + parseFloat(temp.items[i].tax) ??
+        0 + taxAmt ??
         0;
       let total = 0;
       temp.items?.map((f) => (total += f?.netRate));
@@ -148,12 +166,13 @@ export function PurchaseReturn() {
       setOrder(temp);
     } else if (itm === "tax") {
       const v = e.target.value;
-      let netRat =
-        (v !== "" ? parseFloat(v) : 0) -
-        (temp.items[i].discount !== ""
-          ? parseFloat(temp.items[i].discount)
-          : 0) +
-        (temp?.items[i].amount !== "" ? parseFloat(temp?.items[i].amount) : 0);
+
+      const disc =
+        temp.items[i].discount !== "" ? parseFloat(temp.items[i].discount) : 0;
+      const amt =
+        temp?.items[i].amount !== "" ? parseFloat(temp?.items[i].amount) : 0;
+      const tx = v !== "" ? amt * v * 0.01 : 0;
+      let netRat = amt + tx - disc;
       temp.items[i].netRate = netRat;
 
       temp.items[i][itm] = v;
@@ -213,11 +232,16 @@ export function PurchaseReturn() {
   const onClear = () => {
     setOrder({
       distributor: "",
+      department: "",
+      invoiceDate: "",
+      invoiceNo: "",
+      transactionDate: "",
       is_cash: "",
       is_donate: "",
       billAmount: "",
       discount: "",
       payableAmount: "",
+      grnNumber: generateBillNo("GRN"),
       items: [
         {
           itemId: "",
@@ -225,6 +249,8 @@ export function PurchaseReturn() {
           packing: "",
           expiry: "",
           quantity: "",
+          case: "",
+          mrp: "",
           unitPrice: "",
           amount: "",
           discount: "",
@@ -255,7 +281,7 @@ export function PurchaseReturn() {
           pr: 2,
         }}
       >
-        <Box>
+        <Box sx={{ mt: 2, mb: 2 }}>
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
@@ -272,9 +298,82 @@ export function PurchaseReturn() {
                 {...params}
                 label="Vendor"
                 size="small"
+                sx={{ width: 230, mb: 2 }}
+              />
+            )}
+          />
+          <Autocomplete
+            isOptionEqualToValue={(option, value) =>
+              option.label === value.label
+            }
+            onChange={(e, v) => v?.id && onItemChange(v, -1, "department")}
+            options={dept?.map((option) => {
+              return {
+                label: option.name,
+                id: option.id,
+              };
+            })}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Department"
+                size="small"
                 sx={{ width: 230 }}
               />
             )}
+          />
+        </Box>
+        <Box sx={{ mt: 4, mb: 2, display: "flex", flexDirection: "column" }}>
+          <TextField
+            required
+            label={"Invoice Date"}
+            sx={{ mb: 2 }}
+            type={"date"}
+            InputLabelProps={{ shrink: true }}
+            size="small"
+            value={order?.invoiceDate ?? ""}
+            onChange={(txt) => onItemChange(txt, -1, "invoiceDate")}
+          />
+          <Autocomplete
+            isOptionEqualToValue={(option, value) =>
+              option.label === value.label
+            }
+            onChange={(e, v) => v?.id && onItemChange(v, -1, "invoiceNo")}
+            options={vendors?.map((option) => {
+              return {
+                label: option.name,
+                id: option.id,
+              };
+            })}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={"Invoice No."}
+                size="small"
+                sx={{ width: 230, mb: 2 }}
+              />
+            )}
+          />
+        </Box>
+        <Box sx={{ mt: 2, mb: 2, display: "flex", flexDirection: "column" }}>
+          <TextField
+            required
+            label={"GRN Number"}
+            sx={{ mb: 2 }}
+            type={"text"}
+            InputLabelProps={{ shrink: true }}
+            size="small"
+            disabled
+            value={order?.grnNumber ?? ""}
+          />
+          <TextField
+            required
+            label={"Transaction Date"}
+            type={"date"}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            value={order?.transactionDate ?? ""}
+            onChange={(txt) => onItemChange(txt, -1, "transactionDate")}
           />
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -372,6 +471,24 @@ export function PurchaseReturn() {
                 </StyledTableCell>
                 <StyledTableCell align="right">
                   <TextField
+                    label=""
+                    size="small"
+                    sx={{ width: "70px" }}
+                    value={order?.items[ind].case}
+                    onChange={(e) => onItemChange(e, ind, "case")}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  <TextField
+                    label=""
+                    size="small"
+                    sx={{ width: "70px" }}
+                    value={order?.items[ind].mrp}
+                    onChange={(e) => onItemChange(e, ind, "mrp")}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  <TextField
                     size="small"
                     value={row?.unitPrice}
                     sx={{ width: "70px" }}
@@ -388,12 +505,17 @@ export function PurchaseReturn() {
                   />
                 </StyledTableCell>
                 <StyledTableCell align="right">
-                  <TextField
-                    size="small"
-                    value={row?.tax}
-                    sx={{ width: "70px" }}
-                    onChange={(e) => onItemChange(e, ind, "tax")}
-                  />
+                  <FormControl size="small" sx={{ width: "90px" }}>
+                    <Select
+                      value={row?.tax}
+                      onChange={(e) => onItemChange(e, ind, "tax")}
+                    >
+                      <MenuItem value="9">9%</MenuItem>
+                      <MenuItem value="12">12%</MenuItem>
+                      <MenuItem value="16">16%</MenuItem>
+                      <MenuItem value="18">18%</MenuItem>
+                    </Select>
+                  </FormControl>
                 </StyledTableCell>
                 <StyledTableCell align="right">{row?.netRate}</StyledTableCell>
               </StyledTableRow>
@@ -437,6 +559,18 @@ export function PurchaseReturn() {
               {order?.payableAmount}
             </TableCell>
           </TableRow>
+          <TableRow>
+            <TableCell>Remark</TableCell>
+            <TableCell align="right" colSpan={2}>
+              <TextField
+                required
+                label={"Remarks"}
+                size="small"
+                value={order?.remark ?? ""}
+                onChange={(txt) => onItemChange(txt, -1, "remark")}
+              />
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
       <Box
@@ -450,7 +584,7 @@ export function PurchaseReturn() {
           CLEAR
         </Button>
         <Button variant="contained" sx={{ mr: 1 }} onClick={onPurchase}>
-          SAVE
+          Return
         </Button>
       </Box>
     </Loader>
