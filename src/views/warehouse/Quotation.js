@@ -196,7 +196,11 @@ export const Quotation = () => {
       temp[itm] = e.target.value;
       setQuotes(temp);
     } else {
-      temp.items[i][itm] = e.target.value;
+      const val = temp.items[i];
+      val[itm] = e.target.value;
+      const total = val.minQty * val.rate;
+      val.taxAmount = total * val.tax * 0.01;
+      val.netRate = total + val.taxAmount;
       setQuotes(temp);
     }
   };
@@ -387,9 +391,13 @@ export const Quotation = () => {
                           </FormControl>
                         </StyledTableCell>
                       );
+                    } else if (itms === "taxAmount" || itms === "netRate") {
+                      return (
+                        <StyledTableCell key={i}>{row[itms]}</StyledTableCell>
+                      );
                     } else if (itms !== "itemName" || itms !== "tax") {
                       return (
-                        <StyledTableCell align="right" key={i}>
+                        <StyledTableCell key={i}>
                           <TextField
                             label=""
                             size="small"
