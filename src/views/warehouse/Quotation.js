@@ -341,7 +341,9 @@ export const Quotation = () => {
                   </StyledTableCell>
 
                   {Object.keys(data2?.items[0]).map((itms, i) => {
-                    if (itms === "itemName") {
+                    if (itms === "itemId") {
+                      return null;
+                    } else if (itms === "itemName") {
                       return (
                         <StyledTableCell align="right" key={i}>
                           <Autocomplete
