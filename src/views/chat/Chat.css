@@ -1,0 +1,19 @@
+.rcw-conversation-container {
+  width: inherit;
+  min-width: inherit;
+  max-width: inherit;
+  min-height: 100%;
+  position: absolute;
+  z-index: 10;
+}
+.rcw-conversation-container > .rcw-header {
+  background-color: #1fa084;
+}
+
+.rcw-full-screen .rcw-close-button {
+  background-color: #1fa084;
+}
+
+.rcw-widget-container {
+  position: relative;
+}

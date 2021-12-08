@@ -18,6 +18,7 @@ import {
   Apartment,
   History,
   PersonAdd,
+  ChatBubble,
 } from "@mui/icons-material";
 import {
   IntentIssue,
@@ -25,6 +26,7 @@ import {
   IntentEntry,
   ItemMaster,
   PendingPurchase,
+  Chat,
   PurchaseEntry,
   PurchaseReturn,
   PurchaseOrder,
@@ -236,6 +238,20 @@ var dashRoutes = [
     name: "Sign In",
     component: Login,
     layout: "/auth",
+  },
+  {
+    name: "Communications",
+    state: "pageCollapse",
+    views: [
+      {
+        path: "/Communications",
+        name: "Messages",
+        secondaryNavbar: true,
+        component: Chat,
+        layout: "/Pharma",
+        icon: () => <ChatBubble />,
+      },
+    ],
   },
 ];
 export default dashRoutes;

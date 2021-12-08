@@ -8,6 +8,7 @@ import { SalesHistory } from "./outlet/SalesHistory";
 import { WarehouseStock } from "./warehouse/WarehouseStock";
 import { PurchaseReturn } from "./warehouse/PurchaseReturn";
 import { Register } from "./admin/Register";
+import { Chat } from "./chat/Chat";
 const { Stocks } = require("./outlet/Stocks");
 const { IntentIssue } = require("./warehouse/IndentIssue");
 const { IntentEntry } = require("./warehouse/IntentEntry");
@@ -20,8 +21,8 @@ const { PurchaseRequisition } = require("./warehouse/PurchaseRequisition");
 const { Quotation } = require("./warehouse/Quotation");
 const { RateComparator } = require("./warehouse/RateComparator");
 const { Login } = require("./Auth/Login");
-
 export {
+  Chat,
   IntentIssue,
   IntentStatus,
   IntentEntry,
