@@ -66,7 +66,7 @@ const pData1 = [
     rate: "",
     packing: "",
     expiry: "",
-    unitPrice: "",
+    price: "",
   },
 ];
 const pData11 = [
