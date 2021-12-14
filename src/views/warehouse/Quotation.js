@@ -91,7 +91,7 @@ const data2 = {
       minQty: "",
       mrp: "",
       rate: "",
-      tax: "",
+      taxSlab: "",
       taxAmount: "",
       netRate: "",
     },
@@ -163,7 +163,7 @@ export const Quotation = () => {
       minQty: "",
       mrp: "",
       rate: "",
-      tax: "",
+      taxSlab: "",
       taxAmount: "",
       netRate: "",
     });
@@ -199,7 +199,7 @@ export const Quotation = () => {
       const val = temp.items[i];
       val[itm] = e.target.value;
       const total = val.minQty * val.rate;
-      val.taxAmount = total * val.tax * 0.01;
+      val.taxAmount = total * val.taxSlab * 0.01;
       val.netRate = total + val.taxAmount;
       setQuotes(temp);
     }
@@ -375,13 +375,13 @@ export const Quotation = () => {
                           />
                         </StyledTableCell>
                       );
-                    } else if (itms === "tax") {
+                    } else if (itms === "taxSlab") {
                       return (
                         <StyledTableCell align="right" key={i}>
                           <FormControl size="small" sx={{ width: 90 }}>
                             <Select
-                              value={row?.tax}
-                              onChange={(e) => onItemChange(e, ind, "tax")}
+                              value={row?.taxSlab}
+                              onChange={(e) => onItemChange(e, ind, "taxSlab")}
                             >
                               <MenuItem value="9">9%</MenuItem>
                               <MenuItem value="12">12%</MenuItem>
@@ -395,7 +395,7 @@ export const Quotation = () => {
                       return (
                         <StyledTableCell key={i}>{row[itms]}</StyledTableCell>
                       );
-                    } else if (itms !== "itemName" || itms !== "tax") {
+                    } else if (itms !== "itemName" || itms !== "taxSlab") {
                       return (
                         <StyledTableCell key={i}>
                           <TextField

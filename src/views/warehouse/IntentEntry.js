@@ -162,12 +162,12 @@ export function IntentEntry() {
       temp.requests[i].quantity = v;
       setIntents(temp);
     } else if (itm === "productId") {
-      temp.requests[i].productId = e;
-      let val = await getProductPrice(e);
-      console.warn(val);
+      temp.requests[i].productId = e?.id;
+      let val = await getProductPrice(e?.id);
       temp.requests[i].unitPrice = val?.unitPrice;
       temp.requests[i].stock = val?.inStockCount;
       temp.requests[i].itemCode = val?.itemCode;
+      temp.requests[i].wareHouseStockId = e?.wareHouseStockId;
       setIntents(temp);
     } else {
       temp.requests[i][itm] = e.target.value;
@@ -186,7 +186,6 @@ export function IntentEntry() {
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
 
-  console.warn(productData);
   return (
     <Loader load={load}>
       <Box
@@ -249,10 +248,11 @@ export function IntentEntry() {
                       option?.label === value?.label
                     }
                     onChange={(e, v) =>
-                      v?.id && handleChange(v?.id, ind, "productId")
+                      v?.id && handleChange(v, ind, "productId")
                     }
                     options={productData?.wStock?.map((option) => {
                       return {
+                        wareHouseStockId: option?.warehouseId,
                         label: option?.name,
                         id: option?.id,
                       };

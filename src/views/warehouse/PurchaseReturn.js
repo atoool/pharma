@@ -69,8 +69,10 @@ const head = [
 ];
 
 const data = {
-  distributor: "",
+  vendorId: "",
+  vendor: "",
   department: "",
+  departmentId: "",
   invoiceDate: "",
   invoiceNo: "",
   transactionDate: "",
@@ -111,9 +113,9 @@ export function PurchaseReturn() {
       temp[itm] = e?.label;
 
       setOrder(temp);
-    } else if (i === -1 && (itm === "distributor" || itm === "department")) {
+    } else if (i === -1 && (itm === "vendor" || itm === "department")) {
       temp[itm] = e?.label;
-      temp[itm === "distributor" ? "distributorId" : "department"] = e?.id;
+      temp[itm === "vendor" ? "vendorId" : "department"] = e?.id;
       setOrder(temp);
     } else if (i === -1 && itm === "is_cash") {
       temp.is_cash = "1";
@@ -196,7 +198,7 @@ export function PurchaseReturn() {
     temp.items.push({
       itemId: "",
       batch: "",
-      packing: "",
+      case: "",
       expiry: "",
       quantity: "",
       unitPrice: "",
@@ -218,7 +220,7 @@ export function PurchaseReturn() {
     try {
       setLoad(true);
       const dat = order;
-      await post("new-purchase", token, dat).then(() => {
+      await post("purchase-return", token, dat).then(() => {
         onAlert("success");
         onClear();
       });
@@ -231,8 +233,10 @@ export function PurchaseReturn() {
 
   const onClear = () => {
     setOrder({
-      distributor: "",
+      vendorId: "",
+      vendor: "",
       department: "",
+      departmentId: "",
       invoiceDate: "",
       invoiceNo: "",
       transactionDate: "",
@@ -281,12 +285,44 @@ export function PurchaseReturn() {
           pr: 2,
         }}
       >
+        <Box sx={{ mt: 4, mb: 2, display: "flex", flexDirection: "column" }}>
+          <Autocomplete
+            isOptionEqualToValue={(option, value) =>
+              option.label === value.label
+            }
+            onChange={(e, v) => v?.id && onItemChange(v, -1, "invoiceNo")}
+            options={vendors?.map((option) => {
+              return {
+                label: option.name,
+                id: option.id,
+              };
+            })}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={"Invoice No."}
+                size="small"
+                sx={{ width: 230, mb: 2 }}
+              />
+            )}
+          />
+          <TextField
+            required
+            label={"Invoice Date"}
+            sx={{ mb: 2 }}
+            type={"date"}
+            InputLabelProps={{ shrink: true }}
+            size="small"
+            value={order?.invoiceDate ?? ""}
+            onChange={(txt) => onItemChange(txt, -1, "invoiceDate")}
+          />
+        </Box>
         <Box sx={{ mt: 2, mb: 2 }}>
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
             }
-            onChange={(e, v) => v?.id && onItemChange(v, -1, "distributor")}
+            onChange={(e, v) => v?.id && onItemChange(v, -1, "vendor")}
             options={vendors?.map((option) => {
               return {
                 label: option.name,
@@ -319,38 +355,6 @@ export function PurchaseReturn() {
                 label="Department"
                 size="small"
                 sx={{ width: 230 }}
-              />
-            )}
-          />
-        </Box>
-        <Box sx={{ mt: 4, mb: 2, display: "flex", flexDirection: "column" }}>
-          <TextField
-            required
-            label={"Invoice Date"}
-            sx={{ mb: 2 }}
-            type={"date"}
-            InputLabelProps={{ shrink: true }}
-            size="small"
-            value={order?.invoiceDate ?? ""}
-            onChange={(txt) => onItemChange(txt, -1, "invoiceDate")}
-          />
-          <Autocomplete
-            isOptionEqualToValue={(option, value) =>
-              option.label === value.label
-            }
-            onChange={(e, v) => v?.id && onItemChange(v, -1, "invoiceNo")}
-            options={vendors?.map((option) => {
-              return {
-                label: option.name,
-                id: option.id,
-              };
-            })}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={"Invoice No."}
-                size="small"
-                sx={{ width: 230, mb: 2 }}
               />
             )}
           />
@@ -394,7 +398,73 @@ export function PurchaseReturn() {
             />
           </RadioGroup>
         </Box>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell rowSpan={9} />
+              <TableCell rowSpan={9} />
+              <TableCell rowSpan={9} />
+              <TableCell rowSpan={9} />
+              <TableCell rowSpan={9} />
+              <TableCell rowSpan={9} />
+              <TableCell rowSpan={9} />
+              <TableCell rowSpan={9} />
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Bill Amount</TableCell>
+              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                {order?.billAmount}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Discount</TableCell>
+              <TableCell align="right" sx={{ pt: 0.5, pb: 0.5 }}>
+                <TextField
+                  label="IN %"
+                  size="small"
+                  value={order?.discount}
+                  sx={{ width: "70px" }}
+                  onChange={(e) => onItemChange(e, -1, "discount")}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Payable amount</TableCell>
+              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                {order?.payableAmount}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Remark</TableCell>
+              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                <TextField
+                  required
+                  label={"Remarks"}
+                  size="small"
+                  value={order?.remark ?? ""}
+                  onChange={(txt) => onItemChange(txt, -1, "remark")}
+                />
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+        <Box
+          sx={{
+            p: 1,
+            display: "flex",
+            width: "100%",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button variant="contained" sx={{ mr: 1 }} onClick={onClear}>
+            CLEAR
+          </Button>
+          <Button variant="contained" sx={{ mr: 1 }} onClick={onPurchase}>
+            Return
+          </Button>
+        </Box>
       </Box>
+
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -523,70 +593,6 @@ export function PurchaseReturn() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Table>
-        <TableBody>
-          <TableRow>
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-          </TableRow>
-          <TableRow>
-            <TableCell>Bill Amount</TableCell>
-            <TableCell align="right" colSpan={2}>
-              {order?.billAmount}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Discount</TableCell>
-            <TableCell align="right">
-              <TextField
-                label="IN %"
-                size="small"
-                value={order?.discount}
-                sx={{ width: "70px" }}
-                onChange={(e) => onItemChange(e, -1, "discount")}
-              />
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Payable amount</TableCell>
-            <TableCell align="right" colSpan={2}>
-              {order?.payableAmount}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Remark</TableCell>
-            <TableCell align="right" colSpan={2}>
-              <TextField
-                required
-                label={"Remarks"}
-                size="small"
-                value={order?.remark ?? ""}
-                onChange={(txt) => onItemChange(txt, -1, "remark")}
-              />
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-      <Box
-        sx={{
-          p: 2,
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
-      >
-        <Button variant="contained" sx={{ mr: 1 }} onClick={onClear}>
-          CLEAR
-        </Button>
-        <Button variant="contained" sx={{ mr: 1 }} onClick={onPurchase}>
-          Return
-        </Button>
-      </Box>
     </Loader>
   );
 }

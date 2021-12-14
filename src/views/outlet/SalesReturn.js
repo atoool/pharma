@@ -194,13 +194,12 @@ export function SalesReturn() {
       } else if (itm === "productId" || itm === "itemCode") {
         temp.products[i].productId = e;
         let val = await getProductPrice(e);
-        temp.products[i].unitPrice =
-          val?.unitPrice === "0" ? 10 : val?.unitPrice;
+        temp.products[i].unitPrice = val?.unitPrice;
         temp.products[i].batch = val?.batch;
         temp.products[i].hsnCode = val?.hsnCode;
         temp.products[i].itemCode = val?.itemCode;
         temp.products[i].expiry = val?.expiry;
-        temp.products[i].tax = 0;
+        temp.products[i].tax = val?.tax;
         temp.products[i].name = val?.name;
         setBill(temp);
       } else {

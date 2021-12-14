@@ -175,14 +175,14 @@ export function Sales() {
       temp.products[i].quantity = v;
       setBill(temp);
     } else if (itm === "productId" || itm === "itemCode") {
-      temp.products[i].productId = e;
       let val = await getProductPrice(e);
-      temp.products[i].salePrice = val?.unitPrice === "0" ? 10 : val?.unitPrice;
+      temp.products[i].productId = val?.productId;
+      temp.products[i].salePrice = val?.unitPrice;
       temp.products[i].batch = val?.batch;
       temp.products[i].hsnCode = val?.hsnCode;
       temp.products[i].itemCode = val?.itemCode;
       temp.products[i].expDate = val?.expiry;
-      temp.products[i].tax = 0;
+      temp.products[i].tax = val?.tax;
       temp.products[i].itemName = val?.name;
       setBill(temp);
     } else {
