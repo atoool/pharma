@@ -305,6 +305,7 @@ export function Sales() {
         sx={{
           bgcolor: "#FBF7F0",
           p: 2,
+          pb: 0,
           display: "flex",
           justifyContent: "space-between",
         }}
@@ -352,6 +353,117 @@ export function Sales() {
             <TextField {...params} label="Scheme" size="small" />
           )}
         />
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          bgcolor: "#FBF7F0",
+          pl: 2,
+        }}
+      >
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell sx={{ padding: 0 }}>Bill Amount</TableCell>
+              <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
+                {bill?.billAmount}
+              </TableCell>
+              <TableCell sx={{ padding: 0 }}>Discount Amount</TableCell>
+              <TableCell align="right" sx={{ mt: 1, mb: 1 }}>
+                <TextField
+                  label="IN %"
+                  size="small"
+                  value={bill?.inPercent}
+                  sx={{ width: "70px" }}
+                  onChange={(e) => onItemChange(e, -1, "in%")}
+                  disabled={isEmptyProd}
+                />
+              </TableCell>
+              <TableCell align="right" sx={{ mr: 2 }}>
+                <TextField
+                  label="IN Amount"
+                  size="small"
+                  value={bill?.inAmount}
+                  onChange={(e) => onItemChange(e, -1, "inAmount")}
+                  disabled={isEmptyProd}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+                Net. Rate
+              </TableCell>
+              <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
+                {bill?.roundAmount}
+              </TableCell>
+
+              <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+                Payment
+              </TableCell>
+              <TableCell align="right" colSpan={2} sx={{ padding: 0 }}>
+                <TextField
+                  label=""
+                  size="small"
+                  sx={{ width: "120px", mt: 1, mb: 1, mr: 2 }}
+                  value={bill?.payment}
+                  onChange={(e) => onItemChange(e, -1, "payment")}
+                  disabled={isEmptyProd}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+                Balance
+              </TableCell>
+              <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
+                {bill?.balance}
+              </TableCell>
+
+              <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+                Tax
+              </TableCell>
+              <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
+                {bill?.tax}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ padding: 0 }}>Remarks</TableCell>
+              <TableCell sx={{ padding: 0 }} align="right" colSpan={2}>
+                <TextField
+                  size="small"
+                  value={bill?.remarks}
+                  sx={{ mt: 1, mb: 1, mr: 2 }}
+                  onChange={(e) => onItemChange(e, -1, "remarks")}
+                  disabled={isEmptyProd}
+                />
+              </TableCell>
+              <TableCell colSpan={5}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <Button variant="contained" onClick={onSubmit} sx={{ mr: 1 }}>
+                    Submit
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => setModal(true)}
+                    sx={{ mr: 1 }}
+                  >
+                    Print
+                  </Button>
+                  <Button variant="contained" onClick={onClear}>
+                    Clear
+                  </Button>
+                </Box>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </Box>
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
@@ -461,132 +573,6 @@ export function Sales() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Table>
-        <TableBody>
-          <TableRow>
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-            <TableCell rowSpan={9} />
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0 }}>Bill Amount</TableCell>
-            <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
-              {bill?.billAmount}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0 }}>Discount Amount</TableCell>
-            <TableCell align="right" sx={{ mt: 1, mb: 1 }}>
-              <TextField
-                label="IN %"
-                size="small"
-                value={bill?.inPercent}
-                sx={{ width: "70px" }}
-                onChange={(e) => onItemChange(e, -1, "in%")}
-                disabled={isEmptyProd}
-              />
-            </TableCell>
-            <TableCell align="right" sx={{ mr: 2 }}>
-              <TextField
-                label="IN Amount"
-                size="small"
-                value={bill?.inAmount}
-                onChange={(e) => onItemChange(e, -1, "inAmount")}
-                disabled={isEmptyProd}
-              />
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
-              Net. Rate
-            </TableCell>
-            <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
-              {bill?.roundAmount}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
-              Payment
-            </TableCell>
-            <TableCell align="right" colSpan={2} sx={{ padding: 0 }}>
-              <TextField
-                label=""
-                size="small"
-                sx={{ width: "120px", mt: 1, mb: 1, mr: 2 }}
-                value={bill?.payment}
-                onChange={(e) => onItemChange(e, -1, "payment")}
-                disabled={isEmptyProd}
-              />
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
-              Balance
-            </TableCell>
-            <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
-              {bill?.balance}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
-              Tax
-            </TableCell>
-            <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
-              {bill?.tax}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0 }}>Remarks</TableCell>
-            <TableCell sx={{ padding: 0 }} align="right" colSpan={2}>
-              <TextField
-                size="small"
-                value={bill?.remarks}
-                sx={{ mt: 1, mb: 1, mr: 2 }}
-                onChange={(e) => onItemChange(e, -1, "remarks")}
-                disabled={isEmptyProd}
-              />
-            </TableCell>
-          </TableRow>
-          {/* <TableRow>
-            <TableCell>
-              <Button variant="contained" onClick={onSubmit}>
-                Submit
-              </Button>
-            </TableCell>
-            <TableCell align="right" colSpan={2}>
-              <Button variant="contained" onClick={onClear}>
-                Clear
-              </Button>
-            </TableCell>
-          </TableRow> */}
-        </TableBody>
-      </Table>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
-      >
-        <Button variant="contained" onClick={onSubmit} sx={{ m: 1 }}>
-          Submit
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => setModal(true)}
-          sx={{ m: 1 }}
-        >
-          Print
-        </Button>
-        <Button variant="contained" onClick={onClear} sx={{ m: 1 }}>
-          Clear
-        </Button>
-      </Box>
     </Loader>
   );
 }

@@ -283,9 +283,10 @@ export function PurchaseReturn() {
           alignItems: "center",
           pl: 2,
           pr: 2,
+          pt: 1,
         }}
       >
-        <Box sx={{ mt: 4, mb: 2, display: "flex", flexDirection: "column" }}>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
@@ -309,7 +310,6 @@ export function PurchaseReturn() {
           <TextField
             required
             label={"Invoice Date"}
-            sx={{ mb: 2 }}
             type={"date"}
             InputLabelProps={{ shrink: true }}
             size="small"
@@ -317,7 +317,7 @@ export function PurchaseReturn() {
             onChange={(txt) => onItemChange(txt, -1, "invoiceDate")}
           />
         </Box>
-        <Box sx={{ mt: 2, mb: 2 }}>
+        <Box sx={{}}>
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
@@ -359,7 +359,7 @@ export function PurchaseReturn() {
             )}
           />
         </Box>
-        <Box sx={{ mt: 2, mb: 2, display: "flex", flexDirection: "column" }}>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
           <TextField
             required
             label={"GRN Number"}
@@ -398,70 +398,64 @@ export function PurchaseReturn() {
             />
           </RadioGroup>
         </Box>
-        <Table>
-          <TableBody>
-            <TableRow>
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Bill Amount</TableCell>
-              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
-                {order?.billAmount}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Discount</TableCell>
-              <TableCell align="right" sx={{ pt: 0.5, pb: 0.5 }}>
-                <TextField
-                  label="IN %"
-                  size="small"
-                  value={order?.discount}
-                  sx={{ width: "70px" }}
-                  onChange={(e) => onItemChange(e, -1, "discount")}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Payable amount</TableCell>
-              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
-                {order?.payableAmount}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Remark</TableCell>
-              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
-                <TextField
-                  required
-                  label={"Remarks"}
-                  size="small"
-                  value={order?.remark ?? ""}
-                  onChange={(txt) => onItemChange(txt, -1, "remark")}
-                />
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-        <Box
-          sx={{
-            p: 1,
-            display: "flex",
-            width: "100%",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button variant="contained" sx={{ mr: 1 }} onClick={onClear}>
-            CLEAR
-          </Button>
-          <Button variant="contained" sx={{ mr: 1 }} onClick={onPurchase}>
-            Return
-          </Button>
+        <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+          <Table sx={{ mt: 1, justifySelf: "flex-end", width: "50%" }}>
+            <TableBody>
+              <TableRow>
+                <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Bill Amount</TableCell>
+                <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                  {order?.billAmount}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Discount</TableCell>
+                <TableCell align="right" sx={{ pt: 0.5, pb: 0.5 }}>
+                  <TextField
+                    label="IN %"
+                    size="small"
+                    value={order?.discount}
+                    sx={{ width: "70px" }}
+                    onChange={(e) => onItemChange(e, -1, "discount")}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Payable amount</TableCell>
+                <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                  {order?.payableAmount}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Remark</TableCell>
+                <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                  <TextField
+                    required
+                    label={"Remarks"}
+                    size="small"
+                    value={order?.remark ?? ""}
+                    onChange={(txt) => onItemChange(txt, -1, "remark")}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+          <Box
+            sx={{
+              p: 1,
+              display: "flex",
+              width: "50%",
+              height: "10%",
+              alignSelf: "flex-end",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button variant="contained" sx={{ mr: 1 }} onClick={onClear}>
+              CLEAR
+            </Button>
+            <Button variant="contained" sx={{ mr: 1 }} onClick={onPurchase}>
+              Return
+            </Button>
+          </Box>
         </Box>
       </Box>
 

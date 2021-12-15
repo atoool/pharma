@@ -277,9 +277,10 @@ export function PurchaseEntry() {
           alignItems: "center",
           pl: 2,
           pr: 2,
+          pt: 1,
         }}
       >
-        <Box sx={{ mt: 2, mb: 2, display: "flex", flexDirection: "column" }}>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
           <TextField
             required
             label={"Invoice No."}
@@ -299,7 +300,7 @@ export function PurchaseEntry() {
             onChange={(txt) => onItemChange(txt, -1, "invoiceDate")}
           />
         </Box>
-        <Box sx={{ mt: 2, mb: 2 }}>
+        <Box>
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
@@ -342,7 +343,7 @@ export function PurchaseEntry() {
           />
         </Box>
 
-        <Box sx={{ mt: 2, mb: 2, display: "flex", flexDirection: "column" }}>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
           <TextField
             required
             label={"GRN Number"}
@@ -381,70 +382,64 @@ export function PurchaseEntry() {
             />
           </RadioGroup>
         </Box>
-        <Table>
-          <TableBody>
-            <TableRow>
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-              <TableCell rowSpan={9} />
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Bill Amount</TableCell>
-              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
-                {order?.billAmount}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Discount</TableCell>
-              <TableCell align="right" sx={{ pt: 0.5, pb: 0.5 }}>
-                <TextField
-                  label="IN %"
-                  size="small"
-                  value={order?.discount}
-                  sx={{ width: "70px" }}
-                  onChange={(e) => onItemChange(e, -1, "discount")}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Payable amount</TableCell>
-              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
-                {order?.payableAmount}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Remark</TableCell>
-              <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
-                <TextField
-                  required
-                  label={"Remarks"}
-                  size="small"
-                  value={order?.remark ?? ""}
-                  onChange={(txt) => onItemChange(txt, -1, "remark")}
-                />
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-        <Box
-          sx={{
-            p: 2,
-            display: "flex",
-            width: "100%",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button variant="contained" sx={{ mr: 1 }} onClick={onClear}>
-            CLEAR
-          </Button>
-          <Button variant="contained" sx={{ mr: 1 }} onClick={onPurchase}>
-            SAVE
-          </Button>
+        <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+          <Table sx={{ mt: 1, width: "50%" }}>
+            <TableBody>
+              <TableRow>
+                <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Bill Amount</TableCell>
+                <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                  {order?.billAmount}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Discount</TableCell>
+                <TableCell align="right" sx={{ pt: 0.5, pb: 0.5 }}>
+                  <TextField
+                    label="IN %"
+                    size="small"
+                    value={order?.discount}
+                    sx={{ width: "70px" }}
+                    onChange={(e) => onItemChange(e, -1, "discount")}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Payable amount</TableCell>
+                <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                  {order?.payableAmount}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell sx={{ pt: 0.5, pb: 0.5 }}>Remark</TableCell>
+                <TableCell align="right" colSpan={2} sx={{ pt: 0.5, pb: 0.5 }}>
+                  <TextField
+                    required
+                    label={"Remarks"}
+                    size="small"
+                    value={order?.remark ?? ""}
+                    onChange={(txt) => onItemChange(txt, -1, "remark")}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+          <Box
+            sx={{
+              p: 1,
+              display: "flex",
+              height: "10%",
+              width: "50%",
+              alignSelf: "flex-end",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button variant="contained" sx={{ mr: 1 }} onClick={onClear}>
+              CLEAR
+            </Button>
+            <Button variant="contained" sx={{ mr: 1 }} onClick={onPurchase}>
+              SAVE
+            </Button>
+          </Box>
         </Box>
       </Box>
       <TableContainer>
