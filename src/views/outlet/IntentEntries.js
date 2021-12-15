@@ -125,11 +125,11 @@ export function IntentEntries() {
       temp.requests[i].quantity = v;
       setIntents(temp);
     } else if (itm === "productId") {
-      temp.requests[i].productId = e;
-      let val = await getProductPrice(e);
-      console.warn(val);
+      let val = await getProductPrice(e?.id);
+      temp.requests[i].productId = e?.itemId;
       temp.requests[i].unitPrice = val?.unitPrice;
       temp.requests[i].itemCode = val?.itemCode;
+      temp.requests[i].wareHouseStockId = e?.id;
       setIntents(temp);
     } else {
       temp.requests[i][itm] = e.target.value;
@@ -176,10 +176,11 @@ export function IntentEntries() {
                       option.label === value.label
                     }
                     onChange={(e, v) =>
-                      v?.id && handleChange(v?.id, ind, "productId")
+                      v?.id && handleChange(v, ind, "productId")
                     }
                     options={productData?.wStock?.map((option) => {
                       return {
+                        itemId: option?.itemId,
                         label: option.name,
                         id: option.id,
                       };
