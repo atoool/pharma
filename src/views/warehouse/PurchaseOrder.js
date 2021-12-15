@@ -627,7 +627,7 @@ export function PurchaseOrder() {
           onChange={(e) => onSearch(e?.target?.value ?? "", "distributor")}
         />
         <Button variant="contained" size="small" onClick={() => setOpen2(true)}>
-          New Requisition
+          New Purchase
         </Button>
         {/* <TextField
           label="PO Date"
