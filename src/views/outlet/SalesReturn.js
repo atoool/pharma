@@ -54,8 +54,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const head = [
-  "Code",
   "Name",
+  "Code",
   "Batch",
   "Exp Date",
   "Sale Price",
@@ -192,15 +192,16 @@ export function SalesReturn() {
         temp.products[i].quantity = v;
         setBill(temp);
       } else if (itm === "productId" || itm === "itemCode") {
-        temp.products[i].productId = e;
         let val = await getProductPrice(e);
+        temp.products[i].productId = val?.itemId;
+        temp.products[i].itemCode = val?.itemCode;
         temp.products[i].unitPrice = val?.unitPrice;
         temp.products[i].batch = val?.batch;
         temp.products[i].hsnCode = val?.hsnCode;
         temp.products[i].itemCode = val?.itemCode;
         temp.products[i].expiry = val?.expiry;
         temp.products[i].tax = val?.tax;
-        temp.products[i].name = val?.name;
+        temp.products[i].name = val?.itemName;
         setBill(temp);
       } else {
         temp.products[i][itm] = e.target.value;
@@ -398,102 +399,103 @@ export function SalesReturn() {
           )}
         />
       </Box>
-      <Table>
-        <TableBody>
-          <TableRow>
-            <TableCell sx={{ padding: 0 }}>Bill Amount</TableCell>
-            <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
-              {bill?.billAmount}
-            </TableCell>
-            <TableCell sx={{ padding: 0 }}>Discount Amount</TableCell>
-            <TableCell align="right" sx={{ mt: 1, mb: 1 }}>
-              <TextField
-                label="IN %"
-                size="small"
-                value={bill?.inPercent}
-                sx={{ width: "70px" }}
-                onChange={(e) => onItemChange(e, -1, "in%")}
-              />
-            </TableCell>
-            <TableCell align="right" sx={{ mr: 2 }}>
-              <TextField
-                label="IN Amount"
-                size="small"
-                value={bill?.inAmount}
-                onChange={(e) => onItemChange(e, -1, "inAmount")}
-              />
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
-              Net. Rate
-            </TableCell>
-            <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
-              {bill?.roundAmount}
-            </TableCell>
-            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
-              Payment
-            </TableCell>
-            <TableCell align="right" colSpan={2} sx={{ padding: 0 }}>
-              <TextField
-                label=""
-                size="small"
-                sx={{ width: "120px", mt: 1, mb: 1, mr: 2 }}
-                value={bill?.payment}
-                onChange={(e) => onItemChange(e, -1, "payment")}
-              />
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
-              Balance
-            </TableCell>
-            <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
-              {bill?.balance}
-            </TableCell>
-            <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
-              Tax
-            </TableCell>
-            <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
-              {bill?.tax}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ padding: 0 }}>Remarks</TableCell>
-            <TableCell sx={{ padding: 0 }} align="right" colSpan={2}>
-              <TextField
-                size="small"
-                value={bill?.remarks}
-                sx={{ mt: 1, mb: 1, mr: 2 }}
-                onChange={(e) => onItemChange(e, -1, "remarks")}
-              />
-            </TableCell>
-            <TableCell colSpan={5}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <Button variant="contained" onClick={onSubmit} sx={{ m: 1 }}>
-                  Submit
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={() => setModal(true)}
-                  sx={{ m: 1 }}
+      <Box sx={{ pl: 2, bgcolor: "#FBF7F0" }}>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell sx={{ padding: 0 }}>Bill Amount</TableCell>
+              <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
+                {bill?.billAmount}
+              </TableCell>
+              <TableCell sx={{ padding: 0 }}>Discount Amount</TableCell>
+              <TableCell align="right" sx={{ mt: 1, mb: 1 }}>
+                <TextField
+                  label="IN %"
+                  size="small"
+                  value={bill?.inPercent}
+                  sx={{ width: "70px" }}
+                  onChange={(e) => onItemChange(e, -1, "in%")}
+                />
+              </TableCell>
+              <TableCell align="right" sx={{ mr: 2 }}>
+                <TextField
+                  label="IN Amount"
+                  size="small"
+                  value={bill?.inAmount}
+                  onChange={(e) => onItemChange(e, -1, "inAmount")}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+                Net. Rate
+              </TableCell>
+              <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
+                {bill?.roundAmount}
+              </TableCell>
+              <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+                Payment
+              </TableCell>
+              <TableCell align="right" colSpan={2} sx={{ padding: 0 }}>
+                <TextField
+                  label=""
+                  size="small"
+                  sx={{ width: "120px", mt: 1, mb: 1, mr: 2 }}
+                  value={bill?.payment}
+                  onChange={(e) => onItemChange(e, -1, "payment")}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+                Balance
+              </TableCell>
+              <TableCell align="right" colSpan={2} sx={{ padding: 0, pr: 2 }}>
+                {bill?.balance}
+              </TableCell>
+              <TableCell sx={{ padding: 0, paddingTop: 1, paddingBottom: 1 }}>
+                Tax
+              </TableCell>
+              <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
+                {bill?.tax}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ padding: 0 }}>Remarks</TableCell>
+              <TableCell sx={{ padding: 0 }} align="right" colSpan={2}>
+                <TextField
+                  size="small"
+                  value={bill?.remarks}
+                  sx={{ mt: 1, mb: 1, mr: 2 }}
+                  onChange={(e) => onItemChange(e, -1, "remarks")}
+                />
+              </TableCell>
+              <TableCell colSpan={5}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
                 >
-                  Print
-                </Button>
-                <Button variant="contained" onClick={onClear} sx={{ m: 1 }}>
-                  Clear
-                </Button>
-              </Box>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-
+                  <Button variant="contained" onClick={onSubmit} sx={{ m: 1 }}>
+                    Submit
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => setModal(true)}
+                    sx={{ m: 1 }}
+                  >
+                    Print
+                  </Button>
+                  <Button variant="contained" onClick={onClear} sx={{ m: 1 }}>
+                    Clear
+                  </Button>
+                </Box>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Box>
       <TableContainer>
         <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -518,8 +520,34 @@ export function SalesReturn() {
                     <Delete />
                   </IconButton>
                 </StyledTableCell>
+
                 <StyledTableCell align="right">
                   <Autocomplete
+                    isOptionEqualToValue={(option, value) =>
+                      option?.label === value?.label
+                    }
+                    value={row?.name}
+                    onChange={(e, v) =>
+                      v?.id && onItemChange(v?.id, ind, "productId")
+                    }
+                    options={productData?.oStock?.map((option) => {
+                      return {
+                        label: option.prodName,
+                        id: option.wareHouseStockId,
+                      };
+                    })}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Product"
+                        size="small"
+                        sx={{ minWidth: 180 }}
+                      />
+                    )}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  {/* <Autocomplete
                     isOptionEqualToValue={(option, value) =>
                       option.label === value.label
                     }
@@ -541,32 +569,8 @@ export function SalesReturn() {
                         sx={{ minWidth: 120 }}
                       />
                     )}
-                  />
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  <Autocomplete
-                    isOptionEqualToValue={(option, value) =>
-                      option?.label === value?.label
-                    }
-                    value={row?.name}
-                    onChange={(e, v) =>
-                      v?.id && onItemChange(v?.id, ind, "productId")
-                    }
-                    options={productData?.oStock?.map((option) => {
-                      return {
-                        label: option.name,
-                        id: option.id,
-                      };
-                    })}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Product"
-                        size="small"
-                        sx={{ minWidth: 180 }}
-                      />
-                    )}
-                  />
+                  /> */}
+                  {row?.itemCode}
                 </StyledTableCell>
                 <StyledTableCell align="right">{row?.batch}</StyledTableCell>
                 <StyledTableCell align="right">{row?.expiry}</StyledTableCell>
@@ -586,6 +590,7 @@ export function SalesReturn() {
                 <StyledTableCell align="right">
                   <FormControl size="small">
                     <Select
+                      defaultValue="Select"
                       value={row?.tax}
                       onChange={(e) => onItemChange(e, ind, "tax")}
                     >

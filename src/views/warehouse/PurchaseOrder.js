@@ -85,11 +85,6 @@ const head3 = [
   "PODate",
   "Subject",
   "Packing",
-  "MRP",
-  "Rate",
-  "Amount",
-  "Tax",
-  "TaxAmount",
   "Delivery Schedule",
   "Delivery Address",
 ];
@@ -98,13 +93,8 @@ const data2 = {
   vendorId: "",
   departmentId: "",
   poDate: "",
-  subject: "sub",
-  packing: "ww",
-  mrp: "",
-  rate: "",
-  amt: "",
-  tax: "4",
-  taxAmount: "",
+  subject: "",
+  packing: "",
   deliverySchedule: "",
   deliveryAddress: "",
 };
@@ -113,13 +103,8 @@ const data3 = {
   vendorId: "",
   departmentId: "",
   poDate: "",
-  subject: "sub",
-  packing: "ww",
-  mrp: "",
-  rate: "",
-  amt: "",
-  tax: "4",
-  taxAmount: "",
+  subject: "",
+  packing: "",
   deliverySchedule: "",
   deliveryAddress: "",
   items: [
@@ -127,7 +112,11 @@ const data3 = {
       itemCode: "",
       itemName: "",
       quantity: "",
+      mrp: "",
       rate: "",
+      amt: "",
+      tax: "",
+      taxAmount: "",
     },
   ],
   prNumber: generateBillNo("PR"),
@@ -187,9 +176,9 @@ export function PurchaseOrder() {
       <IconButton color="primary" onClick={() => onViewItem(index)}>
         <Visibility />
       </IconButton>
-      <IconButton color="primary" onClick={() => onEditItem(index)}>
+      {/* <IconButton color="primary" onClick={() => onEditItem(index)}>
         <Edit />
-      </IconButton>
+      </IconButton> */}
     </>
   );
 
@@ -226,7 +215,11 @@ export function PurchaseOrder() {
           itemCode: "",
           itemName: "",
           quantity: "",
+          mrp: "",
           rate: "",
+          amt: "",
+          tax: "",
+          taxAmount: "",
         },
       ],
       prNumber: generateBillNo("PR"),
@@ -330,12 +323,15 @@ export function PurchaseOrder() {
         setPurchase(temp);
       } else if (itm === "itemCode" || itm === "itemName") {
         let val = await getProductPrice(e);
-        temp.items[i].itemId = val?.productId;
-        temp.products[i].itemCode = val?.itemCode;
-        temp.products[i].itemName = val?.name;
+        temp.items[i].itemId = val?.itemId;
+        temp.items[i].itemCode = val?.itemCode;
+        temp.items[i].itemName = val?.itemName;
         setPurchase(temp);
       } else {
         temp.items[i][itm] = e.target.value;
+        temp.items[i]["amt"] = temp.items[i].rate * temp.items[i].quantity;
+        temp.items[i]["taxAmount"] =
+          temp.items[i]["amt"] * temp.items[i]["tax"] * 0.01;
         setPurchase(temp);
       }
     };
@@ -372,11 +368,11 @@ export function PurchaseOrder() {
         autoComplete="off"
       >
         {Object?.keys(data2)?.map((item, indx) =>
-          item === "vendorId" || item === "departmentId" || item === "tax" ? (
+          item === "vendorId" || item === "departmentId" ? (
             <FormControl
               size="small"
               sx={{
-                width: item === "tax" ? "90px" : "195px",
+                width: "195px",
                 m: 2,
               }}
               required
@@ -388,9 +384,8 @@ export function PurchaseOrder() {
                 onChange={(e) => handleChange(e, -1, item)}
               >
                 {getList(item)?.map((f, i) => (
-                  <MenuItem key={i} value={item === "tax" ? f : f?.id}>
-                    {item === "tax" ? f : f?.name}
-                    {item === "tax" ? "%" : ""}
+                  <MenuItem key={i} value={f?.id}>
+                    {f?.name}
                   </MenuItem>
                 ))}
               </Select>
@@ -437,7 +432,16 @@ export function PurchaseOrder() {
                     <Add />
                   </Button>
                 </StyledTableCell>
-                {["Item Code", "Item Name", "Rate", "Qty"].map((itm, i) => (
+                {[
+                  "Item Code",
+                  "Item Name",
+                  "MRP",
+                  "Rate",
+                  "Qty",
+                  "Amount",
+                  "Tax",
+                  "Tax Amt",
+                ].map((itm, i) => (
                   <StyledTableCell key={i} align="right">
                     {itm}
                   </StyledTableCell>
@@ -455,65 +459,79 @@ export function PurchaseOrder() {
                       <Delete />
                     </IconButton>
                   </StyledTableCell>
-                  <StyledTableCell>
-                    <Autocomplete
-                      isOptionEqualToValue={(option, value) =>
-                        option.label === value.label
-                      }
-                      value={row?.itemCode}
-                      onChange={(e, v) =>
-                        v?.id && handleChange(v?.id, ind, "itemCode")
-                      }
-                      options={productData?.oStock?.map((option) => {
-                        return {
-                          label: option.itemCode,
-                          id: option.id,
-                        };
-                      })}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="ItemCode"
-                          size="small"
-                          sx={{ width: 200 }}
+                  {[
+                    "itemCode",
+                    "itemName",
+                    "quantity",
+                    "mrp",
+                    "rate",
+                    "amt",
+                    "tax",
+                    "taxAmount",
+                  ].map((itm, i) =>
+                    itm === "itemCode" || itm === "itemName" ? (
+                      <StyledTableCell key={i}>
+                        <Autocomplete
+                          isOptionEqualToValue={(option, value) =>
+                            option.label === value.label
+                          }
+                          onChange={(e, v) =>
+                            v?.id && handleChange(v?.id, ind, itm)
+                          }
+                          options={productData?.master?.map((option) => {
+                            return {
+                              label:
+                                itm === "itemCode"
+                                  ? option?.itemCode
+                                  : option?.name,
+                              id: option.id,
+                            };
+                          })}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              autoComplete=""
+                              label={itm === "itemCode" ? "Code" : "Name"}
+                              size="small"
+                              sx={{ width: 200 }}
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <Autocomplete
-                      isOptionEqualToValue={(option, value) =>
-                        option.label === value.label
-                      }
-                      onChange={(e, v) =>
-                        v?.id && handleChange(v?.id, ind, "productId")
-                      }
-                      options={productData?.master?.map((option) => {
-                        return {
-                          label: option.name,
-                          id: option.id,
-                        };
-                      })}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Product"
+                      </StyledTableCell>
+                    ) : itm === "tax" ? (
+                      <StyledTableCell key={i}>
+                        <FormControl
                           size="small"
-                          sx={{ width: 200 }}
+                          sx={{
+                            width: "90px",
+                          }}
+                        >
+                          <Select
+                            value={row?.tax}
+                            onChange={(e) => handleChange(e, ind, "tax")}
+                          >
+                            {getList(itm)?.map((f, j) => (
+                              <MenuItem key={j} value={f}>
+                                {f}%
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </StyledTableCell>
+                    ) : itm === "amt" ? (
+                      <StyledTableCell key={i}>{row?.amt}</StyledTableCell>
+                    ) : (
+                      <StyledTableCell key={i}>
+                        <TextField
+                          label=""
+                          size="small"
+                          sx={{ width: "70px" }}
+                          value={row[itm]}
+                          onChange={(e) => handleChange(e, ind, itm)}
                         />
-                      )}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>{row?.rate}</StyledTableCell>
-                  <StyledTableCell>
-                    <TextField
-                      label=""
-                      size="small"
-                      sx={{ width: "70px" }}
-                      value={requests?.quantity}
-                      onChange={(e) => handleChange(e, ind, "quantity")}
-                    />
-                  </StyledTableCell>
+                      </StyledTableCell>
+                    )
+                  )}
                 </StyledTableRow>
               ))}
             </TableBody>
@@ -606,7 +624,7 @@ export function PurchaseOrder() {
       <Modal
         open={open2}
         handleClose={handleCloseModal2}
-        title={"Add Purchase"}
+        title={"New Purchase"}
         page={page}
         renderItem={renderModalItem2}
       />

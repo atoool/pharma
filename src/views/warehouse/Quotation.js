@@ -478,6 +478,7 @@ export const Quotation = () => {
         open={open}
         handleClose={handleCloseModal}
         page={"product"}
+        title="New Quotation"
         renderItem={renderModal}
       />
       <Modal

@@ -82,9 +82,11 @@ const data = {
   discount: "",
   payableAmount: "",
   grnNumber: generateBillNo("GRN"),
+  remarks: "",
   items: [
     {
       itemId: "",
+      itemName: "",
       batch: "",
       packing: "",
       expiry: "",
@@ -105,13 +107,61 @@ export function PurchaseReturn() {
   const token = userData?.token?.accessToken ?? "";
   const [order, setOrder] = React.useState(data);
   const [isLoad, setLoad] = React.useState(false);
+  const [grnList, setGrnList] = React.useState([]);
   const { enqueueSnackbar } = useSnackbar();
+
+  const getGrnList = async () => {
+    try {
+      const dat = await get("purchase-entry-list", token);
+      setGrnList(dat?.data?.response ?? []);
+    } catch {}
+  };
+
+  React.useEffect(() => {
+    getGrnList();
+  }, []);
+
+  const getPurchaseReturnData = async (id) => {
+    try {
+      const dat = await get("get-purchase-return/" + id, token);
+      return dat?.data?.response[0] ?? [];
+    } catch {}
+  };
 
   const onItemChange = async (e, i, itm) => {
     let temp = { ...order };
-    if (i === -1 && itm === "invoiceNo") {
+    if (i === -1 && itm === "grnNumber") {
       temp[itm] = e?.label;
-
+      const val = await getPurchaseReturnData(e?.label);
+      temp.vendor = val?.vendorName;
+      temp.invoiceDate = val?.invoiceDate;
+      temp.invoiceNo = val?.invoiceNumber;
+      temp.department = val?.deptName;
+      temp.departmentId = val?.departmentId;
+      temp.vendorId = val?.vendorId;
+      temp.transactionDate = val?.transactionDate;
+      temp.is_cash = val?.is_cash;
+      temp.is_donate = val?.is_donate;
+      temp.discount = val?.discount;
+      temp.billAmount = val?.billAmount;
+      temp.payableAmount = val?.payableAmount;
+      temp.remarks = val?.remarks;
+      val?.items &&
+        val?.items?.map((it, inx) => {
+          temp.items[inx].itemId = it?.itemId;
+          temp.items[inx].itemName = it?.name;
+          temp.items[inx].batch = it?.batch;
+          temp.items[inx].packing = it?.packing;
+          temp.items[inx].expiry = it?.expiry;
+          temp.items[inx].quantity = it?.quantity;
+          temp.items[inx].case = it?.case;
+          temp.items[inx].mrp = it?.mrp;
+          temp.items[inx].unitPrice = it?.unitPrice;
+          temp.items[inx].amount = it?.amount;
+          temp.items[inx].discount = it?.discount;
+          temp.items[inx].tax = it?.tax;
+          temp.items[inx].netRate = it?.netRate;
+        });
       setOrder(temp);
     } else if (i === -1 && (itm === "vendor" || itm === "department")) {
       temp[itm] = e?.label;
@@ -197,6 +247,7 @@ export function PurchaseReturn() {
     let temp = { ...order };
     temp.items.push({
       itemId: "",
+      itemName: "",
       batch: "",
       case: "",
       expiry: "",
@@ -246,9 +297,11 @@ export function PurchaseReturn() {
       discount: "",
       payableAmount: "",
       grnNumber: generateBillNo("GRN"),
+      remarks: "",
       items: [
         {
           itemId: "",
+          itemName: "",
           batch: "",
           packing: "",
           expiry: "",
@@ -291,17 +344,16 @@ export function PurchaseReturn() {
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
             }
-            onChange={(e, v) => v?.id && onItemChange(v, -1, "invoiceNo")}
-            options={vendors?.map((option) => {
+            onChange={(e, v) => v?.label && onItemChange(v, -1, "grnNumber")}
+            options={grnList?.map((option) => {
               return {
-                label: option.name,
-                id: option.id,
+                label: option.grnNumber,
               };
             })}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label={"Invoice No."}
+                label={"GRNNumber"}
                 size="small"
                 sx={{ width: 230, mb: 2 }}
               />
@@ -319,9 +371,9 @@ export function PurchaseReturn() {
         </Box>
         <Box sx={{}}>
           <Autocomplete
-            isOptionEqualToValue={(option, value) =>
-              option.label === value.label
-            }
+            // isOptionEqualToValue={(option, value) =>
+            //   option.label === value.label
+            // }
             onChange={(e, v) => v?.id && onItemChange(v, -1, "vendor")}
             options={vendors?.map((option) => {
               return {
@@ -329,6 +381,7 @@ export function PurchaseReturn() {
                 id: option.id,
               };
             })}
+            value={order?.vendor}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -362,13 +415,12 @@ export function PurchaseReturn() {
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           <TextField
             required
-            label={"GRN Number"}
+            label={"Invoice No."}
             sx={{ mb: 2 }}
             type={"text"}
-            InputLabelProps={{ shrink: true }}
             size="small"
-            disabled
-            value={order?.grnNumber ?? ""}
+            value={order?.invoiceNo ?? ""}
+            onChange={(txt) => onItemChange(txt, -1, "invoiceNo")}
           />
           <TextField
             required
@@ -497,6 +549,7 @@ export function PurchaseReturn() {
                         id: option.id,
                       };
                     })}
+                    value={row?.itemName}
                     renderInput={(params) => (
                       <TextField
                         {...params}

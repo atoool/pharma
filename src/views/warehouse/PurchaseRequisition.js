@@ -157,7 +157,7 @@ export const PurchaseRequisition = () => {
       temp.items[i].itemId = e;
       let val = await getProductPrice(e);
       temp.items[i].rate = val?.unitPrice;
-      temp.items[i].itemName = val?.name;
+      temp.items[i].itemName = val?.itemName;
       setRequests(temp);
     } else if (i === -1) {
       temp[itm] = e.target.value;

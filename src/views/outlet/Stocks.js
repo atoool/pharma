@@ -105,6 +105,7 @@ export function Stocks() {
   const onProductFetch = async () => {
     try {
       const data2 = await get("list-stocks", token).catch(() => {});
+      console.warn(data2?.data ?? []);
       if (data2?.data) {
         setData(data2?.data);
         setTempData(data2?.data);

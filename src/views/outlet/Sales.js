@@ -55,8 +55,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const head = [
-  "Code",
   "Name",
+  "Code",
   "Batch",
   "Exp Date",
   "Sale Price",
@@ -176,14 +176,14 @@ export function Sales() {
       setBill(temp);
     } else if (itm === "productId" || itm === "itemCode") {
       let val = await getProductPrice(e);
-      temp.products[i].productId = val?.productId;
+      temp.products[i].productId = val?.itemId;
       temp.products[i].salePrice = val?.unitPrice;
       temp.products[i].batch = val?.batch;
       temp.products[i].hsnCode = val?.hsnCode;
       temp.products[i].itemCode = val?.itemCode;
       temp.products[i].expDate = val?.expiry;
       temp.products[i].tax = val?.tax;
-      temp.products[i].itemName = val?.name;
+      temp.products[i].itemName = val?.itemName;
       setBill(temp);
     } else {
       temp.products[i][itm] = e.target.value;
@@ -494,6 +494,31 @@ export function Sales() {
                     isOptionEqualToValue={(option, value) =>
                       option.label === value.label
                     }
+                    value={row?.itemName}
+                    onChange={(e, v) =>
+                      v?.id && onItemChange(v?.id, ind, "productId")
+                    }
+                    options={productData?.oStock?.map((option) => {
+                      return {
+                        label: option.prodName,
+                        id: option.wareHouseStockId,
+                      };
+                    })}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Product"
+                        size="small"
+                        sx={{ minWidth: 180 }}
+                      />
+                    )}
+                  />
+                </StyledTableCell>
+                <StyledTableCell align="right">
+                  {/* <Autocomplete
+                    isOptionEqualToValue={(option, value) =>
+                      option.label === value.label
+                    }
                     value={row?.itemCode}
                     onChange={(e, v) =>
                       v?.id && onItemChange(v?.id, ind, "itemCode")
@@ -512,32 +537,8 @@ export function Sales() {
                         sx={{ minWidth: 120 }}
                       />
                     )}
-                  />
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  <Autocomplete
-                    isOptionEqualToValue={(option, value) =>
-                      option.label === value.label
-                    }
-                    value={row?.itemName}
-                    onChange={(e, v) =>
-                      v?.id && onItemChange(v?.id, ind, "productId")
-                    }
-                    options={productData?.oStock?.map((option) => {
-                      return {
-                        label: option.name,
-                        id: option.id,
-                      };
-                    })}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Product"
-                        size="small"
-                        sx={{ minWidth: 180 }}
-                      />
-                    )}
-                  />
+                  /> */}
+                  {row?.itemCode}
                 </StyledTableCell>
                 <StyledTableCell align="right">{row?.batch}</StyledTableCell>
                 <StyledTableCell align="right">{row?.expDate}</StyledTableCell>
