@@ -45,7 +45,7 @@ export const Register = () => {
       const check =
         name === "" && email === "" && password === "" && role === "";
       if (!check) {
-        await post("register", token)
+        await post("register", data, token)
           .then(() => {
             enqueueSnackbar("Success", { variant: "success" });
             onClear();
@@ -77,7 +77,7 @@ export const Register = () => {
         />
         <TextField
           required
-          label="Email"
+          label="Username"
           size="small"
           value={data?.email}
           onChange={(e) => onChange(e, "email")}
