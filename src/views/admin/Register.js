@@ -45,7 +45,7 @@ export const Register = () => {
       const check =
         name === "" && email === "" && password === "" && role === "";
       if (!check) {
-        await post("register", data, token)
+        await post("register", token, data)
           .then(() => {
             enqueueSnackbar("Success", { variant: "success" });
             onClear();
@@ -100,7 +100,6 @@ export const Register = () => {
             value={data?.role}
             onChange={(e) => onChange(e, "role")}
           >
-            <MenuItem value={"1"}>Admin</MenuItem>
             <MenuItem value={"2"}>Manager</MenuItem>
             <MenuItem value={"3"}>Outlet</MenuItem>
           </Select>
