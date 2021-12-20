@@ -60,7 +60,7 @@ const head2 = ["Item", "Min Qty", "MRP", "Rate", "Tax", "Tax Amt", "Net Rate"];
 const keys = [
   "quotationDate",
   "validDate",
-  "name",
+  "vendorName",
   "department",
   "subject",
   "status",
@@ -69,7 +69,7 @@ const data = [
   {
     quotationDate: "",
     validDate: "",
-    name: "",
+    vendorName: "",
     department: "",
     subject: "",
     status: "",

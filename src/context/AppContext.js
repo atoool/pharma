@@ -60,20 +60,20 @@ export const AppContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    setUserData(token);
-    onUserFetch(token);
-    onGetVendors(token);
-    onGetDept(token);
     if (!token?.token?.accessToken) {
       history.push("/auth");
     } else {
+      setUserData(token);
+      onUserFetch(token?.token?.accessToken);
+      onGetVendors(token?.token?.accessToken);
+      onGetDept(token?.token?.accessToken);
       history.push("/pharma");
     }
   }, [token, history]);
 
   const onUserFetch = async (tok) => {
     try {
-      const datas = await get("outlet-users", tok?.token?.accessToken ?? "");
+      const datas = await get("outlet-users", tok ?? "");
       datas?.data && setUserList(datas?.data);
     } catch {}
   };

@@ -63,19 +63,21 @@ export const Chat = () => {
           width: drawer ? window.innerWidth - 241 : window.innerWidth,
         }}
       >
-        <Button
-          sx={{
-            p: 3,
-            backgroundColor: "#fff",
-            borderRadius: 0,
-            width: drawer ? window.innerWidth - 241 : window.innerWidth,
-          }}
-          style={{ display: "flex", justifyContent: "flex-start" }}
-          onClick={() => onSelectChat(handleToggle, itm)}
-          startIcon={<AccountCircleRounded sx={{ height: 50, width: 50 }} />}
-        >
-          {itm?.name}
-        </Button>
+        {
+          <Button
+            sx={{
+              p: 3,
+              backgroundColor: "#fff",
+              borderRadius: 0,
+              width: drawer ? window.innerWidth - 241 : window.innerWidth,
+            }}
+            style={{ display: "flex", justifyContent: "flex-start" }}
+            onClick={() => onSelectChat(handleToggle, itm)}
+            startIcon={<AccountCircleRounded sx={{ height: 50, width: 50 }} />}
+          >
+            {itm?.name}
+          </Button>
+        }
       </Box>
     ));
   };
@@ -83,11 +85,16 @@ export const Chat = () => {
   const handleToggles = (status) => {
     if (!status) {
       dropMessages();
+      setChat({ chatId: "", title: "" });
     }
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        overflow: "scroll",
+      }}
+    >
       <Widget
         emojis={false}
         subtitle=""
