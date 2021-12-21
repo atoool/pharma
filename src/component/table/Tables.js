@@ -9,6 +9,7 @@ import {
   Paper,
   Button,
   IconButton,
+  TablePagination,
 } from "@mui/material";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import capitalizeFirstLetter from "utils/capitalizeFirstLetter";
@@ -47,6 +48,18 @@ export default function Tables({
   ExtraHead = () => {},
   ExtraBody = () => {},
 }) {
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [currentPage, setCurrentPage] = React.useState(0);
+
+  const onChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(0);
+  };
+
+  const onChangePage = (event, newPage) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <TableContainer>
       <Table sx={{ minWidth: 700 }} size="small" aria-label="a dense table">
@@ -65,22 +78,36 @@ export default function Tables({
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.map((row, i) => (
-            <StyledTableRow key={i}>
-              {extra && (
-                <StyledTableCell align="right">
-                  <ExtraBody index={i} />
-                </StyledTableCell>
-              )}
-              {keys?.map((r, ind) => (
-                <StyledTableCell key={ind} align="right">
-                  {row[r]}
-                </StyledTableCell>
-              ))}
-            </StyledTableRow>
-          ))}
+          {data
+            ?.slice(
+              currentPage * rowsPerPage,
+              currentPage * rowsPerPage + rowsPerPage
+            )
+            ?.map((row, i) => (
+              <StyledTableRow key={i}>
+                {extra && (
+                  <StyledTableCell align="right">
+                    <ExtraBody index={currentPage * rowsPerPage + i} />
+                  </StyledTableCell>
+                )}
+                {keys?.map((r, ind) => (
+                  <StyledTableCell key={ind} align="right">
+                    {row[r]}
+                  </StyledTableCell>
+                ))}
+              </StyledTableRow>
+            ))}
         </TableBody>
       </Table>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50]}
+        component="div"
+        count={data?.length ?? 0}
+        rowsPerPage={rowsPerPage}
+        page={currentPage}
+        onPageChange={onChangePage}
+        onRowsPerPageChange={onChangeRowsPerPage}
+      />
     </TableContainer>
   );
 }

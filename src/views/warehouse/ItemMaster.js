@@ -127,7 +127,7 @@ export function ItemMaster() {
     ]);
   };
 
-  const handleClickOpenModal = (pg = "product", i = 0) => {
+  const handleClickOpenModal = (pg, i) => {
     if (pg === "product") {
       const {
         id = "",
@@ -141,7 +141,7 @@ export function ItemMaster() {
         itemType = "",
         itemCategory = "",
         tax = "",
-      } = tempData[i];
+      } = tempData[isNaN(i) ? 0 : currentPage * rowsPerPage + i];
       setProducts([
         {
           id,
