@@ -21,7 +21,7 @@ import {
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "../../context/AppContext";
 import { Add, Delete, Edit, Visibility } from "@mui/icons-material";
-import { get, post } from "api/api";
+import { get, post } from "../../api/api";
 import { Modal } from "component/Modal/Modal";
 import Tables from "../../component/table/Tables";
 import { useSnackbar } from "notistack";
@@ -320,19 +320,18 @@ export function PurchaseOrder() {
       let temp = { ...requests };
       if (i === -1) {
         temp[itm] = e.target.value;
-        setPurchase(temp);
+        setRequests(temp);
       } else if (itm === "itemCode" || itm === "itemName") {
-        let val = await getProductPrice(e);
-        temp.items[i].itemId = val?.itemId;
-        temp.items[i].itemCode = val?.itemCode;
-        temp.items[i].itemName = val?.itemName;
-        setPurchase(temp);
+        temp.items[i].itemId = e?.id;
+        temp.items[i].itemCode = e?.itemCode;
+        temp.items[i].itemName = e?.itemName;
+        setRequests(temp);
       } else {
         temp.items[i][itm] = e.target.value;
         temp.items[i]["amt"] = temp.items[i].rate * temp.items[i].quantity;
         temp.items[i]["taxAmount"] =
           temp.items[i]["amt"] * temp.items[i]["tax"] * 0.01;
-        setPurchase(temp);
+        setRequests(temp);
       }
     };
 
@@ -370,6 +369,7 @@ export function PurchaseOrder() {
         {Object?.keys(data2)?.map((item, indx) =>
           item === "vendorId" || item === "departmentId" ? (
             <FormControl
+              key={indx}
               size="small"
               sx={{
                 width: "195px",
@@ -462,9 +462,9 @@ export function PurchaseOrder() {
                   {[
                     "itemCode",
                     "itemName",
-                    "quantity",
                     "mrp",
                     "rate",
+                    "quantity",
                     "amt",
                     "tax",
                     "taxAmount",
@@ -472,25 +472,29 @@ export function PurchaseOrder() {
                     itm === "itemCode" || itm === "itemName" ? (
                       <StyledTableCell key={i}>
                         <Autocomplete
+                          autoComplete="off"
                           isOptionEqualToValue={(option, value) =>
                             option.label === value.label
                           }
                           onChange={(e, v) =>
-                            v?.id && handleChange(v?.id, ind, itm)
+                            v?.id && handleChange(v, ind, itm)
                           }
+                          value={row[itm]}
                           options={productData?.master?.map((option) => {
                             return {
                               label:
                                 itm === "itemCode"
                                   ? option?.itemCode
                                   : option?.name,
+                              itemCode: option?.itemCode,
+                              itemName: option?.name,
                               id: option.id,
                             };
                           })}
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              autoComplete=""
+                              autoComplete="off"
                               label={itm === "itemCode" ? "Code" : "Name"}
                               size="small"
                               sx={{ width: 200 }}
@@ -523,6 +527,7 @@ export function PurchaseOrder() {
                     ) : (
                       <StyledTableCell key={i}>
                         <TextField
+                          autoComplete="off"
                           label=""
                           size="small"
                           sx={{ width: "70px" }}
