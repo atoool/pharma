@@ -119,7 +119,9 @@ export const Invoice = React.forwardRef(({ bill }, ref) => {
           <Typography fontWeight="bold" fontSize="13px">
             Name: Mr/Ms. {bill?.customerName}
           </Typography>
-          <Typography fontSize="12px">Payment Mode : Cash</Typography>
+          <Typography fontSize="12px">
+            Payment Mode : {bill?.settlementMode}
+          </Typography>
         </Box>
         <Box
           sx={{

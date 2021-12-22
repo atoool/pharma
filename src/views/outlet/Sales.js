@@ -95,6 +95,7 @@ const data = {
   remarks: "",
   balance: "",
   payment: "",
+  settlementMode: "",
   inPercent: "",
   inAmount: "",
 };
@@ -166,16 +167,37 @@ export function Sales() {
       temp[itm] = e.target.value;
       setBill(temp);
     } else if (itm === "quantity") {
-      const v = isNaN(e.target.value) ? 0 : JSON.parse(e.target.value);
-      temp.products[i].amount = v * temp.products[i].salePrice;
-      let total = 0;
-      temp.products?.map((f) => (total += f?.amount));
-      temp.billAmount = total;
-      temp.roundAmount = total - temp.discAmount;
-      temp.products[i].quantity = v;
+      const v =
+        isNaN(e.target.value) || e.target.value?.length === 0
+          ? 0
+          : JSON.parse(e.target.value);
+      if (temp.products[i].stock >= v) {
+        temp.products[i].amount = v * temp.products[i].salePrice;
+        let total = 0;
+        temp.products?.map((f) => (total += f?.amount));
+        temp.billAmount = total;
+        temp.roundAmount = total - temp.discAmount;
+        temp.products[i].quantity =
+          e.target.value?.length === 0 ? e.target.value : v;
+        let tax = (temp.products[i].tax ?? 0) * 0.01;
+        tax = (temp.products[i].amount ?? 0) * tax;
+        let totalTax = 0;
+        temp.products?.map((f) => (totalTax += f?.amount * f?.tax * 0.01));
+        temp.tax = totalTax?.toFixed(2) ?? 0;
+        const tota = tax + (temp.products[i].amount ?? 0);
+        temp.products[i].total =
+          total === "0" || !tota ? tota : tota?.toFixed(2);
+        let rAmount = 0;
+        temp.products?.map((f) => (rAmount += parseFloat(f?.total)));
+        temp.roundAmount = rAmount ? rAmount?.toFixed(2) : 0;
+      } else {
+        enqueueSnackbar("Quantity should be greater than stock", {
+          variant: "error",
+        });
+      }
       setBill(temp);
     } else if (itm === "productId" || itm === "itemCode") {
-      let val = await getProductPrice(e);
+      let val = await getProductPrice(e?.id);
       temp.products[i].productId = val?.itemId;
       temp.products[i].salePrice = val?.unitPrice;
       temp.products[i].batch = val?.batch;
@@ -184,6 +206,7 @@ export function Sales() {
       temp.products[i].expDate = val?.expiry;
       temp.products[i].tax = val?.tax;
       temp.products[i].itemName = val?.itemName;
+      temp.products[i].stock = e?.stock;
       setBill(temp);
     } else {
       temp.products[i][itm] = e.target.value;
@@ -289,9 +312,9 @@ export function Sales() {
     return () => document.removeEventListener("keydown", keyPress);
   });
 
-  const isEmptyProd =
-    bill?.products?.filter((f) => f?.total == null || f?.total === "")?.length >
-    0;
+  // const isEmptyProd =
+  //   bill?.products?.filter((f) => f?.total == null || f?.total === "")?.length >
+  //   0;
   const isLoad = false;
   return (
     <Loader load={isLoad}>
@@ -335,12 +358,18 @@ export function Sales() {
             <TextField {...params} label="Outlet User" size="small" />
           )}
         />
-        <TextField
-          label="Bill No."
-          size="small"
-          value={bill?.billNo}
-          disabled
-        />
+        <FormControl size="small" sx={{ width: "15%" }}>
+          <InputLabel>Payment Mode</InputLabel>
+          <Select
+            label="Payment Mode"
+            value={bill?.settlementMode}
+            onChange={(e) => onItemChange(e, -1, "settlementMode")}
+          >
+            <MenuItem value="UPI">UPI</MenuItem>
+            <MenuItem value="Cash">Cash</MenuItem>
+            <MenuItem value="Card">Card</MenuItem>
+          </Select>
+        </FormControl>
         <Autocomplete
           sx={{ width: "15%" }}
           isOptionEqualToValue={(option, value) => option === value}
@@ -366,8 +395,14 @@ export function Sales() {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell sx={{ padding: 0 }}>Bill Amount</TableCell>
-              <TableCell align="right" colSpan={2} sx={{ mr: 2 }}>
+              <TableCell sx={{ padding: 0, fontWeight: "bold" }}>
+                Bill Amount
+              </TableCell>
+              <TableCell
+                align="right"
+                colSpan={2}
+                sx={{ mr: 2, fontWeight: "bold" }}
+              >
                 {bill?.billAmount}
               </TableCell>
               <TableCell sx={{ padding: 0 }}>Discount Amount</TableCell>
@@ -378,7 +413,7 @@ export function Sales() {
                   value={bill?.inPercent}
                   sx={{ width: "70px" }}
                   onChange={(e) => onItemChange(e, -1, "in%")}
-                  disabled={isEmptyProd}
+                  // disabled={isEmptyProd}
                 />
               </TableCell>
               <TableCell align="right" sx={{ mr: 2 }}>
@@ -387,7 +422,7 @@ export function Sales() {
                   size="small"
                   value={bill?.inAmount}
                   onChange={(e) => onItemChange(e, -1, "inAmount")}
-                  disabled={isEmptyProd}
+                  // disabled={isEmptyProd}
                 />
               </TableCell>
             </TableRow>
@@ -409,7 +444,7 @@ export function Sales() {
                   sx={{ width: "120px", mt: 1, mb: 1, mr: 2 }}
                   value={bill?.payment}
                   onChange={(e) => onItemChange(e, -1, "payment")}
-                  disabled={isEmptyProd}
+                  // disabled={isEmptyProd}
                 />
               </TableCell>
             </TableRow>
@@ -436,7 +471,7 @@ export function Sales() {
                   value={bill?.remarks}
                   sx={{ mt: 1, mb: 1, mr: 2 }}
                   onChange={(e) => onItemChange(e, -1, "remarks")}
-                  disabled={isEmptyProd}
+                  // disabled={isEmptyProd}
                 />
               </TableCell>
               <TableCell colSpan={5}>
@@ -496,12 +531,13 @@ export function Sales() {
                     }
                     value={row?.itemName}
                     onChange={(e, v) =>
-                      v?.id && onItemChange(v?.id, ind, "productId")
+                      v?.id && onItemChange(v, ind, "productId")
                     }
                     options={productData?.oStock?.map((option) => {
                       return {
                         label: option.prodName,
                         id: option.wareHouseStockId,
+                        stock: option?.stockCount,
                       };
                     })}
                     renderInput={(params) => (
@@ -551,6 +587,7 @@ export function Sales() {
                     size="small"
                     sx={{ width: "70px" }}
                     value={bill?.products[ind].quantity}
+                    placeholder={">" + bill?.products[ind].stock}
                     onChange={(e) => onItemChange(e, ind, "quantity")}
                   />
                 </StyledTableCell>
