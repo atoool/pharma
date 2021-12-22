@@ -3,10 +3,11 @@ import { Loader } from "component/loader/Loader";
 import Tables from "component/table/Tables";
 import { AppContext } from "../../context/AppContext";
 import React from "react";
-import { IconButton, TextField } from "@mui/material";
+import { Button, IconButton, TextField } from "@mui/material";
 import { Visibility } from "@mui/icons-material";
 import { Modal } from "component/Modal/Modal";
 import { Box } from "@mui/system";
+import { CSVLink } from "react-csv";
 
 const head1 = [
   "BillNo",
@@ -18,6 +19,7 @@ const head1 = [
   "Tax",
   "RoundAmount",
   "Status",
+  "Payment Mode",
   "CreatedAt",
 ];
 const keys1 = [
@@ -30,6 +32,7 @@ const keys1 = [
   "tax",
   "roundAmount",
   "isSalesReturn",
+  "settlementMode",
   "createdAt",
 ];
 const head2 = ["ItemCode", "Name", "Qty", "Price", "Expiry", "CreatedAt"];
@@ -141,6 +144,17 @@ export function SalesHistory() {
           size="small"
           onChange={(txt) => onSearch(txt, "dosctorName")}
         />
+
+        <Button variant="contained">
+          <CSVLink
+            data={data}
+            filename={"MVRSalesHistory.csv"}
+            target="_blank"
+            style={{ textDecorationLine: "none", color: "inherit" }}
+          >
+            EXPORT CSV
+          </CSVLink>
+        </Button>
       </Box>
       <Tables
         head={head1}
