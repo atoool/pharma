@@ -207,6 +207,7 @@ export function Sales() {
       temp.products[i].tax = val?.tax;
       temp.products[i].itemName = val?.itemName;
       temp.products[i].stock = e?.stock;
+      temp.products[i].wareHouseStockId = e?.id;
       setBill(temp);
     } else {
       temp.products[i][itm] = e.target.value;
@@ -255,6 +256,7 @@ export function Sales() {
   const handleCloseModal = (action) => {
     if (action === "submit") {
       handlePrint();
+      onSubmit();
     } else {
       setModal(false);
     }
@@ -345,7 +347,7 @@ export function Sales() {
           value={bill?.doctorName}
           onChange={(e) => onItemChange(e, -1, "doctorName")}
         />
-        <Autocomplete
+        {/* <Autocomplete
           sx={{ width: "15%" }}
           isOptionEqualToValue={(option, value) => option.label === value.label}
           onChange={(event, value) =>
@@ -357,7 +359,7 @@ export function Sales() {
           renderInput={(params) => (
             <TextField {...params} label="Outlet User" size="small" />
           )}
-        />
+        /> */}
         <FormControl size="small" sx={{ width: "15%" }}>
           <InputLabel>Payment Mode</InputLabel>
           <Select
@@ -481,16 +483,20 @@ export function Sales() {
                     justifyContent: "flex-end",
                   }}
                 >
-                  <Button variant="contained" onClick={onSubmit} sx={{ mr: 1 }}>
-                    Submit
-                  </Button>
                   <Button
                     variant="contained"
                     onClick={() => setModal(true)}
                     sx={{ mr: 1 }}
                   >
-                    Print
+                    Done
                   </Button>
+                  {/* <Button
+                    variant="contained"
+                    onClick={() => setModal(true)}
+                    sx={{ mr: 1 }}
+                  >
+                    Print
+                  </Button> */}
                   <Button variant="contained" onClick={onClear}>
                     Clear
                   </Button>
@@ -587,7 +593,7 @@ export function Sales() {
                     size="small"
                     sx={{ width: "70px" }}
                     value={bill?.products[ind].quantity}
-                    placeholder={">" + bill?.products[ind].stock}
+                    placeholder={">" + (bill?.products[ind].stock ?? "")}
                     onChange={(e) => onItemChange(e, ind, "quantity")}
                   />
                 </StyledTableCell>

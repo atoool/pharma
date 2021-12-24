@@ -26,7 +26,6 @@ import { AppContext } from "context/AppContext";
 import { Add, Delete, Directions } from "@mui/icons-material";
 import { get, post } from "api/api";
 import { useSnackbar } from "notistack";
-import { generateBillNo } from "utils/generateBillNo";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -71,7 +70,7 @@ const head = [
 const data = {
   vendorId: "",
   vendor: "",
-  department: "",
+  deptName: "",
   departmentId: "",
   invoiceDate: "",
   invoiceNo: "",
@@ -81,7 +80,7 @@ const data = {
   billAmount: "",
   discount: "",
   payableAmount: "",
-  grnNumber: generateBillNo("GRN"),
+  grnNumber: "",
   remarks: "",
   items: [
     {
@@ -93,7 +92,7 @@ const data = {
       quantity: "",
       case: "",
       mrp: "",
-      unitPrice: "",
+      rate: "",
       amount: "",
       discount: "",
       tax: "",
@@ -136,7 +135,7 @@ export function PurchaseReturn() {
       temp.vendor = val?.vendorName;
       temp.invoiceDate = val?.invoiceDate;
       temp.invoiceNo = val?.invoiceNumber;
-      temp.department = val?.deptName;
+      temp.deptName = val?.deptName;
       temp.departmentId = val?.departmentId;
       temp.vendorId = val?.vendorId;
       temp.transactionDate = val?.transactionDate;
@@ -156,16 +155,16 @@ export function PurchaseReturn() {
           temp.items[inx].quantity = it?.quantity;
           temp.items[inx].case = it?.case;
           temp.items[inx].mrp = it?.mrp;
-          temp.items[inx].unitPrice = it?.unitPrice;
+          temp.items[inx].rate = it?.rate;
           temp.items[inx].amount = it?.amount;
           temp.items[inx].discount = it?.discount;
           temp.items[inx].tax = it?.tax;
           temp.items[inx].netRate = it?.netRate;
         });
       setOrder(temp);
-    } else if (i === -1 && (itm === "vendor" || itm === "department")) {
+    } else if (i === -1 && (itm === "vendor" || itm === "deptName")) {
       temp[itm] = e?.label;
-      temp[itm === "vendor" ? "vendorId" : "department"] = e?.id;
+      temp[itm === "vendor" ? "vendorId" : "departmentId"] = e?.id;
       setOrder(temp);
     } else if (i === -1 && itm === "is_cash") {
       temp.is_cash = "1";
@@ -186,10 +185,10 @@ export function PurchaseReturn() {
     } else if (i === -1) {
       temp[itm] = e.target.value;
       setOrder(temp);
-    } else if (itm === "unitPrice" || itm === "quantity") {
+    } else if (itm === "rate" || itm === "quantity") {
       const taxAmt = parseFloat(temp.items[i].tax) / 100;
       const v = e.target.value;
-      const itmAlt = itm === "unitPrice" ? "quantity" : "unitPrice";
+      const itmAlt = itm === "rate" ? "quantity" : "rate";
       temp.items[i].amount = v * temp.items[i][itmAlt];
       temp.items[i].netRate =
         parseFloat(v * temp.items[i][itmAlt]) ??
@@ -252,7 +251,7 @@ export function PurchaseReturn() {
       case: "",
       expiry: "",
       quantity: "",
-      unitPrice: "",
+      rate: "",
       amount: "",
       discount: "",
       tax: "",
@@ -286,7 +285,7 @@ export function PurchaseReturn() {
     setOrder({
       vendorId: "",
       vendor: "",
-      department: "",
+      deptName: "",
       departmentId: "",
       invoiceDate: "",
       invoiceNo: "",
@@ -296,7 +295,7 @@ export function PurchaseReturn() {
       billAmount: "",
       discount: "",
       payableAmount: "",
-      grnNumber: generateBillNo("GRN"),
+      grnNumber: "",
       remarks: "",
       items: [
         {
@@ -308,7 +307,7 @@ export function PurchaseReturn() {
           quantity: "",
           case: "",
           mrp: "",
-          unitPrice: "",
+          rate: "",
           amount: "",
           discount: "",
           tax: "",
@@ -395,7 +394,8 @@ export function PurchaseReturn() {
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
             }
-            onChange={(e, v) => v?.id && onItemChange(v, -1, "department")}
+            value={order?.deptName}
+            onChange={(e, v) => v?.id && onItemChange(v, -1, "deptName")}
             options={dept?.map((option) => {
               return {
                 label: option.name,
@@ -607,9 +607,9 @@ export function PurchaseReturn() {
                 <StyledTableCell align="right">
                   <TextField
                     size="small"
-                    value={row?.unitPrice}
+                    value={row?.rate}
                     sx={{ width: "70px" }}
-                    onChange={(e) => onItemChange(e, ind, "unitPrice")}
+                    onChange={(e) => onItemChange(e, ind, "rate")}
                   />
                 </StyledTableCell>
                 <StyledTableCell align="right">{row?.amount}</StyledTableCell>

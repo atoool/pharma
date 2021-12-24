@@ -421,7 +421,15 @@ export const Quotation = () => {
   const renderModalItem2 = () => (
     <Tables
       head={head2}
-      keys={Object.keys(data2?.items[0])}
+      keys={[
+        "itemName",
+        "minQty",
+        "mrp",
+        "rate",
+        "taxSlab",
+        "taxAmount",
+        "netRate",
+      ]}
       data={tempQuotations[quoteNum]?.items}
     />
   );

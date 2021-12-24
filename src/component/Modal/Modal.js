@@ -67,7 +67,7 @@ export function Modal({
                   : page === "issue"
                   ? "Issue"
                   : page === "sale"
-                  ? "Print"
+                  ? "Submit & Print"
                   : "Send Req"}
               </Button>
             </>

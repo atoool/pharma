@@ -15,6 +15,7 @@ import {
   FormControl,
   Select,
   MenuItem,
+  InputLabel,
 } from "@mui/material";
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "context/AppContext";
@@ -73,6 +74,7 @@ const data = {
   outletUserId: "",
   billNo,
   scheme: "",
+  settlementMode: "",
   products: [
     {
       productId: "",
@@ -82,7 +84,7 @@ const data = {
       name: "",
       batch: "",
       expiry: "",
-      unitPrice: "",
+      rate: "",
       qty: "",
       amount: "",
       tax: "",
@@ -116,7 +118,7 @@ export function SalesReturn() {
       return (
         dat?.data?.response ?? {
           inStockCount: "0",
-          unitPrice: "0",
+          rate: "0",
         }
       );
     } catch {}
@@ -184,7 +186,7 @@ export function SalesReturn() {
         setBill(temp);
       } else if (itm === "quantity") {
         const v = isNaN(e.target.value) ? 0 : JSON.parse(e.target.value);
-        temp.products[i].amount = v * temp.products[i].unitPrice;
+        temp.products[i].amount = v * temp.products[i].rate;
         let total = 0;
         temp.products?.map((f) => (total += f?.amount));
         temp.billAmount = total;
@@ -195,7 +197,7 @@ export function SalesReturn() {
         let val = await getProductPrice(e);
         temp.products[i].productId = val?.itemId;
         temp.products[i].itemCode = val?.itemCode;
-        temp.products[i].unitPrice = val?.unitPrice;
+        temp.products[i].rate = val?.rate;
         temp.products[i].batch = val?.batch;
         temp.products[i].hsnCode = val?.hsnCode;
         temp.products[i].itemCode = val?.itemCode;
@@ -220,7 +222,7 @@ export function SalesReturn() {
       itemName: "",
       batch: "",
       expiry: "",
-      unitPrice: "",
+      rate: "",
       qty: "",
       amount: "",
       tax: "",
@@ -252,6 +254,7 @@ export function SalesReturn() {
   const handleCloseModal = (action) => {
     if (action === "submit") {
       handlePrint();
+      onSubmit();
     } else {
       setModal(false);
       onClear();
@@ -265,6 +268,7 @@ export function SalesReturn() {
       outletUserId: "",
       billNo,
       scheme: "",
+      settlementMode: "",
       products: [
         {
           productId: "",
@@ -274,7 +278,7 @@ export function SalesReturn() {
           itemName: "",
           batch: "",
           expiry: "",
-          unitPrice: "",
+          rate: "",
           qty: "",
           amount: "",
           tax: "",
@@ -318,7 +322,7 @@ export function SalesReturn() {
         console.warn(dat);
         if (dat) {
           dat?.products?.map((f, i) => {
-            return (dat.products[i].amount = f?.unitPrice * f?.quantity);
+            return (dat.products[i].amount = f?.rate * f?.quantity);
           });
           setBill({ ...dat });
         }
@@ -373,7 +377,7 @@ export function SalesReturn() {
           value={bill?.doctorName}
           onChange={(e) => onItemChange(e, -1, "doctorName")}
         />
-        <Autocomplete
+        {/* <Autocomplete
           sx={{ width: "15%" }}
           isOptionEqualToValue={(option, value) => option.label === value.label}
           onChange={(event, value) =>
@@ -385,7 +389,7 @@ export function SalesReturn() {
           renderInput={(params) => (
             <TextField {...params} label="Outlet User" size="small" />
           )}
-        />
+        /> */}
         <Autocomplete
           sx={{ width: "15%" }}
           isOptionEqualToValue={(option, value) => option === value}
@@ -469,6 +473,22 @@ export function SalesReturn() {
                   sx={{ mt: 1, mb: 1, mr: 2 }}
                   onChange={(e) => onItemChange(e, -1, "remarks")}
                 />
+                <FormControl
+                  size="small"
+                  sx={{ mt: 1, mb: 1, mr: 2, width: 180 }}
+                >
+                  <InputLabel>Payment Mode</InputLabel>
+                  <Select
+                    label="Payment Mode"
+                    value={bill?.settlementMode}
+                    sx={{ textAlign: "left" }}
+                    onChange={(e) => onItemChange(e, -1, "settlementMode")}
+                  >
+                    <MenuItem value="UPI">UPI</MenuItem>
+                    <MenuItem value="Cash">Cash</MenuItem>
+                    <MenuItem value="Card">Card</MenuItem>
+                  </Select>
+                </FormControl>
               </TableCell>
               <TableCell colSpan={5}>
                 <Box
@@ -477,16 +497,20 @@ export function SalesReturn() {
                     justifyContent: "flex-end",
                   }}
                 >
-                  <Button variant="contained" onClick={onSubmit} sx={{ m: 1 }}>
-                    Submit
-                  </Button>
                   <Button
                     variant="contained"
                     onClick={() => setModal(true)}
                     sx={{ m: 1 }}
                   >
-                    Print
+                    Done
                   </Button>
+                  {/* <Button
+                    variant="contained"
+                    onClick={() => setModal(true)}
+                    sx={{ m: 1 }}
+                  >
+                    Print
+                  </Button> */}
                   <Button variant="contained" onClick={onClear} sx={{ m: 1 }}>
                     Clear
                   </Button>
@@ -574,9 +598,7 @@ export function SalesReturn() {
                 </StyledTableCell>
                 <StyledTableCell align="right">{row?.batch}</StyledTableCell>
                 <StyledTableCell align="right">{row?.expiry}</StyledTableCell>
-                <StyledTableCell align="right">
-                  {row?.unitPrice}
-                </StyledTableCell>
+                <StyledTableCell align="right">{row?.rate}</StyledTableCell>
                 <StyledTableCell align="right">
                   <TextField
                     label=""

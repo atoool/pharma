@@ -283,9 +283,10 @@ export const PurchaseRequisition = () => {
     try {
       if (status === "requested") {
         await get("accept-purchase-requisition/" + id, token);
-      } else if (status === "accepted") {
-        await get("delivered-purchase-requisition/" + id, token);
       }
+      // else if (status === "accepted") {
+      //   await get("delivered-purchase-requisition/" + id, token);
+      // }
       await getRequests();
     } catch {}
   };
@@ -302,22 +303,18 @@ export const PurchaseRequisition = () => {
         color="primary"
         size="small"
         onClick={() => onRespond(reqs[index]?.status, reqs[index]?.id)}
-        disabled={reqs[index]?.status === "delivered" || !reqs[index]?.status}
+        disabled={reqs[index]?.status !== "requested" || !reqs[index]?.status}
         sx={{ ml: 2 }}
       >
-        {reqs[index]?.status === "requested"
-          ? "Accept"
-          : reqs[index]?.status === "accepted"
-          ? "Delivered"
-          : "NA"}
+        {reqs[index]?.status === "requested" ? "Accept" : "NA"}
       </Button>
     </>
   );
 
   const renderModalItem2 = () => (
     <Tables
-      head={["Item", "Qty", "Rate"]}
-      keys={["name", "quantity", "rate"]}
+      head={["Item", "Qty"]}
+      keys={["name", "quantity"]}
       data={tempReqs[reqNum]?.items}
     />
   );
@@ -357,9 +354,6 @@ export const PurchaseRequisition = () => {
           justifyContent: "space-between",
         }}
       >
-        <Button variant="contained" color="primary" onClick={onOpenModal}>
-          New requisition
-        </Button>
         <TextField
           required
           label={"PRNumber"}
@@ -367,6 +361,9 @@ export const PurchaseRequisition = () => {
           size="small"
           onChange={(txt) => onSearch(txt, "prNumber")}
         />
+        <Button variant="contained" color="primary" onClick={onOpenModal}>
+          New requisition
+        </Button>
       </Box>
       <Tables
         keys={keys}

@@ -20,12 +20,11 @@ import {
 } from "@mui/material";
 import { Loader } from "component/loader/Loader";
 import { AppContext } from "../../context/AppContext";
-import { Add, Delete, Edit, Visibility } from "@mui/icons-material";
+import { Add, Delete, Visibility } from "@mui/icons-material";
 import { get, post } from "../../api/api";
 import { Modal } from "component/Modal/Modal";
 import Tables from "../../component/table/Tables";
 import { useSnackbar } from "notistack";
-import { generateBillNo } from "utils/generateBillNo";
 import styled from "@emotion/styled";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -55,9 +54,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const head = ["PO Date", "Vendor", "Created User"];
-const head2 = ["Item", "Code", "Qty", "Amount", "Net Rate"];
-const keys = ["createdAt", "distributor", "createdUser"];
-const keys2 = ["name", "itemCode", "quantity", "amount", "unitPrice"];
+const head2 = ["Item", "Code", "Qty", "Amount", "Rate", "Tax"];
+const keys = ["poDate", "vendorName", "createdUser"];
+const keys2 = ["itemName", "itemCode", "quantity", "amount", "rate", "tax"];
 const data = [
   {
     createdAt: "",
@@ -119,7 +118,7 @@ const data3 = {
       taxAmount: "",
     },
   ],
-  prNumber: generateBillNo("PR"),
+  prNumber: "",
 };
 
 export function PurchaseOrder() {
@@ -136,6 +135,7 @@ export function PurchaseOrder() {
   const [pIndex, setPIndex] = React.useState(0);
   const [purchase, setPurchase] = React.useState({});
   const [requests, setRequests] = React.useState(data3);
+  const [prnList, setPRNList] = React.useState([]);
   const { enqueueSnackbar } = useSnackbar();
 
   const getOrders = async () => {
@@ -145,6 +145,8 @@ export function PurchaseOrder() {
       const temp = dat?.data?.response ?? [];
       setOrders([...temp]);
       setOrdersTemp([...temp]);
+      const prn = await get("list-purchase-requisition-number", token);
+      setPRNList(prn?.data?.response ?? []);
       setLoad(false);
     } catch {
       setLoad(false);
@@ -187,8 +189,8 @@ export function PurchaseOrder() {
       vendorId: "",
       departmentId: "",
       poDate: "",
-      subject: "sub",
-      packing: "ww",
+      subject: "",
+      packing: "",
       mrp: "",
       rate: "",
       amt: "",
@@ -201,8 +203,8 @@ export function PurchaseOrder() {
       vendorId: "",
       departmentId: "",
       poDate: "",
-      subject: "sub",
-      packing: "ww",
+      subject: "",
+      packing: "",
       mrp: "",
       rate: "",
       amt: "",
@@ -222,7 +224,7 @@ export function PurchaseOrder() {
           taxAmount: "",
         },
       ],
-      prNumber: generateBillNo("PR"),
+      prNumber: "",
     });
   };
 
@@ -302,16 +304,11 @@ export function PurchaseOrder() {
     );
   };
 
-  const getProductPrice = async (id) => {
+  const getPurchaseDetails = async (id) => {
     try {
-      const dat = await get("get-product-price/" + id, token);
+      const dat = await get("get-purchase-requisition-details/" + id, token);
 
-      return (
-        dat?.data?.response ?? {
-          inStockCount: "0",
-          unitPrice: "0",
-        }
-      );
+      return dat?.data?.response ?? {};
     } catch {}
   };
 
@@ -319,7 +316,14 @@ export function PurchaseOrder() {
     const handleChange = async (e, i, itm) => {
       let temp = { ...requests };
       if (i === -1) {
-        temp[itm] = e.target.value;
+        if (itm === "prNumber") {
+          const val = await getPurchaseDetails(e).catch(() => {});
+          temp[itm] = e;
+          temp.poDate = val?.createdAt;
+          temp.items = val?.items;
+        } else {
+          temp[itm] = e.target.value;
+        }
         setRequests(temp);
       } else if (itm === "itemCode" || itm === "itemName") {
         temp.items[i].itemId = e?.id;
@@ -366,59 +370,71 @@ export function PurchaseOrder() {
         validate
         autoComplete="off"
       >
-        {Object?.keys(data2)?.map((item, indx) =>
-          item === "vendorId" || item === "departmentId" ? (
-            <FormControl
-              key={indx}
-              size="small"
-              sx={{
-                width: "195px",
-                m: 2,
-              }}
-              required
-            >
-              <InputLabel>{head3[indx]}</InputLabel>
-              <Select
-                value={requests[item]}
-                label={head3[indx]}
-                onChange={(e) => handleChange(e, -1, item)}
+        <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+          {Object?.keys(data2)?.map((item, indx) =>
+            item === "vendorId" || item === "departmentId" ? (
+              <FormControl
+                key={indx}
+                size="small"
+                sx={{
+                  width: "195px",
+                  m: 2,
+                }}
+                required
               >
-                {getList(item)?.map((f, i) => (
-                  <MenuItem key={i} value={f?.id}>
-                    {f?.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ) : (
-            <TextField
-              key={indx}
-              required
-              label={head3[indx]}
-              type={
-                item === "poDate" || item === "deliverySchedule"
-                  ? "date"
-                  : "text"
-              }
-              InputLabelProps={
-                item === "poDate" || item === "deliverySchedule"
-                  ? {
-                      shrink: true,
-                    }
-                  : {}
-              }
-              size="small"
-              value={requests[item] ?? ""}
-              onChange={(txt) => handleChange(txt, -1, item)}
-            />
-          )
-        )}
-        <TextField
-          label="PRNumber"
-          value={requests?.prNumber}
-          disabled
-          size="small"
-        />
+                <InputLabel>{head3[indx]}</InputLabel>
+                <Select
+                  value={requests[item]}
+                  label={head3[indx]}
+                  onChange={(e) => handleChange(e, -1, item)}
+                >
+                  {getList(item)?.map((f, i) => (
+                    <MenuItem key={i} value={f?.id}>
+                      {f?.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) : (
+              <TextField
+                key={indx}
+                required
+                label={head3[indx]}
+                type={
+                  item === "poDate" || item === "deliverySchedule"
+                    ? "date"
+                    : "text"
+                }
+                InputLabelProps={
+                  item === "poDate" || item === "deliverySchedule"
+                    ? {
+                        shrink: true,
+                      }
+                    : {}
+                }
+                size="small"
+                value={requests[item] ?? ""}
+                onChange={(txt) => handleChange(txt, -1, item)}
+              />
+            )
+          )}
+          <Autocomplete
+            autoComplete="off"
+            isOptionEqualToValue={(option, value) => option === value}
+            onChange={(e, v) => v && handleChange(v, -1, "prNumber")}
+            value={requests?.prNumber}
+            options={prnList}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                autoComplete="off"
+                label="PRNumber"
+                size="small"
+                sx={{ width: 200 }}
+              />
+            )}
+          />
+        </Box>
         <TableContainer>
           <Table sx={{ minWidth: 700 }} stickyHeader aria-label="sticky table">
             <TableHead>
@@ -522,8 +538,10 @@ export function PurchaseOrder() {
                           </Select>
                         </FormControl>
                       </StyledTableCell>
-                    ) : itm === "amt" ? (
-                      <StyledTableCell key={i}>{row?.amt}</StyledTableCell>
+                    ) : itm === "amt" || itm === "taxAmount" ? (
+                      <TableCell key={i} sx={{ l: 2 }}>
+                        <>{row[itm]}</>
+                      </TableCell>
                     ) : (
                       <StyledTableCell key={i}>
                         <TextField

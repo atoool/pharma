@@ -4,7 +4,7 @@ import { LinearProgress, Skeleton } from "@mui/material";
 
 export const Loader = ({ children, load }) => {
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", overflow: "scroll" }}>
       {load ? (
         <Box
           sx={{
