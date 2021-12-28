@@ -40,7 +40,6 @@ export function Reports() {
   const [report, setReport] = React.useState([]);
   const [form, setForm] = React.useState(formData);
   const [load, setLoad] = React.useState(false);
-  const [outlets, setOutlets] = React.useState([]);
 
   const handleChange = async (e, itm) => {
     const temp = { ...select };
@@ -95,6 +94,7 @@ export function Reports() {
       const bt = data4?.data?.response ?? [];
       temp[2].items = ["none", ...bt];
       temp[3].items = ["none", ...outs];
+      role !== 3 && (temp[0].items = [...temp[0].items, "User Last Login"]);
       setForm(temp);
     } catch {}
   };
@@ -115,6 +115,8 @@ export function Reports() {
             select.y === "Stocks"
           ))
       );
+    } else if (t === "User Last Login") {
+      return true;
     }
     return false;
   };

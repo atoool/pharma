@@ -59,7 +59,7 @@ export default function AdvTables({ data = [], head = [], keys = [] }) {
       <Table sx={{ minWidth: 700 }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
-            <StyledTableCell>Date</StyledTableCell>
+            <StyledTableCell>Data</StyledTableCell>
             {head?.map((r, i) => (
               <StyledTableCell component="th" key={i}>
                 {capitalizeFirstLetter(r)}
