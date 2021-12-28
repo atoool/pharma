@@ -153,13 +153,22 @@ export function IntentEntry() {
       temp.outletUserId = e;
       setIntents(temp);
     } else if (itm === "quantity") {
-      console.warn(e.target.value);
-      const v = isNaN(e.target.value) ? 0 : JSON.parse(e.target.value);
-      temp.requests[i].amount = v * temp.requests[i].unitPrice;
-      let total = 0;
-      temp.requests?.map((f) => (total += f?.amount));
-      temp.total = total;
-      temp.requests[i].quantity = v;
+      const v =
+        isNaN(e.target.value) || e.target.value?.length === 0
+          ? 0
+          : JSON.parse(e.target.value);
+      if (temp.requests[i].stock >= v) {
+        temp.requests[i].amount = v * temp.requests[i].unitPrice;
+        let total = 0;
+        temp.requests?.map((f) => (total += f?.amount));
+        temp.total = total;
+        temp.requests[i].quantity =
+          e.target.value?.length === 0 ? e.target.value : v;
+      } else {
+        enqueueSnackbar("Quantity should not be greater than stock", {
+          variant: "error",
+        });
+      }
       setIntents(temp);
     } else if (itm === "productId") {
       let val = await getProductPrice(e?.id);
@@ -255,6 +264,7 @@ export function IntentEntry() {
                         itemId: option?.itemId,
                         label: option?.name,
                         id: option?.id,
+                        stock: option?.stock,
                       };
                     })}
                     renderInput={(params) => (
@@ -274,6 +284,7 @@ export function IntentEntry() {
                     label=""
                     size="small"
                     sx={{ width: "70px" }}
+                    value={row?.quantity}
                     onChange={(e) => handleChange(e, ind, "quantity")}
                   />
                 </StyledTableCell>

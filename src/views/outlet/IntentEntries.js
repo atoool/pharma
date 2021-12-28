@@ -48,6 +48,7 @@ const iData2 = {
       quantity: "0",
       unitPrice: "",
       amount: "",
+      stock: "",
     },
   ],
   total: "",
@@ -117,12 +118,22 @@ export function IntentEntries() {
     let temp = { ...intents };
     console.warn(itm);
     if (itm === "quantity") {
-      const v = e.target.value;
-      temp.requests[i].amount = v * temp.requests[i].unitPrice;
-      let total = 0;
-      temp.requests?.map((f) => (total += f?.amount));
-      temp.total = total;
-      temp.requests[i].quantity = v;
+      const v =
+        isNaN(e.target.value) || e.target.value?.length === 0
+          ? 0
+          : JSON.parse(e.target.value);
+      if (temp.requests[i].stock >= v) {
+        temp.requests[i].amount = v * temp.requests[i].unitPrice;
+        let total = 0;
+        temp.requests?.map((f) => (total += f?.amount));
+        temp.total = total;
+        temp.requests[i].quantity =
+          e.target.value?.length === 0 ? e.target.value : v;
+      } else {
+        enqueueSnackbar("Quantity should not be greater than stock", {
+          variant: "error",
+        });
+      }
       setIntents(temp);
     } else if (itm === "productId") {
       let val = await getProductPrice(e?.id);
@@ -130,6 +141,7 @@ export function IntentEntries() {
       temp.requests[i].unitPrice = val?.unitPrice;
       temp.requests[i].itemCode = val?.itemCode;
       temp.requests[i].wareHouseStockId = e?.id;
+      temp.requests[i].stock = e?.stock;
       setIntents(temp);
     } else {
       temp.requests[i][itm] = e.target.value;
@@ -183,6 +195,7 @@ export function IntentEntries() {
                         itemId: option?.itemId,
                         label: option.name,
                         id: option.id,
+                        stock: option.stock,
                       };
                     })}
                     renderInput={(params) => (
@@ -201,6 +214,8 @@ export function IntentEntries() {
                     label=""
                     size="small"
                     sx={{ width: "70px" }}
+                    value={row?.quantity}
+                    placeholder={">" + (row?.stock ?? "")}
                     onChange={(e) => handleChange(e, ind, "quantity")}
                   />
                 </StyledTableCell>

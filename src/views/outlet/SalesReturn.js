@@ -89,6 +89,7 @@ const data = {
       amount: "",
       tax: "",
       total: "",
+      stock: "",
     },
   ],
   billAmount: "",
@@ -185,16 +186,26 @@ export function SalesReturn() {
         temp[itm] = e.target.value;
         setBill(temp);
       } else if (itm === "quantity") {
-        const v = isNaN(e.target.value) ? 0 : JSON.parse(e.target.value);
-        temp.products[i].amount = v * temp.products[i].rate;
-        let total = 0;
-        temp.products?.map((f) => (total += f?.amount));
-        temp.billAmount = total;
-        temp.roundAmount = total - temp.discAmount;
-        temp.products[i].quantity = v;
+        const v =
+          isNaN(e.target.value) || e.target.value?.length === 0
+            ? 0
+            : JSON.parse(e.target.value);
+        if (temp.products[i].stock >= v) {
+          temp.products[i].amount = v * temp.products[i].rate;
+          let total = 0;
+          temp.products?.map((f) => (total += f?.amount));
+          temp.billAmount = total;
+          temp.roundAmount = total - temp.discAmount;
+          temp.products[i].quantity =
+            e.target.value?.length === 0 ? e.target.value : v;
+        } else {
+          enqueueSnackbar("Quantity should not be greater than stock", {
+            variant: "error",
+          });
+        }
         setBill(temp);
       } else if (itm === "productId" || itm === "itemCode") {
-        let val = await getProductPrice(e);
+        let val = await getProductPrice(e?.id);
         temp.products[i].productId = val?.itemId;
         temp.products[i].itemCode = val?.itemCode;
         temp.products[i].rate = val?.rate;
@@ -204,6 +215,7 @@ export function SalesReturn() {
         temp.products[i].expiry = val?.expiry;
         temp.products[i].tax = val?.tax;
         temp.products[i].name = val?.itemName;
+        temp.products[i].stock = e?.stock;
         setBill(temp);
       } else {
         temp.products[i][itm] = e.target.value;
@@ -226,6 +238,7 @@ export function SalesReturn() {
       qty: "",
       amount: "",
       tax: "",
+      stock: "",
     });
     setBill(temp);
   };
@@ -282,6 +295,7 @@ export function SalesReturn() {
           qty: "",
           amount: "",
           tax: "",
+          stock: "",
         },
       ],
       billAmount: "",
@@ -552,12 +566,13 @@ export function SalesReturn() {
                     }
                     value={row?.name}
                     onChange={(e, v) =>
-                      v?.id && onItemChange(v?.id, ind, "productId")
+                      v?.id && onItemChange(v, ind, "productId")
                     }
                     options={productData?.oStock?.map((option) => {
                       return {
                         label: option.prodName,
                         id: option.wareHouseStockId,
+                        stock: option.stockCount,
                       };
                     })}
                     renderInput={(params) => (
@@ -604,7 +619,8 @@ export function SalesReturn() {
                     label=""
                     size="small"
                     sx={{ width: "70px" }}
-                    value={bill?.products[ind].quantity}
+                    value={row.quantity}
+                    placeholder={">" + (row?.stock ?? "")}
                     onChange={(e) => onItemChange(e, ind, "quantity")}
                   />
                 </StyledTableCell>

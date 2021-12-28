@@ -191,7 +191,7 @@ export function Sales() {
         temp.products?.map((f) => (rAmount += parseFloat(f?.total)));
         temp.roundAmount = rAmount ? rAmount?.toFixed(2) : 0;
       } else {
-        enqueueSnackbar("Quantity should be greater than stock", {
+        enqueueSnackbar("Quantity should not be greater than stock", {
           variant: "error",
         });
       }
