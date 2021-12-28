@@ -13,10 +13,12 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useHistory, useLocation } from "react-router";
 import { Typography } from "@mui/material";
 import { AppContext } from "context/AppContext";
+import { get } from "../../api/api";
 
 export function Header({ routeName = "" }) {
   const { userData, onSetDrawer, drawer } = React.useContext(AppContext);
   const username = userData?.user?.name ?? 3;
+  const token = userData?.token?.accessToken ?? "";
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const history = useHistory();
@@ -40,10 +42,13 @@ export function Header({ routeName = "" }) {
     setMobileMoreAnchorEl(null);
   };
 
-  const handleMenuClose = (val = "") => {
+  const handleMenuClose = async (val = "") => {
     if (val === "SignOut") {
-      history.replace("/auth/");
-      sessionStorage.clear();
+      try {
+        history.replace("/auth/");
+        sessionStorage.clear();
+        await get("logout", token);
+      } catch {}
     }
     setAnchorEl(null);
     handleMobileMenuClose();

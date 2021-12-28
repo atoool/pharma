@@ -46,10 +46,7 @@ export const MainLayout = () => {
       {getRoute() ? (
         <Switch>
           {getRoutes(routes)}
-          <Redirect
-            from="/Pharma"
-            to={token ? (role === 3 ? "/Pharma/Stocks" : "/Pharma/Items") : "/"}
-          />
+          <Redirect from="/Pharma" to={token ? "/Pharma/Reports" : "/"} />
         </Switch>
       ) : null}
     </Sidebar>

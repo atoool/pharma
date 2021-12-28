@@ -48,6 +48,20 @@ import {
 
 var dashRoutes = [
   {
+    name: "Dashboard",
+    state: "pageCollapse",
+    views: [
+      {
+        path: "/Reports",
+        name: "Reports",
+        secondaryNavbar: true,
+        component: Reports,
+        layout: "/Pharma",
+        icon: () => <Flag />,
+      },
+    ],
+  },
+  {
     name: "Warehouse",
     state: "pageCollapse",
     views: [
@@ -208,14 +222,6 @@ var dashRoutes = [
         component: IntentStatus,
         layout: "/Pharma",
         icon: () => <Task />,
-      },
-      {
-        path: "/Reports",
-        name: "Reports",
-        secondaryNavbar: true,
-        component: Reports,
-        layout: "/Pharma",
-        icon: () => <Flag />,
       },
     ],
   },

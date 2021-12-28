@@ -1,7 +1,7 @@
 import { Sales } from "./outlet/Sales";
 import { IntentEntries } from "./outlet/IntentEntries";
 import { SalesReturn } from "./outlet/SalesReturn";
-import { Reports } from "./outlet/Reports";
+import { Reports } from "./Dashboard/Reports";
 import { Vendors } from "./warehouse/Vendors";
 import { Departments } from "./warehouse/Departments";
 import { SalesHistory } from "./outlet/SalesHistory";
