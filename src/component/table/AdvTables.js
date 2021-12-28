@@ -77,11 +77,11 @@ export default function AdvTables({ data = [], head = [], keys = [] }) {
               (row, i) =>
                 row?.y?.length > 0 && (
                   <Fragment key={i}>
-                    <StyledTableRow>
-                      <StyledTableCell rowSpan={row?.y?.length + 1}>
+                    <TableRow>
+                      <TableCell rowSpan={row?.y?.length + 1}>
                         {row?.label}
-                      </StyledTableCell>
-                    </StyledTableRow>
+                      </TableCell>
+                    </TableRow>
                     {row?.y?.map((f, j) => (
                       <TableRow key={j}>
                         {keys?.map((r, ind) => (
