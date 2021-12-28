@@ -9,7 +9,7 @@ import AdvTables from "../../component/table/AdvTables";
 
 const data = [{ y: 155, label: "Jan" }];
 
-let formData = [
+let formData2 = [
   {
     title: "Analyze",
     items: [
@@ -20,6 +20,24 @@ let formData = [
       "Expire Stock",
       "Indent",
       "Issue",
+    ],
+  },
+  { title: "Duration", items: ["Daily", "Monthly", "Yearly"] },
+  { title: "Batch", items: ["none"] },
+  { title: "Outlet", items: ["none"] },
+];
+let formData1 = [
+  {
+    title: "Analyze",
+    items: [
+      "Items",
+      "Stocks",
+      "Sales",
+      "Sales Return",
+      "Expire Stock",
+      "Indent",
+      "Issue",
+      "User Last Login",
     ],
   },
   { title: "Duration", items: ["Daily", "Monthly", "Yearly"] },
@@ -38,7 +56,7 @@ export function Reports() {
     o: "none",
   });
   const [report, setReport] = React.useState([]);
-  const [form, setForm] = React.useState(formData);
+  const [form, setForm] = React.useState(role !== 3 ? formData1 : formData2);
   const [load, setLoad] = React.useState(false);
 
   const handleChange = async (e, itm) => {
@@ -94,7 +112,6 @@ export function Reports() {
       const bt = data4?.data?.response ?? [];
       temp[2].items = ["none", ...bt];
       temp[3].items = ["none", ...outs];
-      role !== 3 && (temp[0].items = [...temp[0].items, "User Last Login"]);
       setForm(temp);
     } catch {}
   };
