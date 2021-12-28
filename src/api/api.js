@@ -1,3 +1,4 @@
+import { history } from "App";
 import axios from "axios";
 
 const baseURL = "https://mvrpharma.com/api/";
@@ -12,7 +13,7 @@ export async function loginUser({ email, password }) {
 }
 
 export async function get(urls, token) {
-  return await axios
+  const data = await axios
     .get(baseURL + urls, {
       headers: {
         Accept: "application/json",
@@ -20,6 +21,11 @@ export async function get(urls, token) {
       },
     })
     .catch(() => {});
+  if (data?.status === 401) {
+    sessionStorage.clear();
+    history.replace("/auth/");
+  }
+  return data;
 }
 
 export async function post(urls, token, products) {
