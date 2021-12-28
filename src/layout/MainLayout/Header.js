@@ -13,7 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useHistory, useLocation } from "react-router";
 import { Typography } from "@mui/material";
 import { AppContext } from "context/AppContext";
-import { get } from "../../api/api";
+import { post } from "../../api/api";
 
 export function Header({ routeName = "" }) {
   const { userData, onSetDrawer, drawer } = React.useContext(AppContext);
@@ -47,7 +47,7 @@ export function Header({ routeName = "" }) {
       try {
         history.replace("/auth/");
         sessionStorage.clear();
-        await get("logout", token);
+        await post("logout", token, {});
       } catch {}
     }
     setAnchorEl(null);
