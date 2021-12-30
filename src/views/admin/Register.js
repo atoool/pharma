@@ -20,6 +20,7 @@ import { Edit } from "@mui/icons-material";
 export const Register = () => {
   const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
+  const role = userData?.user?.role ?? "";
   const [data, setData] = React.useState({
     name: "",
     email: "",
@@ -106,6 +107,13 @@ export const Register = () => {
         (data?.role === 2 || data?.role === "") &&
         (itm === "outletName" || itm === "address")
       );
+    const ifOutlet = (itm) => {
+      return role === 3
+        ? itm === "outletName" || itm === "address" || itm === "role"
+        : role === 2
+        ? itm === "role"
+        : false;
+    };
     return (
       <Box
         sx={{ display: "flex", flexDirection: "column", m: 2, width: "50%" }}
@@ -116,6 +124,7 @@ export const Register = () => {
               <InputLabel>Role</InputLabel>
               <Select
                 required
+                disabled={ifOutlet(itm)}
                 label={head[i]}
                 value={data[itm]}
                 onChange={(e) => onChange(e, itm)}
@@ -130,6 +139,7 @@ export const Register = () => {
                 key={i}
                 required={isEdit ? itm !== "password" : true}
                 size="small"
+                disabled={ifOutlet(itm)}
                 InputLabelProps={
                   isEdit
                     ? itm === "password" && {
@@ -141,7 +151,9 @@ export const Register = () => {
                 value={data[itm]}
                 onChange={(e) => onChange(e, itm)}
                 sx={{ mb: 2 }}
-                placeholder={isEdit ? itm === "password" && "*******" : ""}
+                placeholder={
+                  isEdit ? (itm === "password" ? "*******" : "") : ""
+                }
               />
             )
           )
@@ -201,33 +213,34 @@ export const Register = () => {
         }}
         renderItem={renderModalItem}
       />
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          bgcolor: "#FBF7F0",
-          justifyContent: "space-between",
-          p: 2,
-        }}
-      >
-        <TextField
-          label="Name search"
-          size="small"
-          type="search"
-          sx={{ mr: 2 }}
-          onChange={(e) => onSearch(e?.target?.value ?? "", "name")}
-        />
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => {
-            setIsEdit(false);
-            setOpen(true);
+      {role !== 3 && (
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            bgcolor: "#FBF7F0",
+            justifyContent: "space-between",
+            p: 2,
           }}
         >
-          Add User
-        </Button>
-        {/* <TextField
+          <TextField
+            label="Name search"
+            size="small"
+            type="search"
+            sx={{ mr: 2 }}
+            onChange={(e) => onSearch(e?.target?.value ?? "", "name")}
+          />
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => {
+              setIsEdit(false);
+              setOpen(true);
+            }}
+          >
+            Add User
+          </Button>
+          {/* <TextField
           label="PO Date"
           InputLabelProps={{
             shrink: true,
@@ -236,7 +249,8 @@ export const Register = () => {
           type="date"
           // onChange={(e) => handleChange(e, -1, "ordersNo")}
         /> */}
-      </Box>
+        </Box>
+      )}
       <Tables
         keys={["name", "email", "outletName", "address", "roleName", "role"]}
         data={usersTemp}

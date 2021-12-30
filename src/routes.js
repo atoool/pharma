@@ -212,12 +212,12 @@ var dashRoutes = [
     ],
   },
   {
-    name: "Admin",
+    name: "Account",
     state: "pageCollapse",
     views: [
       {
         path: "/CreateUser",
-        name: "Create User",
+        name: "User",
         secondaryNavbar: true,
         component: Register,
         layout: "/Pharma",

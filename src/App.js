@@ -16,7 +16,7 @@ function App() {
           <AppContextProvider>
             <Route path={`/Auth`} component={AuthLayout} />
             <Route path={`/Pharma`} component={MainLayout} />
-            <Redirect from={`/`} to={"/Pharma/Reports"} />
+            <Redirect from={`/`} to={"/Pharma/Items"} />
           </AppContextProvider>
         </Switch>
       </Router>
