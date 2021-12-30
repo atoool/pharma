@@ -105,7 +105,10 @@ const data = {
 export function Sales() {
   const { userList, userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
-  const { outletName = "", outletAddress = "" } = userData;
+  const { outletName = "", outletAddress = "" } = userData ?? {
+    outletName: "",
+    outletAddress: "",
+  };
   const [bill, setBill] = React.useState(data);
   const [open, setModal] = React.useState(false);
   const printRef = React.useRef();
