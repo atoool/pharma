@@ -1,11 +1,19 @@
 import { Charts } from "../../component/chart/Charts";
 import { Loader } from "component/loader/Loader";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import React from "react";
 import { Box } from "@mui/system";
 import { get } from "api/api";
 import { AppContext } from "../../context/AppContext";
 import AdvTables from "../../component/table/AdvTables";
+import { DatePicker, LocalizationProvider } from "@mui/lab";
 
 const data = [{ y: 155, label: "Jan" }];
 
@@ -54,19 +62,25 @@ export function Reports() {
     x: "Daily",
     b: "none",
     o: "none",
+    t: "day",
   });
   const [report, setReport] = React.useState([]);
   const [form, setForm] = React.useState(role !== 3 ? formData1 : formData2);
   const [load, setLoad] = React.useState(false);
+  const [range, setRange] = React.useState({ from: "", to: "" });
 
   const handleChange = async (e, itm) => {
     const temp = { ...select };
     if (itm === "Duration") {
       temp.x = e.target.value;
+      temp.t =
+        temp.x === "Yearly" ? "year" : temp.x === "Monthly" ? "month" : "day";
+      setRange({ from: "", to: "" });
     } else if (itm === "Batch") {
       temp.b = e.target.value;
       const key = temp.b === "none" ? "" : "/" + temp.b;
       await getReport(temp.y + key).catch(() => {});
+      setRange({ from: "", to: "" });
     } else if (itm === "Outlet") {
       temp.o = e.target.value;
       let key = "";
@@ -75,7 +89,24 @@ export function Reports() {
         key = "/" + key.split("-")[1];
       }
       await getReport(temp.y + key).catch(() => {});
+      setRange({ from: "", to: "" });
+    } else if (itm === "from" || itm === "to") {
+      const temp1 = { ...range };
+      temp1[itm] = e;
+      setRange(temp1);
+      temp1.from !== "" &&
+        temp1.to !== "" &&
+        (await getReport(
+          temp.y +
+            "?from=" +
+            temp1.from +
+            "&to=" +
+            temp1.to +
+            "&filType=" +
+            select.x
+        ).catch(() => {}));
     } else {
+      setRange({ from: "", to: "" });
       temp.y = e.target.value;
       await getReport(temp.y).catch(() => {});
     }
@@ -164,6 +195,38 @@ export function Reports() {
                 </Select>
               </FormControl>
             )
+        )}
+
+        {select?.y === "Stocks" && (
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              label="From"
+              views={[select.t]}
+              value={range?.from}
+              onChange={(e) => handleChange(e, "from")}
+              renderInput={(params) => (
+                <TextField
+                  size="small"
+                  error={false}
+                  sx={{ ml: 2, borderColor: "#000" }}
+                  {...params}
+                />
+              )}
+            />
+            <DatePicker
+              views={[select.t]}
+              label="To"
+              value={range?.to}
+              onChange={(e) => handleChange(e, "to")}
+              renderInput={(params) => (
+                <TextField
+                  size="small"
+                  sx={{ ml: 2, borderColor: "#000" }}
+                  {...params}
+                />
+              )}
+            />
+          </LocalizationProvider>
         )}
       </Box>
       {/* <Charts
