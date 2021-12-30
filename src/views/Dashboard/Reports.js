@@ -1,6 +1,7 @@
 import { Charts } from "../../component/chart/Charts";
 import { Loader } from "component/loader/Loader";
 import {
+  Button,
   FormControl,
   InputLabel,
   MenuItem,
@@ -14,6 +15,7 @@ import { get } from "api/api";
 import { AppContext } from "../../context/AppContext";
 import AdvTables from "../../component/table/AdvTables";
 import { DatePicker, LocalizationProvider } from "@mui/lab";
+import { CSVLink } from "react-csv";
 
 const data = [{ y: 155, label: "Jan" }];
 
@@ -67,6 +69,7 @@ export function Reports() {
   const [report, setReport] = React.useState([]);
   const [form, setForm] = React.useState(role !== 3 ? formData1 : formData2);
   const [load, setLoad] = React.useState(false);
+  const [csv, setCSV] = React.useState([]);
   const [range, setRange] = React.useState({ from: "", to: "" });
 
   const handleChange = async (e, itm) => {
@@ -112,6 +115,14 @@ export function Reports() {
     }
     setSelect(temp);
   };
+
+  React.useEffect(() => {
+    if (report && report?.length !== 0) {
+      let temp = [];
+      report[select.x?.toLowerCase()].map((f) => (temp = [...temp, ...f.y]));
+      setCSV(temp);
+    }
+  }, [report, select]);
 
   const getReport = async (y) => {
     try {
@@ -208,7 +219,7 @@ export function Reports() {
                 <TextField
                   size="small"
                   error={false}
-                  sx={{ ml: 2, borderColor: "#000" }}
+                  sx={{ ml: 2, width: 150 }}
                   {...params}
                 />
               )}
@@ -221,13 +232,24 @@ export function Reports() {
               renderInput={(params) => (
                 <TextField
                   size="small"
-                  sx={{ ml: 2, borderColor: "#000" }}
+                  sx={{ ml: 2, mr: 2, width: 150 }}
                   {...params}
                 />
               )}
             />
           </LocalizationProvider>
         )}
+
+        <Button variant="contained">
+          <CSVLink
+            data={csv ?? []}
+            filename={"MVR" + select.y + ".csv"}
+            target="_blank"
+            style={{ textDecorationLine: "none", color: "inherit" }}
+          >
+            EXPORT CSV
+          </CSVLink>
+        </Button>
       </Box>
       {/* <Charts
         data={report[select.x?.toLowerCase()] ?? data}
