@@ -24,7 +24,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     padding: 2,
   },
 }));
-
+const dateNow = new Date().toLocaleString();
 export const Invoice = React.forwardRef(({ bill }, ref) => {
   let amtTotal = 0;
   let allTotal = 0;
@@ -49,6 +49,7 @@ export const Invoice = React.forwardRef(({ bill }, ref) => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
+          width: "100%",
         }}
       >
         <Box
@@ -70,16 +71,9 @@ export const Invoice = React.forwardRef(({ bill }, ref) => {
             }}
           >
             <Typography variant="h3" fontSize="20px">
-              MVR PharmaCare
+              {bill?.outletAddress}
             </Typography>
-            <Typography fontSize="12px">
-              CP 13/516 B,C, Vellalaseri, Poolacode, Choolor, via NIT P.O.
-              Kozhikode 673601 03-11-2021 03:43 PM Contact
-              No.:0495-2289500,0495-7199525 GST No: 32AABAC1051D1ZP, Email:
-              pharmacy@mvrccri.co, Whatsapp No: 8330 014 003, Google Pay No:
-              8330 014 042 DL. No. : KL-KKD-116153,116154. Location-OP PHARMACY,
-              Ground Floor, Hospital Block
-            </Typography>
+            <Typography fontSize="12px">{bill?.outletName}</Typography>
           </Box>
         </Box>
         <Box
@@ -95,7 +89,7 @@ export const Invoice = React.forwardRef(({ bill }, ref) => {
             SALE BILL
           </Typography>
           <Typography fontSize="12px">{`Invoice #: ${bill?.billNo}`}</Typography>
-          <Typography fontSize="12px">{new Date().toLocaleString()}</Typography>
+          <Typography fontSize="12px">{dateNow}</Typography>
         </Box>
       </Box>
       <Box

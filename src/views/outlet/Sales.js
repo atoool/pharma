@@ -70,6 +70,8 @@ const data = {
   customerName: "",
   doctorName: "",
   outletUserId: "",
+  outletName: "",
+  outletAddress: "",
   billNo: generateBillNo("SL"),
   scheme: "",
   products: [
@@ -103,6 +105,7 @@ const data = {
 export function Sales() {
   const { userList, userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
+  const { outletName = "", outletAddress = "" } = userData;
   const [bill, setBill] = React.useState(data);
   const [open, setModal] = React.useState(false);
   const printRef = React.useRef();
@@ -312,9 +315,14 @@ export function Sales() {
   };
 
   React.useEffect(() => {
+    const temp = { ...bill };
+    temp.outletName = outletName;
+    temp.outletAddress = outletAddress;
+    setBill(temp);
+
     document.addEventListener("keydown", keyPress);
     return () => document.removeEventListener("keydown", keyPress);
-  });
+  }, []);
 
   // const isEmptyProd =
   //   bill?.products?.filter((f) => f?.total == null || f?.total === "")?.length >

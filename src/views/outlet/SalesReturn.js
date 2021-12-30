@@ -72,6 +72,8 @@ const data = {
   customerName: "",
   doctorName: "",
   outletUserId: "",
+  outletName: "",
+  outletAddress: "",
   billNo,
   scheme: "",
   settlementMode: "",
@@ -106,6 +108,7 @@ const data = {
 export function SalesReturn() {
   const { userList, userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
+  const { outletName = "", outletAddress = "" } = userData;
   const [bill, setBill] = React.useState(data);
   const [open, setModal] = React.useState(false);
   const [billNos, setBillNos] = React.useState([]);
@@ -133,6 +136,10 @@ export function SalesReturn() {
 
   React.useEffect(() => {
     getBillNo().catch(() => {});
+    const temp = { ...bill };
+    temp.outletName = outletName;
+    temp.outletAddress = outletAddress;
+    setBill(temp);
   }, []);
 
   const onItemChange = async (e, i, itm) => {
@@ -326,7 +333,7 @@ export function SalesReturn() {
   React.useEffect(() => {
     document.addEventListener("keydown", keyPress);
     return () => document.removeEventListener("keydown", keyPress);
-  });
+  }, []);
 
   const getSaleDetail = async (billN) => {
     try {
