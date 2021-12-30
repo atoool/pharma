@@ -158,9 +158,11 @@ export function Sales() {
         temp?.payment && temp?.payment !== ""
           ? temp?.payment - temp.roundAmount
           : t - temp?.discAmount;
+      temp.balance = temp?.balance?.toFixed(2);
       setBill(temp);
     } else if (i === -1 && itm === "payment") {
       temp.balance = e.target.value - bill?.roundAmount;
+      temp.balance = temp?.balance?.toFixed(2);
       temp.payment = e.target.value;
       setBill(temp);
     } else if (i === -1) {

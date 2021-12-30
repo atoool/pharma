@@ -45,6 +45,7 @@ export function Header({ routeName = "" }) {
   const handleMenuClose = async (val = "") => {
     if (val === "SignOut") {
       try {
+        window.location.reload();
         history.replace("/auth/");
         sessionStorage.clear();
         await post("logout", token, {});
