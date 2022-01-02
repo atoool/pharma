@@ -25,7 +25,6 @@ import { useSnackbar } from "notistack";
 import { Modal } from "../../component/Modal/Modal";
 import { Invoice } from "component/invoice/Invoice";
 import { useReactToPrint } from "react-to-print";
-import { generateBillNo } from "utils/generateBillNo";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -72,7 +71,7 @@ const data = {
   outletUserId: "",
   outletName: "",
   outletAddress: "",
-  billNo: generateBillNo("SL"),
+  billNo: "",
   scheme: "",
   products: [
     {
@@ -250,8 +249,12 @@ export function Sales() {
   const onSubmit = async () => {
     try {
       const dat = bill;
-      await post("add-sales", token, dat).then(() => {
+      await post("add-sales", token, dat).then((e) => {
+        const temp = { ...bill };
+        temp.billNo = e?.data?.billNo;
         onAlert("success");
+        setBill(temp);
+        handlePrint();
       });
     } catch {
       onAlert("error");
@@ -263,7 +266,6 @@ export function Sales() {
   });
   const handleCloseModal = (action) => {
     if (action === "submit") {
-      handlePrint();
       onSubmit();
     } else {
       setModal(false);
@@ -275,7 +277,7 @@ export function Sales() {
       customerName: "",
       doctorName: "",
       outletUserId: "",
-      billNo: generateBillNo("SL"),
+      billNo: "",
       scheme: "",
       products: [
         {

@@ -88,7 +88,9 @@ export const Invoice = React.forwardRef(({ bill }, ref) => {
           <Typography variant="h3" fontSize="20px">
             SALE BILL
           </Typography>
-          <Typography fontSize="12px">{`Invoice #: ${bill?.billNo}`}</Typography>
+          <Typography fontSize="12px">{`Invoice : ${
+            bill?.billNo === "" ? "##########" : bill?.billNo
+          }`}</Typography>
           <Typography fontSize="12px">{dateNow}</Typography>
         </Box>
       </Box>
