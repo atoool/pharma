@@ -1,5 +1,5 @@
 import { Loader } from "component/loader/Loader";
-import { Button, Paper, TextField, Typography } from "@mui/material";
+import { Paper, Typography } from "@mui/material";
 import React from "react";
 import { Box } from "@mui/system";
 import { get } from "api/api";
@@ -9,9 +9,8 @@ import { Charts } from "component/chart/Charts";
 
 const data = [{ y: 155, label: "Jan" }];
 export function Dashboard() {
-  const { userData, setProductData } = React.useContext(AppContext);
+  const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
-  const role = userData?.user?.role ?? "";
 
   const [report, setReport] = React.useState([]);
   const [load, setLoad] = React.useState(false);
