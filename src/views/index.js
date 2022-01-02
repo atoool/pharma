@@ -9,6 +9,7 @@ import { WarehouseStock } from "./warehouse/WarehouseStock";
 import { PurchaseReturn } from "./warehouse/PurchaseReturn";
 import { Register } from "./admin/Register";
 import { Chat } from "./chat/Chat";
+import { Dashboard } from "./Dashboard/Dashboard";
 const { Stocks } = require("./outlet/Stocks");
 const { IntentIssue } = require("./warehouse/IndentIssue");
 const { IntentEntry } = require("./warehouse/IntentEntry");
@@ -45,4 +46,5 @@ export {
   WarehouseStock,
   PurchaseReturn,
   Register,
+  Dashboard,
 };

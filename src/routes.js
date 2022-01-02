@@ -13,19 +13,18 @@ import {
   Receipt,
   PostAdd,
   Flag,
-  PendingActions,
   BadgeOutlined,
   Apartment,
   History,
   PersonAdd,
   ChatBubble,
+  GridView,
 } from "@mui/icons-material";
 import {
   IntentIssue,
   IntentStatus,
   IntentEntry,
   ItemMaster,
-  PendingPurchase,
   Chat,
   PurchaseEntry,
   PurchaseReturn,
@@ -44,6 +43,7 @@ import {
   SalesHistory,
   WarehouseStock,
   Register,
+  Dashboard,
 } from "./views";
 
 var dashRoutes = [
@@ -235,6 +235,14 @@ var dashRoutes = [
     name: "Dashboard",
     state: "pageCollapse",
     views: [
+      {
+        path: "/Dashboard",
+        name: "Dashboard",
+        secondaryNavbar: true,
+        component: Dashboard,
+        layout: "/Pharma",
+        icon: () => <GridView />,
+      },
       {
         path: "/Reports",
         name: "Reports",
