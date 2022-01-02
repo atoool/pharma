@@ -174,8 +174,8 @@ export function Reports() {
             select.y === "Stocks"
           ))
       );
-    } else if (t === "User Last Login") {
-      return true;
+    } else if (select.y === "User Last Login") {
+      return t !== "Analyze";
     }
     return false;
   };
@@ -232,7 +232,7 @@ export function Reports() {
               renderInput={(params) => (
                 <TextField
                   size="small"
-                  sx={{ ml: 2, mr: 2, width: 150 }}
+                  sx={{ ml: 2, width: 150 }}
                   {...params}
                 />
               )}
@@ -240,7 +240,7 @@ export function Reports() {
           </LocalizationProvider>
         )}
 
-        <Button variant="contained">
+        <Button variant="contained" sx={{ ml: 2 }}>
           <CSVLink
             data={csv ?? []}
             filename={"MVR" + select.y + ".csv"}
