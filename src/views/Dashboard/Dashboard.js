@@ -30,13 +30,14 @@ export function Dashboard() {
 
   return (
     <Loader load={load}>
-      <Box sx={{ m: 2 }}>
+      <Box sx={{ m: 2, display: "flex" }}>
         {report?.cards?.map((itm, k) => (
           <Paper
             key={k}
-            elevation={5}
+            elevation={3}
             sx={{
               p: 3,
+              mr: 2,
               width: "200px",
               backgroundColor: "#1FA084",
             }}
