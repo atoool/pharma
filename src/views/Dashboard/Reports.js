@@ -208,7 +208,7 @@ export function Reports() {
             )
         )}
 
-        {select?.y === "Stocks" && (
+        {select?.y !== "User Last Login" && (
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
               label="From"
