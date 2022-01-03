@@ -39,7 +39,7 @@ export function Dashboard() {
               p: 3,
               mr: 2,
               width: "200px",
-              backgroundColor: "#1FA084",
+              backgroundColor: "#728FCE",
             }}
           >
             <Typography color={"#fff"} fontSize="15px">

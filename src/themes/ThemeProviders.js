@@ -7,13 +7,13 @@ export const ThemeProviders = ({ children }) => {
     palette: {
       primary: {
         light: "#757ce8",
-        main: "#1FA084",
-        dark: "#D1E8E4",
+        main: "#728FCE",
+        dark: "#D6EAF8",
         contrastText: "#fff",
       },
       secondary: {
         light: "#ff7961",
-        main: "#D1E8E4",
+        main: "#D6EAF8",
         dark: "#ba000d",
         contrastText: "#000",
       },
