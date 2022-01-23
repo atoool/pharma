@@ -214,7 +214,7 @@ export function IntentEntries() {
                     options={productData?.wStock?.map((option) => {
                       return {
                         itemId: option?.itemId,
-                        label: option.name,
+                        label: option.nameExpiry,
                         id: option.id,
                         stock: option.stock,
                       };
