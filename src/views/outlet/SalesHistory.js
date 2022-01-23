@@ -112,7 +112,7 @@ export function SalesHistory() {
         open={open}
         handleClose={handleCloseModal}
         show={false}
-        title={"Soled Items"}
+        title={"Sold Items"}
         renderItem={renderModal}
       />
       <Box

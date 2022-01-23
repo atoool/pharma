@@ -271,6 +271,9 @@ export function IntentEntries() {
           justifyContent: "flex-end",
         }}
       >
+        <Button variant="contained" sx={{ mr: 1 }} onClick={clear}>
+          Clear
+        </Button>
         <Button variant="contained" sx={{ mr: 1 }} onClick={onRequest}>
           Request
         </Button>
