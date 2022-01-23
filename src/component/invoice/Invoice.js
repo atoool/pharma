@@ -38,7 +38,7 @@ export const Invoice = React.forwardRef(({ bill }, ref) => {
     <Box
       ref={ref}
       sx={{
-        height: "100%",
+        height: window.innerHeight,
         display: "flex",
         alignItems: "center",
         margin: 5,
