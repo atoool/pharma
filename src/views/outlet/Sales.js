@@ -65,43 +65,42 @@ const head = [
   "Total",
 ];
 
-const data = {
-  customerName: "",
-  doctorName: "",
-  outletUserId: "",
-  outletName: "",
-  outletAddress: "",
-  billNo: "",
-  scheme: "",
-  products: [
-    {
-      productId: "",
-      quantity: "",
-      hsnCode: "",
-      itemCode: "",
-      itemName: "",
-      batch: "",
-      expDate: "",
-      salePrice: "",
-      qty: "",
-      amount: "",
-      tax: "",
-      total: "",
-    },
-  ],
-  billAmount: "",
-  discAmount: "",
-  tax: "",
-  roundAmount: "",
-  remarks: "",
-  balance: "",
-  payment: "",
-  settlementMode: "",
-  inPercent: "",
-  inAmount: "",
-};
-
 export function Sales() {
+  const data = {
+    customerName: "",
+    doctorName: "",
+    outletUserId: "",
+    outletName: "",
+    outletAddress: "",
+    billNo: "",
+    scheme: "",
+    products: [
+      {
+        productId: "",
+        quantity: "",
+        hsnCode: "",
+        itemCode: "",
+        itemName: "",
+        batch: "",
+        expDate: "",
+        salePrice: "",
+        qty: "",
+        amount: "",
+        tax: "",
+        total: "",
+      },
+    ],
+    billAmount: "",
+    discAmount: "",
+    tax: "",
+    roundAmount: "",
+    remarks: "",
+    balance: "",
+    payment: "",
+    settlementMode: "",
+    inPercent: "",
+    inAmount: "",
+  };
   const { userList, userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const { outletName = "", outletAddress = "" } = userData ?? {
@@ -324,7 +323,6 @@ export function Sales() {
     temp.outletName = outletName;
     temp.outletAddress = outletAddress;
     setBill(temp);
-
     document.addEventListener("keydown", keyPress);
     return () => document.removeEventListener("keydown", keyPress);
   }, []);

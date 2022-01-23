@@ -53,34 +53,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const pData1 = [
-  {
-    itemCode: "",
-    name: "",
-    genericName: "",
-    hsnCode: "",
-    purchaseUnit: "",
-    conversionUnit: "",
-    unit: "",
-    itemType: "",
-    itemCategory: "",
-    tax: "",
-  },
-];
-const pData11 = [
-  {
-    Code: "",
-    Name: "",
-    GenericName: "",
-    HSN: "",
-    PUnit: "",
-    CUnit: "",
-    Unit: "",
-    Type: "",
-    Category: "",
-    tax: "",
-  },
-];
 const cat = [
   "DISCOUNT MARKUP 5%",
   "MARKUP 10%",
@@ -94,6 +66,34 @@ const unt = ["NOS", "BOTTLE", "INJECTION", "GRAM", "LITR"];
 const typ = ["TABLET", "CAPSULE", "INJECTION"];
 
 export function ItemMaster() {
+  const pData1 = [
+    {
+      itemCode: "",
+      name: "",
+      genericName: "",
+      hsnCode: "",
+      purchaseUnit: "",
+      conversionUnit: "",
+      unit: "",
+      itemType: "",
+      itemCategory: "",
+      tax: "",
+    },
+  ];
+  const pData11 = [
+    {
+      Code: "",
+      Name: "",
+      GenericName: "",
+      HSN: "",
+      PUnit: "",
+      CUnit: "",
+      Unit: "",
+      Type: "",
+      Category: "",
+      tax: "",
+    },
+  ];
   const { userData, setProductData, onGetVendors, onGetDept } =
     React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";

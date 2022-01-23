@@ -54,24 +54,24 @@ const iData = [
   "Unit price",
   "Amount",
 ];
-const iData2 = {
-  requests: [
-    {
-      productId: "",
-      itemCode: "",
-      stock: "0",
-      quantity: "0",
-      unitPrice: "0",
-      amount: "0",
-      productName: "",
-    },
-  ],
-  outletUserId: "",
-  outletUser: "",
-  total: "0",
-};
 
 export function IntentEntry() {
+  const iData2 = {
+    requests: [
+      {
+        productId: "",
+        itemCode: "",
+        stock: "0",
+        quantity: "0",
+        unitPrice: "0",
+        amount: "0",
+        productName: "",
+      },
+    ],
+    outletUserId: "",
+    outletUser: "",
+    total: "0",
+  };
   const { userData, productData } = React.useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const token = userData?.token?.accessToken ?? "";
@@ -218,7 +218,9 @@ export function IntentEntry() {
     v === "error" &&
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
-
+  React.useEffect(() => {
+    clear();
+  }, []);
   return (
     <Loader load={load}>
       <Box

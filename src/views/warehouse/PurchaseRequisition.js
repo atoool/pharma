@@ -48,30 +48,31 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const head = ["Item", "Qty"];
 const head1 = ["PRNumber", "Date", "Status"];
 const keys = ["prNumber", "createdAt", "status"];
-const data = {
-  items: [
+
+export const PurchaseRequisition = () => {
+  const data = {
+    items: [
+      {
+        itemName: "",
+        quantity: "",
+        rate: "",
+      },
+    ],
+    remarks: "",
+    prNumber: generateBillNo("PR"),
+  };
+
+  const data1 = [
     {
       itemName: "",
       quantity: "",
       rate: "",
+      date: "",
+      status: "",
+      approveStatus: "",
+      receiveStatus: "",
     },
-  ],
-  remarks: "",
-  prNumber: generateBillNo("PR"),
-};
-
-const data1 = [
-  {
-    itemName: "",
-    quantity: "",
-    rate: "",
-    date: "",
-    status: "",
-    approveStatus: "",
-    receiveStatus: "",
-  },
-];
-export const PurchaseRequisition = () => {
+  ];
   const { userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [open, setModal] = React.useState(false);

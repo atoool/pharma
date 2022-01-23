@@ -68,44 +68,43 @@ const head = [
 
 const billNo = "";
 
-const data = {
-  customerName: "",
-  doctorName: "",
-  outletUserId: "",
-  outletName: "",
-  outletAddress: "",
-  billNo,
-  scheme: "",
-  settlementMode: "",
-  products: [
-    {
-      productId: "",
-      quantity: "",
-      hsnCode: "",
-      itemCode: "",
-      name: "",
-      batch: "",
-      expiry: "",
-      rate: "",
-      qty: "",
-      amount: "",
-      tax: "",
-      total: "",
-      stock: "",
-    },
-  ],
-  billAmount: "",
-  discAmount: "",
-  tax: "",
-  roundAmount: "",
-  remarks: "",
-  balance: "",
-  payment: "",
-  inPercent: "",
-  inAmount: "",
-};
-
 export function SalesReturn() {
+  const data = {
+    customerName: "",
+    doctorName: "",
+    outletUserId: "",
+    outletName: "",
+    outletAddress: "",
+    billNo,
+    scheme: "",
+    settlementMode: "",
+    products: [
+      {
+        productId: "",
+        quantity: "",
+        hsnCode: "",
+        itemCode: "",
+        name: "",
+        batch: "",
+        expiry: "",
+        rate: "",
+        qty: "",
+        amount: "",
+        tax: "",
+        total: "",
+        stock: "",
+      },
+    ],
+    billAmount: "",
+    discAmount: "",
+    tax: "",
+    roundAmount: "",
+    remarks: "",
+    balance: "",
+    payment: "",
+    inPercent: "",
+    inAmount: "",
+  };
   const { userList, userData, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const { outletName = "", outletAddress = "" } = userData ?? {
@@ -334,6 +333,10 @@ export function SalesReturn() {
   };
 
   React.useEffect(() => {
+    const temp = { ...bill };
+    temp.outletName = outletName;
+    temp.outletAddress = outletAddress;
+    setBill(temp);
     document.addEventListener("keydown", keyPress);
     return () => document.removeEventListener("keydown", keyPress);
   }, []);

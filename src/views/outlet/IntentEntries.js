@@ -40,22 +40,22 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const iData = ["Item name", "Item Code", "Request qty", "Unit price", "Amount"];
-const iData2 = {
-  requests: [
-    {
-      productId: "",
-      itemCode: "",
-      quantity: "0",
-      unitPrice: "",
-      amount: "",
-      stock: "",
-      productName: "",
-    },
-  ],
-  total: "",
-};
 
 export function IntentEntries() {
+  const iData2 = {
+    requests: [
+      {
+        productId: "",
+        itemCode: "",
+        quantity: "0",
+        unitPrice: "",
+        amount: "",
+        stock: "",
+        productName: "",
+      },
+    ],
+    total: "",
+  };
   const { userData, productData } = React.useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
   const token = userData?.token?.accessToken ?? "";
@@ -175,6 +175,9 @@ export function IntentEntries() {
     v === "error" &&
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
+  React.useEffect(() => {
+    clear();
+  }, []);
   return (
     <Loader load={load}>
       <TableContainer>

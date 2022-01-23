@@ -47,28 +47,27 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const iData = [
-  {
-    intendNo: "",
-    warehouseName: "",
-    userName: "",
-    createdAt: "",
-    issuedDate: "",
-    deliveredDate: "",
-  },
-];
-const iData3 = [
-  {
-    IntendNo: "",
-    Warehouse: "",
-    Outlet: "",
-    CreatedDate: "",
-    IssuedDate: "",
-    DeliveredDate: "",
-  },
-];
-
 export function IntentIssue() {
+  const iData = [
+    {
+      intendNo: "",
+      warehouseName: "",
+      userName: "",
+      createdAt: "",
+      issuedDate: "",
+      deliveredDate: "",
+    },
+  ];
+  const iData3 = [
+    {
+      IntendNo: "",
+      Warehouse: "",
+      Outlet: "",
+      CreatedDate: "",
+      IssuedDate: "",
+      DeliveredDate: "",
+    },
+  ];
   const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [data, setData] = React.useState(iData);

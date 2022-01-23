@@ -67,41 +67,40 @@ const head = [
   "Net Rate",
 ];
 
-const data = {
-  vendorId: "",
-  vendor: "",
-  deptName: "",
-  departmentId: "",
-  invoiceDate: "",
-  invoiceNo: "",
-  transactionDate: "",
-  is_cash: "0",
-  is_donate: "1",
-  billAmount: "",
-  discount: "",
-  payableAmount: "",
-  grnNumber: "",
-  remarks: "",
-  items: [
-    {
-      itemId: "",
-      itemName: "",
-      batch: "",
-      packing: "",
-      expiry: "",
-      quantity: "",
-      case: "",
-      mrp: "",
-      rate: "",
-      amount: "",
-      discount: "",
-      tax: "",
-      netRate: "",
-    },
-  ],
-};
-
 export function PurchaseReturn() {
+  const data = {
+    vendorId: "",
+    vendor: "",
+    deptName: "",
+    departmentId: "",
+    invoiceDate: "",
+    invoiceNo: "",
+    transactionDate: "",
+    is_cash: "0",
+    is_donate: "1",
+    billAmount: "",
+    discount: "",
+    payableAmount: "",
+    grnNumber: "",
+    remarks: "",
+    items: [
+      {
+        itemId: "",
+        itemName: "",
+        batch: "",
+        packing: "",
+        expiry: "",
+        quantity: "",
+        case: "",
+        mrp: "",
+        rate: "",
+        amount: "",
+        discount: "",
+        tax: "",
+        netRate: "",
+      },
+    ],
+  };
   const { userData, productData, vendors, dept } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [order, setOrder] = React.useState(data);
@@ -323,7 +322,9 @@ export function PurchaseReturn() {
     v === "error" &&
       enqueueSnackbar("Failed! something went wrong, try again", variant);
   };
-
+  React.useEffect(() => {
+    onClear();
+  }, []);
   return (
     <Loader load={isLoad}>
       <Box

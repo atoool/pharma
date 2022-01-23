@@ -67,35 +67,35 @@ const keys2 = [
   "rate",
 ];
 const keys = ["itemName", "vendorName", "itemRate"];
-const data1 = [
-  {
-    itemName: "",
-    vendorName: "",
-    itemRate: "",
-  },
-];
-const data2 = {
-  vendor: "",
-  subject: "",
-  remarks: "",
-  startDate: "",
-  expDate: "",
-  createDate: "",
-  items: [
-    {
-      name: "",
-      minQty: "",
-      maxQty: "",
-      duration: "",
-      MRP: "",
-      discountAmount: "",
-      tax: "",
-      rate: "",
-    },
-  ],
-};
 
 export const RateComparator = () => {
+  const data1 = [
+    {
+      itemName: "",
+      vendorName: "",
+      itemRate: "",
+    },
+  ];
+  const data2 = {
+    vendor: "",
+    subject: "",
+    remarks: "",
+    startDate: "",
+    expDate: "",
+    createDate: "",
+    items: [
+      {
+        name: "",
+        minQty: "",
+        maxQty: "",
+        duration: "",
+        MRP: "",
+        discountAmount: "",
+        tax: "",
+        rate: "",
+      },
+    ],
+  };
   const { userData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [open, setModal] = React.useState(false);

@@ -49,18 +49,18 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const keys = [
-  {
-    name: "",
-    address: "",
-    phone: "",
-    email: "",
-    gstno: "",
-    pancard: "",
-  },
-];
 const head = ["Name", "Address", "Phone", "Email", "GST", "PanCard"];
 export function Vendors() {
+  const keys = [
+    {
+      name: "",
+      address: "",
+      phone: "",
+      email: "",
+      gstno: "",
+      pancard: "",
+    },
+  ];
   const { userData, onGetVendors } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
 

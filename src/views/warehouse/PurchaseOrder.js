@@ -88,40 +88,39 @@ const head3 = [
   "Delivery Address",
 ];
 
-const data2 = {
-  vendorId: "",
-  departmentId: "",
-  poDate: "",
-  subject: "",
-  packing: "",
-  deliverySchedule: "",
-  deliveryAddress: "",
-};
-
-const data3 = {
-  vendorId: "",
-  departmentId: "",
-  poDate: "",
-  subject: "",
-  packing: "",
-  deliverySchedule: "",
-  deliveryAddress: "",
-  items: [
-    {
-      itemCode: "",
-      itemName: "",
-      quantity: "",
-      mrp: "",
-      rate: "",
-      amt: "",
-      tax: "",
-      taxAmount: "",
-    },
-  ],
-  prNumber: "",
-};
-
 export function PurchaseOrder() {
+  const data2 = {
+    vendorId: "",
+    departmentId: "",
+    poDate: "",
+    subject: "",
+    packing: "",
+    deliverySchedule: "",
+    deliveryAddress: "",
+  };
+
+  const data3 = {
+    vendorId: "",
+    departmentId: "",
+    poDate: "",
+    subject: "",
+    packing: "",
+    deliverySchedule: "",
+    deliveryAddress: "",
+    items: [
+      {
+        itemCode: "",
+        itemName: "",
+        quantity: "",
+        mrp: "",
+        rate: "",
+        amt: "",
+        tax: "",
+        taxAmount: "",
+      },
+    ],
+    prNumber: "",
+  };
   const { userData, vendors, dept, productData } = React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
   const [orders, setOrders] = React.useState(data);

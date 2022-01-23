@@ -46,25 +46,25 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const pData2 = [
-  {
-    prodName: "",
-    batch: "",
-    packing: "",
-    expiry: "",
-    stockCount: "",
-  },
-];
-const pData22 = [
-  {
-    Product: "",
-    Batch: "",
-    Packing: "",
-    Expiry: "",
-    Stock: "",
-  },
-];
 export function Stocks() {
+  const pData2 = [
+    {
+      prodName: "",
+      batch: "",
+      packing: "",
+      expiry: "",
+      stockCount: "",
+    },
+  ];
+  const pData22 = [
+    {
+      Product: "",
+      Batch: "",
+      Packing: "",
+      Expiry: "",
+      Stock: "",
+    },
+  ];
   const { userData, setProductData, productData } =
     React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";

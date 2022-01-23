@@ -65,40 +65,40 @@ const keys = [
   "subject",
   "status",
 ];
-const data = [
-  {
-    quotationDate: "",
-    validDate: "",
-    vendorName: "",
-    department: "",
-    subject: "",
-    status: "",
-    items: [{ itemName: "", itemId: "", rate: "" }],
-  },
-];
-const data2 = {
-  quotationDate: "",
-  quotationNumber: generateBillNo("QT"),
-  validDate: "",
-  vendor: "",
-  subject: "",
-  status: "",
-  department: "",
-  deliveryDate: "",
-  items: [
-    {
-      itemName: "",
-      minQty: "",
-      mrp: "",
-      rate: "",
-      taxSlab: "",
-      taxAmount: "",
-      netRate: "",
-    },
-  ],
-};
 
 export const Quotation = () => {
+  const data = [
+    {
+      quotationDate: "",
+      validDate: "",
+      vendorName: "",
+      department: "",
+      subject: "",
+      status: "",
+      items: [{ itemName: "", itemId: "", rate: "" }],
+    },
+  ];
+  const data2 = {
+    quotationDate: "",
+    quotationNumber: generateBillNo("QT"),
+    validDate: "",
+    vendor: "",
+    subject: "",
+    status: "",
+    department: "",
+    deliveryDate: "",
+    items: [
+      {
+        itemName: "",
+        minQty: "",
+        mrp: "",
+        rate: "",
+        taxSlab: "",
+        taxAmount: "",
+        netRate: "",
+      },
+    ],
+  };
   const { userData, vendors, dept, onGetVendors, onGetDept } =
     React.useContext(AppContext);
   const token = userData?.token?.accessToken ?? "";
