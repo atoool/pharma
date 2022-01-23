@@ -1,66 +1,110 @@
-var a = [
-  "",
-  "one ",
-  "two ",
-  "three ",
-  "four ",
-  "five ",
-  "six ",
-  "seven ",
-  "eight ",
-  "nine ",
-  "ten ",
-  "eleven ",
-  "twelve ",
-  "thirteen ",
-  "fourteen ",
-  "fifteen ",
-  "sixteen ",
-  "seventeen ",
-  "eighteen ",
-  "nineteen ",
-];
-var b = [
-  "",
-  "",
-  "twenty",
-  "thirty",
-  "forty",
-  "fifty",
-  "sixty",
-  "seventy",
-  "eighty",
-  "ninety",
-];
-
 export function inWords(num) {
-  if ((num = num.toString()).length > 9) return "overflow";
-  let n = ("000000000" + num)
-    .substr(-9)
-    .match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
-  if (!n) return;
-  var str = "";
-  str +=
-    n[1] !== 0
-      ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + "crore "
-      : "";
-  str +=
-    n[2] !== 0
-      ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + "lakh "
-      : "";
-  str +=
-    n[3] !== 0
-      ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + "thousand "
-      : "";
-  str +=
-    n[4] !== 0
-      ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + "hundred "
-      : "";
-  str +=
-    n[5] !== 0
-      ? (str !== "" ? "and " : "") +
-        (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]]) +
-        "only "
-      : "";
-  return str;
+  const single = [
+    "Zero",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+  ];
+  const double = [
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
+  ];
+  const tens = [
+    "",
+    "Ten",
+    "Twenty",
+    "Thirty",
+    "Forty",
+    "Fifty",
+    "Sixty",
+    "Seventy",
+    "Eighty",
+    "Ninety",
+  ];
+  const formatTenth = (digi, prev) => {
+    return 0 === digi ? "" : " " + (1 === digi ? double[prev] : tens[digi]);
+  };
+  const formatOther = (digi, nex, denom) => {
+    return (
+      (0 !== digi && 1 !== nex ? " " + single[digi] : "") +
+      (0 !== nex || digi > 0 ? " " + denom : "")
+    );
+  };
+  let res = "";
+  let index = 0;
+  let digit = 0;
+  let next = 0;
+  let words = [];
+  if (((num += ""), isNaN(parseInt(num)))) {
+    res = "";
+  } else if (parseInt(num) > 0 && num.length <= 10) {
+    for (index = num.length - 1; index >= 0; index--)
+      switch (
+        ((digit = num[index] - 0),
+        (next = index > 0 ? num[index - 1] - 0 : 0),
+        num.length - index - 1)
+      ) {
+        case 0:
+          words.push(formatOther(digit, next, ""));
+          break;
+        case 1:
+          words.push(formatTenth(digit, num[index + 1]));
+          break;
+        case 2:
+          words.push(
+            0 != digit
+              ? " " +
+                  single[digit] +
+                  " Hundred" +
+                  (0 != num[index + 1] && 0 != num[index + 2] ? " and" : "")
+              : ""
+          );
+          break;
+        case 3:
+          words.push(formatOther(digit, next, "Thousand"));
+          break;
+        case 4:
+          words.push(formatTenth(digit, num[index + 1]));
+          break;
+        case 5:
+          words.push(formatOther(digit, next, "Lakh"));
+          break;
+        case 6:
+          words.push(formatTenth(digit, num[index + 1]));
+          break;
+        case 7:
+          words.push(formatOther(digit, next, "Crore"));
+          break;
+        case 8:
+          words.push(formatTenth(digit, num[index + 1]));
+          break;
+        case 9:
+          words.push(
+            0 != digit
+              ? " " +
+                  single[digit] +
+                  " Hundred" +
+                  (0 != num[index + 1] || 0 != num[index + 2]
+                    ? " and"
+                    : " Crore")
+              : ""
+          );
+      }
+    res = words.reverse().join("");
+  } else res = "";
+  return res;
 }

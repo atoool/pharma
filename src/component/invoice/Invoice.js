@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Box, styled } from "@mui/system";
-import { inWords } from "utils/inWords";
+import { inWords } from "../../utils/inWords";
 import logo from "../../assets/images/logo.png";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
