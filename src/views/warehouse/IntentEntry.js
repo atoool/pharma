@@ -63,9 +63,11 @@ const iData2 = {
       quantity: "0",
       unitPrice: "0",
       amount: "0",
+      productName: "",
     },
   ],
   outletUserId: "",
+  outletUser: "",
   total: "0",
 };
 
@@ -93,6 +95,25 @@ export function IntentEntry() {
     onUserFetch();
   }, []);
 
+  const clear = () => {
+    setIntents({
+      requests: [
+        {
+          productId: "",
+          itemCode: "",
+          stock: "0",
+          quantity: "0",
+          unitPrice: "0",
+          amount: "0",
+          productName: "",
+        },
+      ],
+      outletUserId: "",
+      outletUser: "",
+      total: "0",
+    });
+  };
+
   const onIssue = async () => {
     try {
       const dat = intents;
@@ -107,6 +128,7 @@ export function IntentEntry() {
               outletUserId: intents.outletUserId,
               total: "0",
             });
+            clear();
           })
           .catch(() => {
             onAlert("error");
@@ -150,7 +172,8 @@ export function IntentEntry() {
     let temp = { ...intents };
     console.warn(itm);
     if (i === -1) {
-      temp.outletUserId = e;
+      temp.outletUserId = e?.id;
+      temp.outletUser = e?.label;
       setIntents(temp);
     } else if (itm === "quantity") {
       const v =
@@ -173,6 +196,7 @@ export function IntentEntry() {
     } else if (itm === "productId") {
       let val = await getProductPrice(e?.id);
       temp.requests[i].productId = e?.itemId;
+      temp.requests[i].productName = e?.label;
       temp.requests[i].unitPrice = val?.unitPrice;
       temp.requests[i].stock = val?.inStockCount;
       temp.requests[i].itemCode = val?.itemCode;
@@ -211,11 +235,12 @@ export function IntentEntry() {
             option?.label === value?.label
           }
           onChange={(event, value) =>
-            value?.id && handleChange(value?.id, -1, "outletUserId")
+            value?.id && handleChange(value, -1, "outletUserId")
           }
           options={userList?.map((option) => {
             return { label: option?.name, id: option?.id };
           })}
+          value={intents.outletUser}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -259,6 +284,7 @@ export function IntentEntry() {
                     onChange={(e, v) =>
                       v?.id && handleChange(v, ind, "productId")
                     }
+                    value={row?.productName}
                     options={productData?.wStock?.map((option) => {
                       return {
                         itemId: option?.itemId,

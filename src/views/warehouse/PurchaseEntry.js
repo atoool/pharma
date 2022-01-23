@@ -72,6 +72,7 @@ const data = {
   vendorId: "",
   vendor: "",
   department: "",
+  deptName: "",
   invoiceDate: "",
   invoiceNumber: "",
   transactionDate: "",
@@ -84,6 +85,7 @@ const data = {
   items: [
     {
       itemId: "",
+      itemName: "",
       batch: "",
       packing: "",
       expiry: "",
@@ -109,7 +111,7 @@ export function PurchaseEntry() {
   const onItemChange = async (e, i, itm) => {
     let temp = { ...order };
     if (i === -1 && (itm === "vendor" || itm === "department")) {
-      temp[itm] = e?.label;
+      temp[itm === "vendor" ? "vendor" : "deptName"] = e?.label;
       temp[itm === "vendor" ? "vendorId" : "department"] = e?.id;
       setOrder(temp);
     } else if (i === -1 && itm === "is_cash") {
@@ -180,7 +182,8 @@ export function PurchaseEntry() {
       temp.payableAmount = total;
       setOrder(temp);
     } else if (itm === "productId") {
-      temp.items[i].itemId = e;
+      temp.items[i].itemId = e?.id;
+      temp.items[i].itemName = e?.label;
       setOrder(temp);
     } else {
       temp.items[i][itm] = e.target.value;
@@ -231,6 +234,7 @@ export function PurchaseEntry() {
       vendorId: "",
       vendor: "",
       department: "",
+      deptName: "",
       invoiceDate: "",
       invoiceNumber: "",
       transactionDate: "",
@@ -243,6 +247,7 @@ export function PurchaseEntry() {
       items: [
         {
           itemId: "",
+          itemName: "",
           batch: "",
           packing: "",
           expiry: "",
@@ -306,6 +311,7 @@ export function PurchaseEntry() {
               option.label === value.label
             }
             onChange={(e, v) => v?.id && onItemChange(v, -1, "vendor")}
+            value={order?.vendor}
             options={vendors?.map((option) => {
               return {
                 label: option.name,
@@ -326,6 +332,7 @@ export function PurchaseEntry() {
               option.label === value.label
             }
             onChange={(e, v) => v?.id && onItemChange(v, -1, "department")}
+            value={order?.deptName}
             options={dept?.map((option) => {
               return {
                 label: option.name,
@@ -472,8 +479,9 @@ export function PurchaseEntry() {
                       option.label === value.label
                     }
                     onChange={(e, v) =>
-                      v?.id && onItemChange(v?.id, ind, "productId")
+                      v?.id && onItemChange(v, ind, "productId")
                     }
+                    value={row?.itemName}
                     options={productData?.master?.map((option) => {
                       return {
                         label: option.name,

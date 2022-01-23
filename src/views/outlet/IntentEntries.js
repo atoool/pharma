@@ -49,6 +49,7 @@ const iData2 = {
       unitPrice: "",
       amount: "",
       stock: "",
+      productName: "",
     },
   ],
   total: "",
@@ -73,6 +74,7 @@ export function IntentEntries() {
             requests: [],
           });
           setLoad(false);
+          clear();
         })
         .catch(() => {
           onAlert("error");
@@ -81,6 +83,23 @@ export function IntentEntries() {
     } catch {
       setLoad(false);
     }
+  };
+
+  const clear = () => {
+    setIntents({
+      requests: [
+        {
+          productId: "",
+          itemCode: "",
+          quantity: "0",
+          unitPrice: "",
+          amount: "",
+          stock: "",
+          productName: "",
+        },
+      ],
+      total: "",
+    });
   };
 
   const getProductPrice = async (id) => {
@@ -138,6 +157,7 @@ export function IntentEntries() {
     } else if (itm === "productId") {
       let val = await getProductPrice(e?.id);
       temp.requests[i].productId = e?.itemId;
+      temp.requests[i].productName = e?.label;
       temp.requests[i].unitPrice = val?.unitPrice;
       temp.requests[i].itemCode = val?.itemCode;
       temp.requests[i].wareHouseStockId = e?.id;
@@ -190,6 +210,7 @@ export function IntentEntries() {
                     onChange={(e, v) =>
                       v?.id && handleChange(v, ind, "productId")
                     }
+                    value={row?.productName}
                     options={productData?.wStock?.map((option) => {
                       return {
                         itemId: option?.itemId,
